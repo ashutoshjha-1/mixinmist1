@@ -1,45 +1,38 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
 import { useToast } from "@/components/ui/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 
 const SignUp = () => {
-  const [formData, setFormData] = useState({
-    email: "",
-    password: "",
-    fullName: "",
-    phone: "",
-    storeName: "",
-    username: "",
-  });
-  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
   const { toast } = useToast();
+  const [loading, setLoading] = useState(false);
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setFormData((prev) => ({
-      ...prev,
-      [e.target.name]: e.target.value,
-    }));
-  };
-
-  const handleSignUp = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setLoading(true);
 
+    const formData = new FormData(e.currentTarget);
+    const email = formData.get("email") as string;
+    const password = formData.get("password") as string;
+    const fullName = formData.get("fullName") as string;
+    const phone = formData.get("phone") as string;
+    const storeName = formData.get("storeName") as string;
+    const username = formData.get("username") as string;
+
     try {
       const { error } = await supabase.auth.signUp({
-        email: formData.email,
-        password: formData.password,
+        email,
+        password,
         options: {
           data: {
-            full_name: formData.fullName,
-            phone: formData.phone,
-            store_name: formData.storeName,
-            username: formData.username,
+            full_name: fullName,
+            phone,
+            store_name: storeName,
+            username,
           },
         },
       });
@@ -50,11 +43,12 @@ const SignUp = () => {
         title: "Success!",
         description: "Please check your email to verify your account.",
       });
+      
       navigate("/signin");
     } catch (error: any) {
       toast({
         variant: "destructive",
-        title: "Error signing up",
+        title: "Error",
         description: error.message,
       });
     } finally {
@@ -69,28 +63,17 @@ const SignUp = () => {
           <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
             Create your account
           </h2>
-          <p className="mt-2 text-center text-sm text-gray-600">
-            Already have an account?{" "}
-            <Button
-              variant="link"
-              className="font-medium text-primary"
-              onClick={() => navigate("/signin")}
-            >
-              Sign in
-            </Button>
-          </p>
         </div>
-        <form className="mt-8 space-y-6" onSubmit={handleSignUp}>
+        <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
           <div className="space-y-4">
             <div>
               <Label htmlFor="fullName">Full Name</Label>
               <Input
                 id="fullName"
                 name="fullName"
+                type="text"
                 required
-                value={formData.fullName}
-                onChange={handleChange}
-                placeholder="Enter your full name"
+                placeholder="John Doe"
               />
             </div>
             <div>
@@ -100,9 +83,7 @@ const SignUp = () => {
                 name="email"
                 type="email"
                 required
-                value={formData.email}
-                onChange={handleChange}
-                placeholder="Enter your email"
+                placeholder="john@example.com"
               />
             </div>
             <div>
@@ -112,21 +93,17 @@ const SignUp = () => {
                 name="password"
                 type="password"
                 required
-                value={formData.password}
-                onChange={handleChange}
-                placeholder="Create a password"
+                placeholder="••••••••"
               />
             </div>
             <div>
-              <Label htmlFor="phone">Phone Number</Label>
+              <Label htmlFor="phone">Phone</Label>
               <Input
                 id="phone"
                 name="phone"
                 type="tel"
                 required
-                value={formData.phone}
-                onChange={handleChange}
-                placeholder="Enter your phone number"
+                placeholder="+1234567890"
               />
             </div>
             <div>
@@ -134,10 +111,9 @@ const SignUp = () => {
               <Input
                 id="storeName"
                 name="storeName"
+                type="text"
                 required
-                value={formData.storeName}
-                onChange={handleChange}
-                placeholder="Enter your store name"
+                placeholder="My Awesome Store"
               />
             </div>
             <div>
@@ -145,17 +121,22 @@ const SignUp = () => {
               <Input
                 id="username"
                 name="username"
+                type="text"
                 required
-                value={formData.username}
-                onChange={handleChange}
-                placeholder="Choose a unique username"
+                placeholder="johndoe"
               />
             </div>
           </div>
 
-          <Button type="submit" className="w-full" disabled={loading}>
-            {loading ? "Creating account..." : "Create account"}
-          </Button>
+          <div>
+            <Button
+              type="submit"
+              className="w-full"
+              disabled={loading}
+            >
+              {loading ? "Creating account..." : "Sign up"}
+            </Button>
+          </div>
         </form>
       </div>
     </div>
