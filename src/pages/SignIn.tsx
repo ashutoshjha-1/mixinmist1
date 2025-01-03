@@ -76,7 +76,7 @@ const SignIn = () => {
             </div>
           </div>
 
-          <div>
+          <div className="space-y-4">
             <Button
               type="submit"
               className="w-full"
@@ -84,6 +84,17 @@ const SignIn = () => {
             >
               {loading ? "Signing in..." : "Sign in"}
             </Button>
+            <div className="text-center">
+              <span className="text-gray-600">Don't have an account? </span>
+              <Button
+                type="button"
+                variant="link"
+                className="text-primary"
+                onClick={() => navigate("/signup")}
+              >
+                Sign up
+              </Button>
+            </div>
           </div>
         </form>
       </div>

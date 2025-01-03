@@ -1,7 +1,10 @@
 import { ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useNavigate } from "react-router-dom";
 
 const Hero = () => {
+  const navigate = useNavigate();
+
   return (
     <div className="relative min-h-screen flex items-center">
       {/* Gradient Background */}
@@ -18,7 +21,7 @@ const Hero = () => {
             Start your journey today and join thousands of successful businesses.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center items-center animate-fade-up">
-            <Button size="lg" className="text-lg px-8">
+            <Button size="lg" className="text-lg px-8" onClick={() => navigate("/signup")}>
               Get Started <ArrowRight className="ml-2 h-5 w-5" />
             </Button>
             <Button size="lg" variant="outline" className="text-lg px-8">

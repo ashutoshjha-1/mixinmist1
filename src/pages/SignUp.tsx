@@ -128,7 +128,7 @@ const SignUp = () => {
             </div>
           </div>
 
-          <div>
+          <div className="space-y-4">
             <Button
               type="submit"
               className="w-full"
@@ -136,6 +136,17 @@ const SignUp = () => {
             >
               {loading ? "Creating account..." : "Sign up"}
             </Button>
+            <div className="text-center">
+              <span className="text-gray-600">Already have an account? </span>
+              <Button
+                type="button"
+                variant="link"
+                className="text-primary"
+                onClick={() => navigate("/signin")}
+              >
+                Sign in
+              </Button>
+            </div>
           </div>
         </form>
       </div>
