@@ -1,10 +1,43 @@
-import { useState } from "react";
-import { Link } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import { Menu, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/components/ui/use-toast";
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
+  const [session, setSession] = useState<any>(null);
+  const navigate = useNavigate();
+  const { toast } = useToast();
+
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setSession(session);
+    });
+
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((_event, session) => {
+      setSession(session);
+    });
+
+    return () => subscription.unsubscribe();
+  }, []);
+
+  const handleSignOut = async () => {
+    try {
+      const { error } = await supabase.auth.signOut();
+      if (error) throw error;
+      navigate("/");
+    } catch (error: any) {
+      toast({
+        variant: "destructive",
+        title: "Error signing out",
+        description: error.message,
+      });
+    }
+  };
 
   const navItems = [
     { name: "Features", href: "#features" },
@@ -34,7 +67,21 @@ const Navbar = () => {
                 {item.name}
               </Link>
             ))}
-            <Button>Get Started</Button>
+            {session ? (
+              <>
+                <Button variant="outline" onClick={() => navigate("/dashboard")}>
+                  Dashboard
+                </Button>
+                <Button onClick={handleSignOut}>Sign Out</Button>
+              </>
+            ) : (
+              <>
+                <Button variant="outline" onClick={() => navigate("/signin")}>
+                  Sign In
+                </Button>
+                <Button onClick={() => navigate("/signup")}>Get Started</Button>
+              </>
+            )}
           </div>
 
           {/* Mobile menu button */}
@@ -63,9 +110,51 @@ const Navbar = () => {
                 {item.name}
               </Link>
             ))}
-            <div className="px-3 py-2">
-              <Button className="w-full">Get Started</Button>
-            </div>
+            {session ? (
+              <>
+                <Button
+                  variant="outline"
+                  className="w-full mb-2"
+                  onClick={() => {
+                    navigate("/dashboard");
+                    setIsOpen(false);
+                  }}
+                >
+                  Dashboard
+                </Button>
+                <Button
+                  className="w-full"
+                  onClick={() => {
+                    handleSignOut();
+                    setIsOpen(false);
+                  }}
+                >
+                  Sign Out
+                </Button>
+              </>
+            ) : (
+              <>
+                <Button
+                  variant="outline"
+                  className="w-full mb-2"
+                  onClick={() => {
+                    navigate("/signin");
+                    setIsOpen(false);
+                  }}
+                >
+                  Sign In
+                </Button>
+                <Button
+                  className="w-full"
+                  onClick={() => {
+                    navigate("/signup");
+                    setIsOpen(false);
+                  }}
+                >
+                  Get Started
+                </Button>
+              </>
+            )}
           </div>
         </div>
       )}
