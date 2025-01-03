@@ -25,7 +25,22 @@ const SignIn = () => {
         password,
       });
 
-      if (error) throw error;
+      if (error) {
+        if (error.message === "Email not confirmed") {
+          toast({
+            variant: "destructive",
+            title: "Email not confirmed",
+            description: "Please check your email and confirm your account before signing in.",
+          });
+        } else {
+          toast({
+            variant: "destructive",
+            title: "Error signing in",
+            description: error.message,
+          });
+        }
+        return;
+      }
 
       toast({
         title: "Success!",
