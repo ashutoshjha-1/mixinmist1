@@ -25,9 +25,31 @@ export default function StoreSettings() {
         .from("store_settings")
         .select("*")
         .eq("user_id", user.id)
-        .single();
+        .maybeSingle();
 
       if (error) throw error;
+
+      // If no settings exist, create default settings
+      if (!data) {
+        const { data: newSettings, error: createError } = await supabase
+          .from("store_settings")
+          .insert([
+            {
+              user_id: user.id,
+              store_name: "My Store", // Default store name
+              hero_title: "Welcome to My Store",
+              hero_subtitle: "Discover our amazing products",
+              footer_text: "© 2024 All rights reserved",
+              theme_color: "#4F46E5",
+            },
+          ])
+          .select()
+          .single();
+
+        if (createError) throw createError;
+        return newSettings;
+      }
+
       return data;
     },
   });
@@ -83,11 +105,31 @@ export default function StoreSettings() {
   };
 
   if (isLoading) {
-    return <div>Loading settings...</div>;
+    return (
+      <div className="min-h-screen bg-gray-50">
+        <DashboardSidebar />
+        <div className="ml-64 p-8">
+          <DashboardHeader onSignOut={() => {}} />
+          <div className="max-w-4xl mx-auto">
+            <div>Loading settings...</div>
+          </div>
+        </div>
+      </div>
+    );
   }
 
   if (!settings) {
-    return <div>No settings found</div>;
+    return (
+      <div className="min-h-screen bg-gray-50">
+        <DashboardSidebar />
+        <div className="ml-64 p-8">
+          <DashboardHeader onSignOut={() => {}} />
+          <div className="max-w-4xl mx-auto">
+            <div>Error loading settings</div>
+          </div>
+        </div>
+      </div>
+    );
   }
 
   return (
@@ -102,7 +144,7 @@ export default function StoreSettings() {
               <Button onClick={() => setIsEditing(!isEditing)}>
                 {isEditing ? "Cancel" : "Edit Settings"}
               </Button>
-              <Button onClick={handlePreviewStore} variant="outline">
+              <Button onClick={() => navigate(`/store/${settings.store_name}`)} variant="outline">
                 Preview Store
               </Button>
             </div>
