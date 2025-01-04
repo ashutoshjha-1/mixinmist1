@@ -9,6 +9,8 @@ import { StoreHeader } from "@/components/store/StoreHeader";
 import { StoreFooter } from "@/components/store/StoreFooter";
 import { Card } from "@/components/ui/card";
 import { ShoppingCart, Star } from "lucide-react";
+import type { MenuItem } from "@/integrations/supabase/types";
+import type { FooterLink } from "@/integrations/supabase/types";
 
 export default function ProductPage() {
   const { storeName, productId } = useParams();
@@ -102,14 +104,20 @@ export default function ProductPage() {
 
   if (!product || !storeData) return <div>Product not found</div>;
 
-  const menuItems = storeData.menu_items ? JSON.parse(storeData.menu_items as string) : [];
-  const footerLinks = storeData.footer_links ? JSON.parse(storeData.footer_links as string) : [];
+  // Safely handle menu items and footer links
+  const menuItems: MenuItem[] = Array.isArray(storeData.menu_items) 
+    ? storeData.menu_items 
+    : [];
+
+  const footerLinks: FooterLink[] = Array.isArray(storeData.footer_links)
+    ? storeData.footer_links
+    : [];
 
   return (
     <div className="min-h-screen flex flex-col bg-gray-50">
       <StoreHeader 
         iconImageUrl={storeData.icon_image_url} 
-        menuItems={menuItems} 
+        menuItems={menuItems}
       />
 
       <main className="flex-grow container mx-auto px-4 py-8">
