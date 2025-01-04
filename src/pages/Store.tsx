@@ -1,7 +1,7 @@
 import { useParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { FooterLink } from "@/integrations/supabase/types";
+import { FooterLink } from "@/integrations/supabase/types/footer";
 
 interface StoreData {
   profile: {
