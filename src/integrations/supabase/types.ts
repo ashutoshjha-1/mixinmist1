@@ -114,18 +114,21 @@ export type Database = {
       user_products: {
         Row: {
           created_at: string
+          custom_price: number
           id: string
           product_id: string
           user_id: string
         }
         Insert: {
           created_at?: string
+          custom_price?: number
           id?: string
           product_id: string
           user_id: string
         }
         Update: {
           created_at?: string
+          custom_price?: number
           id?: string
           product_id?: string
           user_id?: string
