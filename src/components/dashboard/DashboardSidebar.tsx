@@ -9,6 +9,7 @@ import {
   MessageSquare,
   HelpCircle,
   LogOut,
+  Settings,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
@@ -43,8 +44,11 @@ export const DashboardSidebar = () => {
           <h2 className="text-sm font-semibold text-gray-400 mb-2">
             MY BRAND SETUP
           </h2>
-          <Button variant="secondary" className="w-full justify-start">
-            GET STARTED
+          <Button variant="secondary" className="w-full justify-start" asChild>
+            <Link to="/dashboard/store-settings">
+              <Settings className="mr-2 h-4 w-4" />
+              STORE SETTINGS
+            </Link>
           </Button>
         </div>
         <div>
