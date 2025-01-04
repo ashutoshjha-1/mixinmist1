@@ -89,70 +89,71 @@ const MyProducts = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-background">
       <DashboardSidebar />
-      <div className="ml-64 p-8">
+      <div className="ml-64">
         <DashboardHeader onSignOut={handleSignOut} />
-
-        <div className="mb-8">
-          <h1 className="text-2xl font-semibold mb-4">MY PRODUCTS</h1>
-          <Button
-            variant="default"
-            onClick={() => navigate("/dashboard/find-products")}
-          >
-            Find More Products
-          </Button>
-        </div>
-
-        {isLoading ? (
-          <div className="text-center py-12">Loading your products...</div>
-        ) : myProducts?.length === 0 ? (
-          <div className="text-center py-12">
-            <h2 className="text-xl font-semibold mb-2">
-              No products in your store yet
-            </h2>
-            <p className="text-gray-600 mb-4">
-              Start by adding products from our catalog
-            </p>
+        <div className="p-8">
+          <div className="flex items-center justify-between mb-8">
+            <h1 className="text-2xl font-semibold tracking-tight">MY PRODUCTS</h1>
             <Button
               variant="default"
               onClick={() => navigate("/dashboard/find-products")}
             >
-              Browse Products
+              Find More Products
             </Button>
           </div>
-        ) : (
-          <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-4">
-            {myProducts?.map((product) => (
-              <Card key={product.id} className="overflow-hidden">
-                <img
-                  src={product.image_url}
-                  alt={product.name}
-                  className="w-full h-48 object-cover"
-                />
-                <CardContent className="p-4">
-                  <h3 className="font-semibold text-sm mb-2">{product.name}</h3>
-                  <p className="text-primary mb-2">
-                    ${product.custom_price.toFixed(2)}
-                  </p>
-                  <p className="text-sm text-gray-500 mb-2">
-                    Original Price: ${product.price.toFixed(2)}
-                  </p>
-                  <p className="text-sm text-green-600 mb-2">
-                    Earnings: ${(product.custom_price - product.price).toFixed(2)}
-                  </p>
-                  <Button
-                    variant="destructive"
-                    className="w-full"
-                    onClick={() => handleRemoveFromStore(product.id)}
-                  >
-                    Remove from Store
-                  </Button>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-        )}
+
+          {isLoading ? (
+            <div className="text-center py-12">Loading your products...</div>
+          ) : myProducts?.length === 0 ? (
+            <div className="text-center py-12">
+              <h2 className="text-xl font-semibold mb-2">
+                No products in your store yet
+              </h2>
+              <p className="text-muted-foreground mb-4">
+                Start by adding products from our catalog
+              </p>
+              <Button
+                variant="default"
+                onClick={() => navigate("/dashboard/find-products")}
+              >
+                Browse Products
+              </Button>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-4">
+              {myProducts?.map((product) => (
+                <Card key={product.id} className="overflow-hidden">
+                  <img
+                    src={product.image_url}
+                    alt={product.name}
+                    className="w-full h-48 object-cover"
+                  />
+                  <CardContent className="p-4">
+                    <h3 className="font-semibold text-sm mb-2">{product.name}</h3>
+                    <p className="text-primary mb-2">
+                      ${product.custom_price.toFixed(2)}
+                    </p>
+                    <p className="text-sm text-muted-foreground mb-2">
+                      Original Price: ${product.price.toFixed(2)}
+                    </p>
+                    <p className="text-sm text-green-600 mb-2">
+                      Earnings: ${(product.custom_price - product.price).toFixed(2)}
+                    </p>
+                    <Button
+                      variant="destructive"
+                      className="w-full"
+                      onClick={() => handleRemoveFromStore(product.id)}
+                    >
+                      Remove from Store
+                    </Button>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );
