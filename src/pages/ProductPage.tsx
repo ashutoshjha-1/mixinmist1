@@ -16,22 +16,26 @@ export default function ProductPage() {
     queryKey: ["product", productId],
     queryFn: async () => {
       if (!productId) throw new Error("Product ID is required");
-
+      console.log("Fetching product with ID:", productId);
+      
       const { data, error } = await supabase
         .from("products")
         .select("*")
         .eq("id", productId)
-        .single();
+        .maybeSingle();
 
       if (error) throw error;
+      if (!data) throw new Error("Product not found");
       return data;
     },
+    enabled: !!productId,
   });
 
   const { data: storeData, isLoading: storeLoading } = useQuery({
     queryKey: ["store-settings", username],
     queryFn: async () => {
       if (!username) throw new Error("Store username is required");
+      console.log("Fetching store data for username:", username);
 
       const { data: profile, error: profileError } = await supabase
         .from("profiles")
@@ -41,6 +45,7 @@ export default function ProductPage() {
 
       if (profileError) throw profileError;
       if (!profile) throw new Error("Store not found");
+      console.log("Found profile:", profile);
 
       const { data: settings, error: settingsError } = await supabase
         .from("store_settings")
@@ -53,6 +58,7 @@ export default function ProductPage() {
 
       return settings;
     },
+    enabled: !!username,
   });
 
   if (productLoading || storeLoading) {
