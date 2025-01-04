@@ -3,7 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
-import { FooterLink } from "@/integrations/supabase/types";
+import type { FooterLink } from "@/integrations/supabase/types";
 
 export default function Store() {
   const { storeName } = useParams();
