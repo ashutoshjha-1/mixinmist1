@@ -19,7 +19,13 @@ export default function Store() {
         // First, get the profile and related data
         const { data: profile, error: profileError } = await supabase
           .from("profiles")
-          .select("*")
+          .select(`
+            *,
+            store_settings!store_settings_user_id_fkey (*),
+            user_products (
+              products (*)
+            )
+          `)
           .eq("store_name", decodedStoreName)
           .maybeSingle();
 
@@ -36,47 +42,10 @@ export default function Store() {
           return null;
         }
 
-        // Get store settings
-        const { data: settings, error: settingsError } = await supabase
-          .from("store_settings")
-          .select("*")
-          .eq("user_id", profile.id)
-          .maybeSingle();
-
-        if (settingsError) {
-          toast({
-            title: "Error",
-            description: "Failed to load store settings",
-            variant: "destructive",
-          });
-          throw settingsError;
-        }
-
-        if (!settings) {
-          return null;
-        }
-
-        // Get user products
-        const { data: userProducts, error: productsError } = await supabase
-          .from("user_products")
-          .select(`
-            products (*)
-          `)
-          .eq("user_id", profile.id);
-
-        if (productsError) {
-          toast({
-            title: "Error",
-            description: "Failed to load store products",
-            variant: "destructive",
-          });
-          throw productsError;
-        }
-
         return {
           profile,
-          settings,
-          products: userProducts.map(up => up.products)
+          settings: profile.store_settings[0],
+          products: profile.user_products.map(up => up.products)
         };
       } catch (error) {
         console.error("Error loading store:", error);
