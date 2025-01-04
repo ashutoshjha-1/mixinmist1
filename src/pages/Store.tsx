@@ -1,4 +1,4 @@
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -8,6 +8,7 @@ import type { FooterLink } from "@/integrations/supabase/types/footer";
 export default function Store() {
   const { storeName } = useParams();
   const { toast } = useToast();
+  const navigate = useNavigate();
 
   const { data: storeData, isLoading: isLoadingStore } = useQuery({
     queryKey: ["store", storeName],
@@ -17,18 +18,20 @@ export default function Store() {
         .from("profiles")
         .select("*")
         .eq("store_name", storeName)
-        .single();
+        .maybeSingle();
 
       if (profileError) throw profileError;
+      if (!profile) return null;
 
       // Get store settings
       const { data: settings, error: settingsError } = await supabase
         .from("store_settings")
         .select("*")
         .eq("user_id", profile.id)
-        .single();
+        .maybeSingle();
 
       if (settingsError) throw settingsError;
+      if (!settings) return null;
 
       // Get user products
       const { data: userProducts, error: productsError } = await supabase
@@ -49,11 +52,21 @@ export default function Store() {
   });
 
   if (isLoadingStore) {
-    return <div>Loading store...</div>;
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-xl">Loading store...</div>
+      </div>
+    );
   }
 
   if (!storeData) {
-    return <div>Store not found</div>;
+    return (
+      <div className="min-h-screen flex flex-col items-center justify-center gap-4">
+        <div className="text-2xl">Store not found</div>
+        <p className="text-gray-600">The store you're looking for doesn't exist or has been removed.</p>
+        <Button onClick={() => navigate('/')}>Go Home</Button>
+      </div>
+    );
   }
 
   const { settings, products } = storeData;
