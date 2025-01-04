@@ -2,6 +2,7 @@ import { useParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { FooterLink } from "@/integrations/supabase/types/footer";
+import { MenuItem } from "@/integrations/supabase/types/menu";
 import { StoreHero } from "@/components/store/StoreHero";
 import { StoreProducts } from "@/components/store/StoreProducts";
 import { StoreFooter } from "@/components/store/StoreFooter";
@@ -28,7 +29,7 @@ interface StoreData {
     hero_title: string;
     icon_image_url: string | null;
     id: string;
-    menu_items: any[];
+    menu_items: MenuItem[];
     store_name: string;
     theme_color: string;
     updated_at: string;
@@ -111,12 +112,16 @@ export default function Store() {
         image_url: up.products.image_url,
       }));
 
+      // Parse menu_items and footer_links from JSON
+      const parsedMenuItems = (settings.menu_items || []) as MenuItem[];
+      const parsedFooterLinks = (settings.footer_links || []) as FooterLink[];
+
       return {
         profile,
         settings: {
           ...settings,
-          footer_links: settings.footer_links || [],
-          menu_items: settings.menu_items || [],
+          footer_links: parsedFooterLinks,
+          menu_items: parsedMenuItems,
         },
         products,
       };
