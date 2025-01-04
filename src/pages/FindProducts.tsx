@@ -3,11 +3,11 @@ import { DashboardSidebar } from "@/components/dashboard/DashboardSidebar";
 import { DashboardHeader } from "@/components/dashboard/DashboardHeader";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useQuery } from "@tanstack/react-query";
+import { ProductCard } from "@/components/store/ProductCard";
 
 const categories = [
   {
@@ -85,7 +85,7 @@ const FindProducts = () => {
     }
   };
 
-  const handleAddToStore = async (product: any) => {
+  const handleAddToStore = async (productId: string, customPrice: number) => {
     try {
       const { data: { user } } = await supabase.auth.getUser();
       
@@ -93,20 +93,19 @@ const FindProducts = () => {
         throw new Error("User not authenticated");
       }
 
-      // First check if the product is already in the user's store
       const { data: existingProduct } = await supabase
         .from("user_products")
         .select("*")
         .eq("user_id", user.id)
-        .eq("product_id", product.id)
+        .eq("product_id", productId)
         .maybeSingle();
 
       if (existingProduct) {
         toast({
           title: "Product Already Added",
-          description: `${product.name} is already in your store`,
+          description: "This product is already in your store",
         });
-        setAddedProducts(prev => new Set([...prev, product.id]));
+        setAddedProducts(prev => new Set([...prev, productId]));
         return;
       }
 
@@ -114,16 +113,17 @@ const FindProducts = () => {
         .from("user_products")
         .insert({
           user_id: user.id,
-          product_id: product.id,
+          product_id: productId,
+          custom_price: customPrice,
         });
 
       if (error) throw error;
 
-      setAddedProducts(prev => new Set([...prev, product.id]));
+      setAddedProducts(prev => new Set([...prev, productId]));
 
       toast({
         title: "Product Added",
-        description: `${product.name} has been added to your store`,
+        description: "Product has been added to your store",
       });
     } catch (error: any) {
       toast({
@@ -158,7 +158,6 @@ const FindProducts = () => {
           </div>
         </div>
 
-        {/* Categories Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
           {categories.map((category) => (
             <div
@@ -180,31 +179,17 @@ const FindProducts = () => {
           ))}
         </div>
 
-        {/* Products Grid */}
         {isLoading ? (
           <div className="text-center py-12">Loading products...</div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-4">
             {filteredProducts?.map((product) => (
-              <Card key={product.id} className="overflow-hidden">
-                <img
-                  src={product.image_url}
-                  alt={product.name}
-                  className="w-full h-48 object-cover"
-                />
-                <CardContent className="p-4">
-                  <h3 className="font-semibold text-sm mb-2">{product.name}</h3>
-                  <p className="text-primary mb-2">${product.price.toFixed(2)}</p>
-                  <Button
-                    variant={addedProducts.has(product.id) ? "secondary" : "outline"}
-                    className="w-full"
-                    onClick={() => handleAddToStore(product)}
-                    disabled={addedProducts.has(product.id)}
-                  >
-                    {addedProducts.has(product.id) ? "Added" : "Add to My Store"}
-                  </Button>
-                </CardContent>
-              </Card>
+              <ProductCard
+                key={product.id}
+                product={product}
+                onAddToStore={handleAddToStore}
+                isAdded={addedProducts.has(product.id)}
+              />
             ))}
           </div>
         )}
