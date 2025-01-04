@@ -5,6 +5,7 @@ import { FooterLink } from "@/integrations/supabase/types/footer";
 import { StoreHero } from "@/components/store/StoreHero";
 import { StoreProducts } from "@/components/store/StoreProducts";
 import { StoreFooter } from "@/components/store/StoreFooter";
+import { CartProvider } from "@/contexts/CartContext";
 
 interface StoreData {
   profile: {
@@ -41,7 +42,7 @@ interface StoreData {
 export default function Store() {
   const { storeName } = useParams<{ storeName: string }>();
 
-  const { data: storeData, isLoading } = useQuery<StoreData>({
+  const { data: storeData, isLoading } = useQuery({
     queryKey: ["store", storeName],
     queryFn: async () => {
       if (!storeName) throw new Error("Store name is required");
@@ -66,19 +67,25 @@ export default function Store() {
 
       const { data: userProducts, error: userProductsError } = await supabase
         .from("user_products")
-        .select("product_id")
+        .select(`
+          product_id,
+          custom_price,
+          products (
+            id,
+            name,
+            image_url
+          )
+        `)
         .eq("user_id", profile.id);
 
       if (userProductsError) throw userProductsError;
 
-      const productIds = userProducts.map((up) => up.product_id);
-      
-      const { data: products, error: productsError } = await supabase
-        .from("products")
-        .select("*")
-        .in("id", productIds);
-
-      if (productsError) throw productsError;
+      const products = userProducts.map((up) => ({
+        id: up.products.id,
+        name: up.products.name,
+        price: up.custom_price,
+        image_url: up.products.image_url,
+      }));
 
       const parsedFooterLinks = (settings.footer_links || []) as FooterLink[];
 
@@ -88,7 +95,7 @@ export default function Store() {
           ...settings,
           footer_links: parsedFooterLinks,
         },
-        products: products || [],
+        products,
       };
     },
   });
@@ -104,19 +111,21 @@ export default function Store() {
   const { settings, products } = storeData;
 
   return (
-    <div className="min-h-screen">
-      <StoreHero
-        heroImageUrl={settings.hero_image_url}
-        themeColor={settings.theme_color}
-        title={settings.hero_title}
-        subtitle={settings.hero_subtitle}
-      />
-      <StoreProducts products={products} />
-      <StoreFooter
-        themeColor={settings.theme_color}
-        footerText={settings.footer_text}
-        footerLinks={settings.footer_links}
-      />
-    </div>
+    <CartProvider>
+      <div className="min-h-screen">
+        <StoreHero
+          heroImageUrl={settings.hero_image_url}
+          themeColor={settings.theme_color}
+          title={settings.hero_title}
+          subtitle={settings.hero_subtitle}
+        />
+        <StoreProducts products={products} />
+        <StoreFooter
+          themeColor={settings.theme_color}
+          footerText={settings.footer_text}
+          footerLinks={settings.footer_links}
+        />
+      </div>
+    </CartProvider>
   );
 }

@@ -1,4 +1,8 @@
-import React from 'react';
+import React, { useState } from 'react';
+import { Button } from "@/components/ui/button";
+import { useCart } from "@/contexts/CartContext";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { CheckoutForm } from "./CheckoutForm";
 
 interface Product {
   id: string;
@@ -12,9 +16,30 @@ interface StoreProductsProps {
 }
 
 export const StoreProducts = ({ products }: StoreProductsProps) => {
+  const { items, addItem } = useCart();
+  const [showCheckout, setShowCheckout] = useState(false);
+
+  const handleAddToCart = (product: Product) => {
+    addItem({
+      id: product.id,
+      name: product.name,
+      price: product.price,
+      quantity: 1,
+      image_url: product.image_url,
+    });
+  };
+
   return (
     <div className="max-w-7xl mx-auto px-4 py-12">
-      <h2 className="text-3xl font-bold mb-8">Our Products</h2>
+      <div className="flex justify-between items-center mb-8">
+        <h2 className="text-3xl font-bold">Our Products</h2>
+        {items.length > 0 && (
+          <Button onClick={() => setShowCheckout(true)}>
+            Checkout ({items.length} items)
+          </Button>
+        )}
+      </div>
+
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
         {products.map((product) => (
           <div
@@ -31,10 +56,40 @@ export const StoreProducts = ({ products }: StoreProductsProps) => {
               <p className="text-lg font-bold text-primary">
                 ${product.price.toFixed(2)}
               </p>
+              <Button
+                onClick={() => handleAddToCart(product)}
+                className="w-full mt-4"
+                variant="outline"
+              >
+                Add to Cart
+              </Button>
             </div>
           </div>
         ))}
       </div>
+
+      <Dialog open={showCheckout} onOpenChange={setShowCheckout}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Checkout</DialogTitle>
+          </DialogHeader>
+          <div className="mt-4">
+            <div className="mb-6">
+              <h3 className="font-semibold mb-2">Cart Items</h3>
+              {items.map((item) => (
+                <div
+                  key={item.id}
+                  className="flex justify-between items-center py-2"
+                >
+                  <span>{item.name}</span>
+                  <span>${(item.price * item.quantity).toFixed(2)}</span>
+                </div>
+              ))}
+            </div>
+            <CheckoutForm onSuccess={() => setShowCheckout(false)} />
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
