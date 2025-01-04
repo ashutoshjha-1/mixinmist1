@@ -65,13 +65,13 @@ const CustomerOrders = () => {
   const getStatusColor = (status: string) => {
     switch (status.toLowerCase()) {
       case "pending":
-        return "bg-yellow-500";
+        return "bg-primary-100 text-primary-800 hover:bg-primary-200";
       case "completed":
-        return "bg-green-500";
+        return "bg-green-100 text-green-800 hover:bg-green-200";
       case "cancelled":
-        return "bg-red-500";
+        return "bg-red-100 text-red-800 hover:bg-red-200";
       default:
-        return "bg-gray-500";
+        return "bg-gray-100 text-gray-800 hover:bg-gray-200";
     }
   };
 
@@ -86,40 +86,51 @@ const CustomerOrders = () => {
   };
 
   return (
-    <div className="p-8">
-      <h1 className="text-2xl font-bold mb-6">Customer Orders</h1>
-      <div className="bg-white rounded-lg shadow">
+    <div className="p-8 space-y-8 bg-background">
+      <div className="flex items-center justify-between">
+        <h1 className="text-2xl font-semibold tracking-tight">Customer Orders</h1>
+      </div>
+      <div className="rounded-lg border bg-card text-card-foreground shadow-sm">
         <Table>
           <TableHeader>
-            <TableRow>
-              <TableHead>Order ID</TableHead>
-              <TableHead>Customer</TableHead>
-              <TableHead>Date</TableHead>
-              <TableHead>Amount</TableHead>
-              <TableHead>Status</TableHead>
-              <TableHead>Items</TableHead>
+            <TableRow className="bg-muted/50">
+              <TableHead className="font-semibold">Order ID</TableHead>
+              <TableHead className="font-semibold">Customer</TableHead>
+              <TableHead className="font-semibold">Date</TableHead>
+              <TableHead className="font-semibold">Amount</TableHead>
+              <TableHead className="font-semibold">Status</TableHead>
+              <TableHead className="font-semibold">Items</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {orders.map((order) => (
-              <TableRow key={order.id}>
-                <TableCell className="font-mono">{order.id}</TableCell>
+              <TableRow key={order.id} className="hover:bg-muted/50">
+                <TableCell className="font-mono text-sm">{order.id}</TableCell>
                 <TableCell>
-                  <div>
-                    <div className="font-medium">{order.customer_name}</div>
-                    <div className="text-sm text-gray-500">
+                  <div className="space-y-1">
+                    <p className="font-medium leading-none">
+                      {order.customer_name}
+                    </p>
+                    <p className="text-sm text-muted-foreground">
                       {order.customer_email}
-                    </div>
+                    </p>
                   </div>
                 </TableCell>
-                <TableCell>{formatDate(order.created_at)}</TableCell>
-                <TableCell>${order.total_amount.toFixed(2)}</TableCell>
+                <TableCell className="text-muted-foreground">
+                  {formatDate(order.created_at)}
+                </TableCell>
+                <TableCell className="font-medium">
+                  ${order.total_amount.toFixed(2)}
+                </TableCell>
                 <TableCell>
-                  <Badge className={getStatusColor(order.status)}>
+                  <Badge
+                    variant="secondary"
+                    className={`${getStatusColor(order.status)}`}
+                  >
                     {order.status.toUpperCase()}
                   </Badge>
                 </TableCell>
-                <TableCell>
+                <TableCell className="text-muted-foreground">
                   {order.order_items.length} item(s)
                 </TableCell>
               </TableRow>
