@@ -9,6 +9,8 @@ import Index from "./pages/Index";
 import SignIn from "./pages/SignIn";
 import SignUp from "./pages/SignUp";
 import Dashboard from "./pages/Dashboard";
+import FindProducts from "./pages/FindProducts";
+import MyProducts from "./pages/MyProducts";
 
 const queryClient = new QueryClient();
 
@@ -59,6 +61,18 @@ const App = () => {
               path="/dashboard"
               element={
                 session ? <Dashboard /> : <Navigate to="/signin" replace />
+              }
+            />
+            <Route
+              path="/dashboard/find-products"
+              element={
+                session ? <FindProducts /> : <Navigate to="/signin" replace />
+              }
+            />
+            <Route
+              path="/dashboard/my-products"
+              element={
+                session ? <MyProducts /> : <Navigate to="/signin" replace />
               }
             />
           </Routes>
