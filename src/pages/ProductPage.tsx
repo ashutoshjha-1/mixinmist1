@@ -9,8 +9,7 @@ import { StoreHeader } from "@/components/store/StoreHeader";
 import { StoreFooter } from "@/components/store/StoreFooter";
 import { Card } from "@/components/ui/card";
 import { ShoppingCart, Star } from "lucide-react";
-import type { MenuItem } from "@/integrations/supabase/types";
-import type { FooterLink } from "@/integrations/supabase/types";
+import type { MenuItem, FooterLink } from "@/integrations/supabase/types";
 
 export default function ProductPage() {
   const { storeName, productId } = useParams();
