@@ -6,7 +6,7 @@ import {
   Users,
   Boxes,
   UserCircle,
-  BrandRollerCoaster,
+  RollerCoaster,
   MessageSquare,
   HelpCircle,
   LogOut,
@@ -207,7 +207,7 @@ const Dashboard = () => {
                 asChild
               >
                 <Link to="/dashboard/my-brand">
-                  <BrandRollerCoaster className="mr-2 h-4 w-4" />
+                  <RollerCoaster className="mr-2 h-4 w-4" />
                   MY BRAND
                 </Link>
               </Button>
