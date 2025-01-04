@@ -86,13 +86,15 @@ export default function CartPage() {
       };
     },
     retry: 1,
-    onError: (error: Error) => {
-      console.error("Error fetching store data:", error);
-      toast({
-        variant: "destructive",
-        title: "Error loading store",
-        description: error.message
-      });
+    meta: {
+      onError: (error: Error) => {
+        console.error("Error fetching store data:", error);
+        toast({
+          variant: "destructive",
+          title: "Error loading store",
+          description: error.message
+        });
+      }
     }
   });
 
