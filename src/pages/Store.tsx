@@ -5,6 +5,7 @@ import { FooterLink } from "@/integrations/supabase/types/footer";
 import { StoreHero } from "@/components/store/StoreHero";
 import { StoreProducts } from "@/components/store/StoreProducts";
 import { StoreFooter } from "@/components/store/StoreFooter";
+import { StoreHeader } from "@/components/store/StoreHeader";
 import { CartProvider } from "@/contexts/CartContext";
 
 interface StoreData {
@@ -25,7 +26,9 @@ interface StoreData {
     hero_image_url: string | null;
     hero_subtitle: string;
     hero_title: string;
+    icon_image_url: string | null;
     id: string;
+    menu_items: any[];
     store_name: string;
     theme_color: string;
     updated_at: string;
@@ -49,7 +52,6 @@ export default function Store() {
 
       console.log("Fetching store data for username:", username);
 
-      // First try to find the profile by username
       const { data: profile, error: profileError } = await supabase
         .from("profiles")
         .select("*")
@@ -109,13 +111,12 @@ export default function Store() {
         image_url: up.products.image_url,
       }));
 
-      const parsedFooterLinks = (settings.footer_links || []) as FooterLink[];
-
       return {
         profile,
         settings: {
           ...settings,
-          footer_links: parsedFooterLinks,
+          footer_links: settings.footer_links || [],
+          menu_items: settings.menu_items || [],
         },
         products,
       };
@@ -146,6 +147,10 @@ export default function Store() {
   return (
     <CartProvider>
       <div className="min-h-screen">
+        <StoreHeader 
+          iconImageUrl={settings.icon_image_url}
+          menuItems={settings.menu_items}
+        />
         <StoreHero
           heroImageUrl={settings.hero_image_url}
           themeColor={settings.theme_color}
