@@ -17,31 +17,44 @@ export default function StoreSettings() {
   const queryClient = useQueryClient();
   const [isEditing, setIsEditing] = useState(false);
 
-  const { data: settings, isLoading } = useQuery({
+  const { data: settings, isLoading, error } = useQuery({
     queryKey: ["store-settings"],
     queryFn: async () => {
       const { data: { user } } = await supabase.auth.getUser();
-      if (!user) throw new Error("Not authenticated");
+      if (!user) {
+        throw new Error("Not authenticated");
+      }
 
-      const { data: profile, error: profileError } = await supabase
-        .from("profiles")
-        .select("store_name")
-        .eq("id", user.id)
-        .maybeSingle();
+      try {
+        const { data: profile, error: profileError } = await supabase
+          .from("profiles")
+          .select("store_name")
+          .eq("id", user.id)
+          .maybeSingle();
 
-      if (profileError) throw profileError;
-      if (!profile) throw new Error("Profile not found");
+        if (profileError) throw profileError;
+        if (!profile) throw new Error("Profile not found");
 
-      const { data, error } = await supabase
-        .from("store_settings")
-        .select("*")
-        .eq("user_id", user.id)
-        .maybeSingle();
+        const { data, error } = await supabase
+          .from("store_settings")
+          .select("*")
+          .eq("user_id", user.id)
+          .maybeSingle();
 
-      if (error) throw error;
+        if (error) throw error;
+        if (!data) throw new Error("Store settings not found");
 
-      return { ...data, store_name: profile.store_name };
+        return { ...data, store_name: profile.store_name };
+      } catch (error: any) {
+        toast({
+          variant: "destructive",
+          title: "Error fetching settings",
+          description: error.message,
+        });
+        throw error;
+      }
     },
+    retry: 1,
   });
 
   const updateSettings = useMutation({
@@ -94,7 +107,21 @@ export default function StoreSettings() {
     updateSettings.mutate(formData);
   };
 
-  if (isLoading) {
+  if (error) {
+    return (
+      <div className="min-h-screen bg-gray-50">
+        <DashboardSidebar />
+        <div className="ml-64 p-8">
+          <DashboardHeader onSignOut={() => {}} />
+          <div className="max-w-4xl mx-auto">
+            <div className="text-red-500">Error loading settings: {error.message}</div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (isLoading || !settings) {
     return (
       <div className="min-h-screen bg-gray-50">
         <DashboardSidebar />
@@ -102,20 +129,6 @@ export default function StoreSettings() {
           <DashboardHeader onSignOut={() => {}} />
           <div className="max-w-4xl mx-auto">
             <div>Loading settings...</div>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
-  if (!settings) {
-    return (
-      <div className="min-h-screen bg-gray-50">
-        <DashboardSidebar />
-        <div className="ml-64 p-8">
-          <DashboardHeader onSignOut={() => {}} />
-          <div className="max-w-4xl mx-auto">
-            <div>Error loading settings</div>
           </div>
         </div>
       </div>
