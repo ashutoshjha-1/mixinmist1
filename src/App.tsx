@@ -8,6 +8,7 @@ import { supabase } from "@/integrations/supabase/client";
 import Index from "./pages/Index";
 import SignIn from "./pages/SignIn";
 import SignUp from "./pages/SignUp";
+import Dashboard from "./pages/Dashboard";
 
 const queryClient = new QueryClient();
 
@@ -52,6 +53,12 @@ const App = () => {
               path="/signup"
               element={
                 !session ? <SignUp /> : <Navigate to="/dashboard" replace />
+              }
+            />
+            <Route
+              path="/dashboard"
+              element={
+                session ? <Dashboard /> : <Navigate to="/signin" replace />
               }
             />
           </Routes>
