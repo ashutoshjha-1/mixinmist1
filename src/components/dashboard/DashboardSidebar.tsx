@@ -133,4 +133,4 @@ export const DashboardSidebar = () => {
       </div>
     </div>
   );
-}
+};
