@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { Link, useParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { useCart } from "@/contexts/CartContext";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
@@ -16,6 +17,7 @@ interface StoreProductsProps {
 }
 
 export const StoreProducts = ({ products }: StoreProductsProps) => {
+  const { username } = useParams();
   const { items, addItem } = useCart();
   const [showCheckout, setShowCheckout] = useState(false);
 
@@ -46,13 +48,20 @@ export const StoreProducts = ({ products }: StoreProductsProps) => {
             key={product.id}
             className="border rounded-lg overflow-hidden shadow-lg"
           >
-            <img
-              src={product.image_url}
-              alt={product.name}
-              className="w-full h-64 object-cover"
-            />
+            <Link to={`/store/${username}/product/${product.id}`}>
+              <img
+                src={product.image_url}
+                alt={product.name}
+                className="w-full h-64 object-cover"
+              />
+            </Link>
             <div className="p-4">
-              <h3 className="text-xl font-semibold mb-2">{product.name}</h3>
+              <Link 
+                to={`/store/${username}/product/${product.id}`}
+                className="hover:underline"
+              >
+                <h3 className="text-xl font-semibold mb-2">{product.name}</h3>
+              </Link>
               <p className="text-lg font-bold text-primary">
                 ${product.price.toFixed(2)}
               </p>
