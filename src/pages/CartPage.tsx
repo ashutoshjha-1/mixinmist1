@@ -9,16 +9,23 @@ import { X } from "lucide-react";
 import { CheckoutForm } from "@/components/store/CheckoutForm";
 import { MenuItem } from "@/integrations/supabase/types/menu";
 import { FooterLink } from "@/integrations/supabase/types/footer";
+import { useToast } from "@/hooks/use-toast";
 
 export default function CartPage() {
   const { items, removeItem, updateQuantity } = useCart();
   const { username } = useParams();
   const navigate = useNavigate();
+  const { toast } = useToast();
 
-  const { data: storeData } = useQuery({
+  const { data: storeData, isLoading } = useQuery({
     queryKey: ["store-settings", username],
     queryFn: async () => {
-      if (!username) throw new Error("Store username is required");
+      if (!username) {
+        console.error("Username is missing");
+        throw new Error("Store username is required");
+      }
+
+      console.log("Fetching store data for username:", username);
 
       const { data: profile, error: profileError } = await supabase
         .from("profiles")
@@ -26,8 +33,17 @@ export default function CartPage() {
         .ilike("username", username)
         .maybeSingle();
 
-      if (profileError) throw profileError;
-      if (!profile) throw new Error("Store not found");
+      if (profileError) {
+        console.error("Profile fetch error:", profileError);
+        throw profileError;
+      }
+
+      if (!profile) {
+        console.error("Profile not found for username:", username);
+        throw new Error("Store not found");
+      }
+
+      console.log("Found profile:", profile);
 
       const { data: settings, error: settingsError } = await supabase
         .from("store_settings")
@@ -35,34 +51,76 @@ export default function CartPage() {
         .eq("user_id", profile.id)
         .maybeSingle();
 
-      if (settingsError) throw settingsError;
-      if (!settings) throw new Error("Store settings not found");
+      if (settingsError) {
+        console.error("Settings fetch error:", settingsError);
+        throw settingsError;
+      }
 
-      return settings;
+      if (!settings) {
+        console.error("Store settings not found for user:", profile.id);
+        throw new Error("Store settings not found");
+      }
+
+      // Parse menu_items and footer_links from JSON
+      const menuItemsJson = settings.menu_items || [];
+      const footerLinksJson = settings.footer_links || [];
+
+      const menuItems: MenuItem[] = Array.isArray(menuItemsJson) 
+        ? menuItemsJson.map((item: any) => ({
+            label: String(item.label || ''),
+            url: String(item.url || '')
+          }))
+        : [];
+
+      const footerLinks: FooterLink[] = Array.isArray(footerLinksJson)
+        ? footerLinksJson.map((link: any) => ({
+            label: String(link.label || ''),
+            url: String(link.url || '')
+          }))
+        : [];
+
+      return {
+        ...settings,
+        menu_items: menuItems,
+        footer_links: footerLinks
+      };
     },
+    retry: 1,
+    onError: (error: Error) => {
+      console.error("Error fetching store data:", error);
+      toast({
+        variant: "destructive",
+        title: "Error loading store",
+        description: error.message
+      });
+    }
   });
 
-  if (!storeData) return null;
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-lg">Loading cart...</div>
+      </div>
+    );
+  }
 
-  const menuItems: MenuItem[] = Array.isArray(storeData.menu_items) 
-    ? (storeData.menu_items as any[]).map(item => ({
-        label: String(item.label || ''),
-        url: String(item.url || '')
-      }))
-    : [];
-
-  const footerLinks: FooterLink[] = Array.isArray(storeData.footer_links)
-    ? (storeData.footer_links as any[]).map(link => ({
-        label: String(link.label || ''),
-        url: String(link.url || '')
-      }))
-    : [];
+  if (!storeData) {
+    return (
+      <div className="min-h-screen flex flex-col items-center justify-center gap-4">
+        <h1 className="text-2xl font-bold">Store not found</h1>
+        <p className="text-gray-600">
+          The store you're looking for doesn't exist or might have been removed.
+        </p>
+        <Button onClick={() => navigate("/")}>Go Home</Button>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen flex flex-col bg-gray-50">
       <StoreHeader 
         iconImageUrl={storeData.icon_image_url} 
-        menuItems={menuItems}
+        menuItems={storeData.menu_items}
       />
 
       <main className="flex-grow container mx-auto px-4 py-8">
@@ -129,7 +187,7 @@ export default function CartPage() {
       <StoreFooter
         themeColor={storeData.theme_color || '#4F46E5'}
         footerText={storeData.footer_text || ''}
-        footerLinks={footerLinks}
+        footerLinks={storeData.footer_links}
       />
     </div>
   );
