@@ -10,6 +10,7 @@ import { HeroSection } from "@/components/dashboard/store-settings/HeroSection";
 import { FooterSection } from "@/components/dashboard/store-settings/FooterSection";
 import { HeaderSection } from "@/components/dashboard/store-settings/HeaderSection";
 import { MenuItem } from "@/integrations/supabase/types/menu";
+import { TablesUpdate } from "@/integrations/supabase/types";
 
 export default function StoreSettings() {
   const { toast } = useToast();
@@ -62,16 +63,16 @@ export default function StoreSettings() {
       const { data: { session } } = await supabase.auth.getSession();
       if (!session?.user) throw new Error("Not authenticated");
 
-      const menuItems = formData.get("menu_items");
-      const newSettings = {
-        hero_title: formData.get("hero_title") || "",
-        hero_subtitle: formData.get("hero_subtitle") || "",
-        hero_image_url: formData.get("hero_image_url") || "",
-        footer_text: formData.get("footer_text") || "",
-        theme_color: formData.get("theme_color") || "",
-        custom_domain: formData.get("custom_domain") || "",
-        icon_image_url: formData.get("icon_image_url") || "",
-        menu_items: menuItems ? JSON.parse(menuItems as string) : [],
+      const menuItemsStr = formData.get("menu_items");
+      const newSettings: TablesUpdate<"store_settings"> = {
+        hero_title: formData.get("hero_title")?.toString() || "",
+        hero_subtitle: formData.get("hero_subtitle")?.toString() || "",
+        hero_image_url: formData.get("hero_image_url")?.toString() || "",
+        footer_text: formData.get("footer_text")?.toString() || "",
+        theme_color: formData.get("theme_color")?.toString() || "",
+        custom_domain: formData.get("custom_domain")?.toString() || "",
+        icon_image_url: formData.get("icon_image_url")?.toString() || "",
+        menu_items: menuItemsStr ? JSON.parse(menuItemsStr.toString()) : [],
       };
 
       const { data, error } = await supabase
