@@ -7,7 +7,7 @@ import { Card } from "@/components/ui/card";
 import { ProductImage } from "@/components/product/ProductImage";
 import { ProductDetails } from "@/components/product/ProductDetails";
 import { AddToCartSection } from "@/components/product/AddToCartSection";
-import type { MenuItem, FooterLink } from "@/types/store";
+import type { MenuItem, FooterLink } from "@/integrations/supabase/types";
 
 export default function ProductPage() {
   const { storeName, productId } = useParams();
@@ -83,12 +83,20 @@ export default function ProductPage() {
 
   if (!product || !storeData) return <div>Product not found</div>;
 
+  // Parse and validate menu items
   const menuItems: MenuItem[] = Array.isArray(storeData.menu_items) 
-    ? storeData.menu_items 
+    ? (storeData.menu_items as any[]).map(item => ({
+        label: String(item.label || ''),
+        url: String(item.url || '')
+      }))
     : [];
 
+  // Parse and validate footer links
   const footerLinks: FooterLink[] = Array.isArray(storeData.footer_links)
-    ? storeData.footer_links
+    ? (storeData.footer_links as any[]).map(link => ({
+        label: String(link.label || ''),
+        url: String(link.url || '')
+      }))
     : [];
 
   return (
