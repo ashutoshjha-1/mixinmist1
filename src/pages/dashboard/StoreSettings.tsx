@@ -18,34 +18,60 @@ export default function StoreSettings() {
   const queryClient = useQueryClient();
   const [isEditing, setIsEditing] = useState(false);
 
+  // Fetch store settings
   const { data: settings, isLoading, error } = useQuery({
     queryKey: ["store-settings"],
     queryFn: async () => {
+      console.log("Fetching store settings...");
       const { data: { session } } = await supabase.auth.getSession();
+      
       if (!session?.user) {
+        console.error("No session found");
         throw new Error("Not authenticated");
       }
 
+      console.log("User ID:", session.user.id);
+
       try {
+        // First get the profile data
         const { data: profile, error: profileError } = await supabase
           .from("profiles")
           .select("store_name")
           .eq("id", session.user.id)
           .maybeSingle();
 
-        if (profileError) throw profileError;
-        if (!profile) throw new Error("Profile not found");
+        if (profileError) {
+          console.error("Profile fetch error:", profileError);
+          throw profileError;
+        }
 
-        const { data, error } = await supabase
+        if (!profile) {
+          console.error("Profile not found");
+          throw new Error("Profile not found");
+        }
+
+        console.log("Profile found:", profile);
+
+        // Then get the store settings
+        const { data: storeSettings, error: settingsError } = await supabase
           .from("store_settings")
           .select("*")
           .eq("user_id", session.user.id)
           .maybeSingle();
 
-        if (error) throw error;
-        if (!data) throw new Error("Store settings not found");
+        if (settingsError) {
+          console.error("Store settings fetch error:", settingsError);
+          throw settingsError;
+        }
 
-        return { ...data, store_name: profile.store_name };
+        if (!storeSettings) {
+          console.error("Store settings not found");
+          throw new Error("Store settings not found");
+        }
+
+        console.log("Store settings found:", storeSettings);
+
+        return { ...storeSettings, store_name: profile.store_name };
       } catch (error: any) {
         console.error("Error fetching settings:", error);
         toast({
@@ -58,8 +84,10 @@ export default function StoreSettings() {
     },
   });
 
+  // Update store settings
   const updateSettings = useMutation({
     mutationFn: async (formData: FormData) => {
+      console.log("Updating store settings...");
       const { data: { session } } = await supabase.auth.getSession();
       if (!session?.user) throw new Error("Not authenticated");
 
@@ -74,6 +102,8 @@ export default function StoreSettings() {
         icon_image_url: formData.get("icon_image_url")?.toString() || "",
         menu_items: menuItemsStr ? JSON.parse(menuItemsStr.toString()) : [],
       };
+
+      console.log("New settings:", newSettings);
 
       const { data, error } = await supabase
         .from("store_settings")
