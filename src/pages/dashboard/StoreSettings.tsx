@@ -9,6 +9,7 @@ import { DashboardHeader } from "@/components/dashboard/DashboardHeader";
 import { HeroSection } from "@/components/dashboard/store-settings/HeroSection";
 import { FooterSection } from "@/components/dashboard/store-settings/FooterSection";
 import { HeaderSection } from "@/components/dashboard/store-settings/HeaderSection";
+import { MenuItem } from "@/integrations/supabase/types/menu";
 
 export default function StoreSettings() {
   const { toast } = useToast();
@@ -50,13 +51,13 @@ export default function StoreSettings() {
 
       const menuItems = formData.get("menu_items");
       const newSettings = {
-        hero_title: formData.get("hero_title"),
-        hero_subtitle: formData.get("hero_subtitle"),
-        hero_image_url: formData.get("hero_image_url"),
-        footer_text: formData.get("footer_text"),
-        theme_color: formData.get("theme_color"),
-        custom_domain: formData.get("custom_domain"),
-        icon_image_url: formData.get("icon_image_url"),
+        hero_title: String(formData.get("hero_title") || ""),
+        hero_subtitle: String(formData.get("hero_subtitle") || ""),
+        hero_image_url: String(formData.get("hero_image_url") || ""),
+        footer_text: String(formData.get("footer_text") || ""),
+        theme_color: String(formData.get("theme_color") || ""),
+        custom_domain: String(formData.get("custom_domain") || ""),
+        icon_image_url: String(formData.get("icon_image_url") || ""),
         menu_items: menuItems ? JSON.parse(menuItems as string) : [],
       };
 
@@ -121,6 +122,12 @@ export default function StoreSettings() {
     );
   }
 
+  const parsedSettings = {
+    ...settings,
+    menu_items: settings.menu_items ? (settings.menu_items as MenuItem[]) : [],
+    footer_links: settings.footer_links ? (settings.footer_links as any[]) : [],
+  };
+
   return (
     <div className="min-h-screen bg-gray-50">
       <DashboardSidebar />
@@ -144,9 +151,9 @@ export default function StoreSettings() {
 
           {isEditing ? (
             <form onSubmit={handleSubmit} className="space-y-8">
-              <HeaderSection isEditing={isEditing} settings={settings} />
-              <HeroSection isEditing={isEditing} settings={settings} />
-              <FooterSection isEditing={isEditing} settings={settings} />
+              <HeaderSection isEditing={isEditing} settings={parsedSettings} />
+              <HeroSection isEditing={isEditing} settings={parsedSettings} />
+              <FooterSection isEditing={isEditing} settings={parsedSettings} />
 
               <Button type="submit" className="w-full">
                 Save Changes
@@ -154,9 +161,9 @@ export default function StoreSettings() {
             </form>
           ) : (
             <div className="space-y-8">
-              <HeaderSection isEditing={isEditing} settings={settings} />
-              <HeroSection isEditing={isEditing} settings={settings} />
-              <FooterSection isEditing={isEditing} settings={settings} />
+              <HeaderSection isEditing={isEditing} settings={parsedSettings} />
+              <HeroSection isEditing={isEditing} settings={parsedSettings} />
+              <FooterSection isEditing={isEditing} settings={parsedSettings} />
             </div>
           )}
         </div>
