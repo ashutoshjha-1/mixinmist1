@@ -13,42 +13,75 @@ export default function Store() {
   const { data: storeData, isLoading: isLoadingStore } = useQuery({
     queryKey: ["store", storeName],
     queryFn: async () => {
-      // First, get the profile and related data
-      const { data: profile, error: profileError } = await supabase
-        .from("profiles")
-        .select("*")
-        .eq("store_name", storeName)
-        .maybeSingle();
+      try {
+        // First, get the profile and related data
+        const { data: profile, error: profileError } = await supabase
+          .from("profiles")
+          .select("*")
+          .eq("store_name", storeName)
+          .maybeSingle();
 
-      if (profileError) throw profileError;
-      if (!profile) return null;
+        if (profileError) {
+          toast({
+            title: "Error",
+            description: "Failed to load store profile",
+            variant: "destructive",
+          });
+          throw profileError;
+        }
+        
+        if (!profile) {
+          return null;
+        }
 
-      // Get store settings
-      const { data: settings, error: settingsError } = await supabase
-        .from("store_settings")
-        .select("*")
-        .eq("user_id", profile.id)
-        .maybeSingle();
+        // Get store settings
+        const { data: settings, error: settingsError } = await supabase
+          .from("store_settings")
+          .select("*")
+          .eq("user_id", profile.id)
+          .maybeSingle();
 
-      if (settingsError) throw settingsError;
-      if (!settings) return null;
+        if (settingsError) {
+          toast({
+            title: "Error",
+            description: "Failed to load store settings",
+            variant: "destructive",
+          });
+          throw settingsError;
+        }
 
-      // Get user products
-      const { data: userProducts, error: productsError } = await supabase
-        .from("user_products")
-        .select(`
-          products (*)
-        `)
-        .eq("user_id", profile.id);
+        if (!settings) {
+          return null;
+        }
 
-      if (productsError) throw productsError;
+        // Get user products
+        const { data: userProducts, error: productsError } = await supabase
+          .from("user_products")
+          .select(`
+            products (*)
+          `)
+          .eq("user_id", profile.id);
 
-      return {
-        profile,
-        settings,
-        products: userProducts.map(up => up.products)
-      };
+        if (productsError) {
+          toast({
+            title: "Error",
+            description: "Failed to load store products",
+            variant: "destructive",
+          });
+          throw productsError;
+        }
+
+        return {
+          profile,
+          settings,
+          products: userProducts.map(up => up.products)
+        };
+      } catch (error) {
+        console.error("Error loading store:", error);
+        return null;
+      }
     },
+    retry: 1,
   });
 
   if (isLoadingStore) {
