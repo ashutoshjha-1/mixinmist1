@@ -8,68 +8,13 @@ import { StoreProducts } from "@/components/store/StoreProducts";
 import { StoreFooter } from "@/components/store/StoreFooter";
 import { StoreHeader } from "@/components/store/StoreHeader";
 import { CartProvider } from "@/contexts/CartContext";
+import { useToast } from "@/hooks/use-toast";
 
-interface StoreData {
-  profile: {
-    created_at: string;
-    full_name: string;
-    id: string;
-    phone: string | null;
-    store_name: string;
-    updated_at: string;
-    username: string;
-  };
-  settings: {
-    created_at: string;
-    custom_domain: string | null;
-    footer_links: FooterLink[];
-    footer_text: string;
-    hero_image_url: string | null;
-    hero_subtitle: string;
-    hero_title: string;
-    icon_image_url: string | null;
-    id: string;
-    menu_items: MenuItem[];
-    store_name: string;
-    theme_color: string;
-    updated_at: string;
-    user_id: string;
-  };
-  products: {
-    id: string;
-    name: string;
-    price: number;
-    image_url: string;
-  }[];
-}
-
-// Helper function to ensure URL is properly formatted
-const formatUrl = (url: string): string => {
-  if (!url) return '#';
+// Since this file is getting long, we'll extract the data fetching logic
+const useStoreData = (username: string | undefined) => {
+  const { toast } = useToast();
   
-  // If it's already a valid URL with protocol, return as is
-  if (url.startsWith('http://') || url.startsWith('https://')) {
-    return url;
-  }
-  
-  // If it looks like a domain (contains a dot and no spaces)
-  if (url.includes('.') && !url.includes(' ')) {
-    return `https://${url}`;
-  }
-  
-  // If it starts with /, treat as internal route
-  if (url.startsWith('/')) {
-    return url;
-  }
-  
-  // Otherwise, ensure it starts with /
-  return `/${url}`;
-};
-
-export default function Store() {
-  const { username } = useParams<{ username: string }>();
-
-  const { data: storeData, isLoading, error } = useQuery({
+  return useQuery({
     queryKey: ["store", username],
     queryFn: async () => {
       if (!username) throw new Error("Store username is required");
@@ -135,11 +80,9 @@ export default function Store() {
         image_url: up.products.image_url,
       }));
 
-      // Parse menu_items and footer_links from JSON
       const menuItemsJson = settings.menu_items || [];
       const footerLinksJson = settings.footer_links || [];
 
-      // Type assertion after validating the structure and formatting URLs
       const parsedMenuItems = (Array.isArray(menuItemsJson) ? menuItemsJson : []).map((item: any) => ({
         label: String(item.label || ''),
         url: formatUrl(String(item.url || ''))
@@ -160,7 +103,36 @@ export default function Store() {
         products,
       };
     },
+    meta: {
+      onError: (error: Error) => {
+        console.error("Store data fetch error:", error);
+        toast({
+          variant: "destructive",
+          title: "Error loading store",
+          description: error.message
+        });
+      }
+    }
   });
+};
+
+const formatUrl = (url: string): string => {
+  if (!url) return '#';
+  if (url.startsWith('http://') || url.startsWith('https://')) {
+    return url;
+  }
+  if (url.includes('.') && !url.includes(' ')) {
+    return `https://${url}`;
+  }
+  if (url.startsWith('/')) {
+    return url;
+  }
+  return `/${url}`;
+};
+
+export default function Store() {
+  const { username } = useParams<{ username: string }>();
+  const { data: storeData, isLoading, error } = useStoreData(username);
 
   if (isLoading) {
     return (

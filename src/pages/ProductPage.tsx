@@ -8,9 +8,12 @@ import { ProductDetails } from "@/components/product/ProductDetails";
 import { AddToCartSection } from "@/components/product/AddToCartSection";
 import { MenuItem } from "@/integrations/supabase/types/menu";
 import { FooterLink } from "@/integrations/supabase/types/footer";
+import { CartProvider } from "@/contexts/CartContext";
+import { useToast } from "@/hooks/use-toast";
 
 export default function ProductPage() {
   const { username, productId } = useParams<{ username: string; productId: string }>();
+  const { toast } = useToast();
 
   const { data: productData, isLoading: productLoading } = useQuery({
     queryKey: ["product", productId],
@@ -28,7 +31,16 @@ export default function ProductPage() {
       if (!data) throw new Error("Product not found");
       return data;
     },
-    enabled: !!productId,
+    meta: {
+      onError: (error: Error) => {
+        console.error("Product fetch error:", error);
+        toast({
+          variant: "destructive",
+          title: "Error loading product",
+          description: error.message
+        });
+      }
+    }
   });
 
   const { data: storeData, isLoading: storeLoading } = useQuery({
@@ -58,7 +70,16 @@ export default function ProductPage() {
 
       return settings;
     },
-    enabled: !!username,
+    meta: {
+      onError: (error: Error) => {
+        console.error("Store data fetch error:", error);
+        toast({
+          variant: "destructive",
+          title: "Error loading store",
+          description: error.message
+        });
+      }
+    }
   });
 
   if (productLoading || storeLoading) {
@@ -97,38 +118,40 @@ export default function ProductPage() {
   const { name, price, image_url, description } = productData;
 
   return (
-    <div className="min-h-screen">
-      <StoreHeader 
-        iconImageUrl={storeData.icon_image_url} 
-        menuItems={menuItems}
-      />
-      <main className="container mx-auto px-4 py-8">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-          <ProductImage 
-            imageUrl={image_url} 
-            productName={name}
-          />
-          <div className="space-y-8">
-            <ProductDetails 
-              name={name} 
-              price={price} 
-              description={description}
-              productId={productId || ''}
-            />
-            <AddToCartSection 
-              productId={productId || ''} 
+    <CartProvider>
+      <div className="min-h-screen">
+        <StoreHeader 
+          iconImageUrl={storeData.icon_image_url} 
+          menuItems={menuItems}
+        />
+        <main className="container mx-auto px-4 py-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <ProductImage 
+              imageUrl={image_url} 
               productName={name}
-              productPrice={price}
-              productImage={image_url}
             />
+            <div className="space-y-8">
+              <ProductDetails 
+                name={name} 
+                price={price} 
+                description={description}
+                productId={productId || ''}
+              />
+              <AddToCartSection 
+                productId={productId || ''} 
+                productName={name}
+                productPrice={price}
+                productImage={image_url}
+              />
+            </div>
           </div>
-        </div>
-      </main>
-      <StoreFooter 
-        themeColor={storeData.theme_color || '#4F46E5'}
-        footerText={storeData.footer_text || ''}
-        footerLinks={footerLinks}
-      />
-    </div>
+        </main>
+        <StoreFooter 
+          themeColor={storeData.theme_color || '#4F46E5'}
+          footerText={storeData.footer_text || ''}
+          footerLinks={footerLinks}
+        />
+      </div>
+    </CartProvider>
   );
 }
