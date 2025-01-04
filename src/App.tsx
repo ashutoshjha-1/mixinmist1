@@ -4,6 +4,7 @@ import Dashboard from "@/pages/Dashboard";
 import SignIn from "@/pages/SignIn";
 import SignUp from "@/pages/SignUp";
 import Store from "@/pages/Store";
+import ProductPage from "@/pages/ProductPage";
 import FindProducts from "@/pages/FindProducts";
 import MyProducts from "@/pages/MyProducts";
 import CustomerOrders from "@/pages/dashboard/CustomerOrders";
@@ -21,6 +22,7 @@ function App() {
         <Route path="/sign-in" element={<SignIn />} />
         <Route path="/sign-up" element={<SignUp />} />
         <Route path="/store/:username" element={<Store />} />
+        <Route path="/store/:storeName/product/:productId" element={<ProductPage />} />
         <Route
           path="/dashboard"
           element={

@@ -9,16 +9,17 @@ interface ProductCardProps {
     name: string;
     price: number;
     image_url: string;
+    description?: string;
   };
-  onAddToStore: (productId: string, customPrice: number) => void;
+  onAddToStore: (productId: string, customPrice: number, customName: string, customDescription: string) => void;
   isAdded: boolean;
 }
 
 export const ProductCard = ({ product, onAddToStore, isAdded }: ProductCardProps) => {
   const [showPriceDialog, setShowPriceDialog] = React.useState(false);
 
-  const handleAddToStore = (customPrice: number) => {
-    onAddToStore(product.id, customPrice);
+  const handleAddToStore = (customPrice: number, customName: string, customDescription: string) => {
+    onAddToStore(product.id, customPrice, customName, customDescription);
   };
 
   return (

@@ -90,6 +90,7 @@ export type Database = {
       products: {
         Row: {
           created_at: string
+          description: string | null
           id: string
           image_url: string
           name: string
@@ -98,6 +99,7 @@ export type Database = {
         }
         Insert: {
           created_at?: string
+          description?: string | null
           id?: string
           image_url: string
           name: string
@@ -106,6 +108,7 @@ export type Database = {
         }
         Update: {
           created_at?: string
+          description?: string | null
           id?: string
           image_url?: string
           name?: string
@@ -192,6 +195,7 @@ export type Database = {
       user_products: {
         Row: {
           created_at: string
+          custom_description: string | null
           custom_price: number
           id: string
           product_id: string
@@ -199,6 +203,7 @@ export type Database = {
         }
         Insert: {
           created_at?: string
+          custom_description?: string | null
           custom_price?: number
           id?: string
           product_id: string
@@ -206,6 +211,7 @@ export type Database = {
         }
         Update: {
           created_at?: string
+          custom_description?: string | null
           custom_price?: number
           id?: string
           product_id?: string

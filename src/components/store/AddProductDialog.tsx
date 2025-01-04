@@ -10,15 +10,17 @@ import {
 } from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 
 interface AddProductDialogProps {
   isOpen: boolean;
   onClose: () => void;
-  onConfirm: (price: number) => void;
+  onConfirm: (price: number, customName: string, customDescription: string) => void;
   product: {
     name: string;
     price: number;
+    description?: string;
   };
 }
 
@@ -29,6 +31,8 @@ export const AddProductDialog = ({
   product,
 }: AddProductDialogProps) => {
   const [customPrice, setCustomPrice] = React.useState<string>("");
+  const [customName, setCustomName] = React.useState(product.name);
+  const [customDescription, setCustomDescription] = React.useState(product.description || "");
   const { toast } = useToast();
 
   const handleConfirm = () => {
@@ -49,7 +53,7 @@ export const AddProductDialog = ({
       });
       return;
     }
-    onConfirm(price);
+    onConfirm(price, customName, customDescription);
     onClose();
   };
 
@@ -63,13 +67,36 @@ export const AddProductDialog = ({
     <AlertDialog open={isOpen} onOpenChange={onClose}>
       <AlertDialogContent>
         <AlertDialogHeader>
-          <AlertDialogTitle>Set Your Price for {product.name}</AlertDialogTitle>
+          <AlertDialogTitle>Customize Product</AlertDialogTitle>
           <AlertDialogDescription>
-            Default price is ${product.price.toFixed(2)}. Your price must be higher.
+            Customize the product details for your store. Default price is ${product.price.toFixed(2)}
           </AlertDialogDescription>
         </AlertDialogHeader>
         <div className="py-4">
           <div className="space-y-4">
+            <div>
+              <label htmlFor="name" className="block text-sm font-medium mb-1">
+                Product Name
+              </label>
+              <Input
+                id="name"
+                value={customName}
+                onChange={(e) => setCustomName(e.target.value)}
+                placeholder="Enter product name"
+              />
+            </div>
+            <div>
+              <label htmlFor="description" className="block text-sm font-medium mb-1">
+                Description
+              </label>
+              <Textarea
+                id="description"
+                value={customDescription}
+                onChange={(e) => setCustomDescription(e.target.value)}
+                placeholder="Enter product description"
+                rows={3}
+              />
+            </div>
             <div>
               <label htmlFor="price" className="block text-sm font-medium mb-1">
                 Your Price ($)
@@ -93,7 +120,7 @@ export const AddProductDialog = ({
         </div>
         <AlertDialogFooter>
           <AlertDialogCancel onClick={onClose}>Cancel</AlertDialogCancel>
-          <Button onClick={handleConfirm}>Confirm Price</Button>
+          <Button onClick={handleConfirm}>Add to Store</Button>
         </AlertDialogFooter>
       </AlertDialogContent>
     </AlertDialog>

@@ -85,7 +85,12 @@ const FindProducts = () => {
     }
   };
 
-  const handleAddToStore = async (productId: string, customPrice: number) => {
+  const handleAddToStore = async (
+    productId: string,
+    customPrice: number,
+    customName: string,
+    customDescription: string
+  ) => {
     try {
       const { data: { user } } = await supabase.auth.getUser();
       
@@ -115,6 +120,7 @@ const FindProducts = () => {
           user_id: user.id,
           product_id: productId,
           custom_price: customPrice,
+          custom_description: customDescription,
         });
 
       if (error) throw error;
