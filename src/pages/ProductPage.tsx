@@ -14,15 +14,27 @@ export default function ProductPage() {
   const { data: product, isLoading } = useQuery({
     queryKey: ["store-product", storeName, productId],
     queryFn: async () => {
-      const { data: profile } = await supabase
+      console.log("Fetching product for store:", storeName, "product:", productId);
+      
+      const { data: profile, error: profileError } = await supabase
         .from("profiles")
         .select("id")
-        .eq("store_name", storeName)
-        .single();
+        .ilike("username", storeName)
+        .maybeSingle();
 
-      if (!profile) throw new Error("Store not found");
+      if (profileError) {
+        console.error("Profile fetch error:", profileError);
+        throw profileError;
+      }
 
-      const { data: userProduct } = await supabase
+      if (!profile) {
+        console.error("Store not found for username:", storeName);
+        throw new Error("Store not found");
+      }
+
+      console.log("Found profile:", profile);
+
+      const { data: userProduct, error: productError } = await supabase
         .from("user_products")
         .select(`
           custom_price,
@@ -36,9 +48,17 @@ export default function ProductPage() {
         `)
         .eq("user_id", profile.id)
         .eq("product_id", productId)
-        .single();
+        .maybeSingle();
 
-      if (!userProduct) throw new Error("Product not found");
+      if (productError) {
+        console.error("Product fetch error:", productError);
+        throw productError;
+      }
+
+      if (!userProduct) {
+        console.error("Product not found:", productId);
+        throw new Error("Product not found");
+      }
 
       return {
         id: userProduct.products.id,
