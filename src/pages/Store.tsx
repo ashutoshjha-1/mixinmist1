@@ -10,15 +10,17 @@ export default function Store() {
   const { toast } = useToast();
   const navigate = useNavigate();
 
+  const decodedStoreName = decodeURIComponent(storeName || "");
+
   const { data: storeData, isLoading: isLoadingStore } = useQuery({
-    queryKey: ["store", storeName],
+    queryKey: ["store", decodedStoreName],
     queryFn: async () => {
       try {
         // First, get the profile and related data
         const { data: profile, error: profileError } = await supabase
           .from("profiles")
           .select("*")
-          .eq("store_name", storeName)
+          .eq("store_name", decodedStoreName)
           .maybeSingle();
 
         if (profileError) {
@@ -111,7 +113,9 @@ export default function Store() {
       <div 
         className="relative h-[500px] flex items-center justify-center"
         style={{
-          background: `linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)), url(${settings.hero_image_url || '/placeholder.svg'})`,
+          background: settings.hero_image_url 
+            ? `linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)), url(${settings.hero_image_url})`
+            : `linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5))`,
           backgroundSize: 'cover',
           backgroundPosition: 'center',
         }}
@@ -146,7 +150,7 @@ export default function Store() {
       {/* Footer */}
       <footer 
         className="bg-gray-900 text-white py-12"
-        style={{ backgroundColor: settings.theme_color }}
+        style={{ backgroundColor: settings.theme_color || '#1f2937' }}
       >
         <div className="max-w-7xl mx-auto px-4">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
