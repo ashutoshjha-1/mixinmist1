@@ -18,27 +18,29 @@ export default function CartPage() {
   const { data: storeData } = useQuery({
     queryKey: ["store-settings", username],
     queryFn: async () => {
-      const { data: profile } = await supabase
+      if (!username) throw new Error("Store username is required");
+
+      const { data: profile, error: profileError } = await supabase
         .from("profiles")
         .select("id")
         .ilike("username", username)
-        .single();
+        .maybeSingle();
 
+      if (profileError) throw profileError;
       if (!profile) throw new Error("Store not found");
 
-      const { data: settings } = await supabase
+      const { data: settings, error: settingsError } = await supabase
         .from("store_settings")
         .select("*")
         .eq("user_id", profile.id)
-        .single();
+        .maybeSingle();
+
+      if (settingsError) throw settingsError;
+      if (!settings) throw new Error("Store settings not found");
 
       return settings;
     },
   });
-
-  const handleCheckoutSuccess = () => {
-    navigate(`/store/${username}`);
-  };
 
   if (!storeData) return null;
 
@@ -117,7 +119,7 @@ export default function CartPage() {
 
               <div className="bg-white p-6 rounded-lg shadow-sm">
                 <h2 className="text-xl font-semibold mb-4">Checkout</h2>
-                <CheckoutForm onSuccess={handleCheckoutSuccess} />
+                <CheckoutForm onSuccess={() => navigate(`/store/${username}`)} />
               </div>
             </div>
           )}
