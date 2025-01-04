@@ -7,6 +7,7 @@ import { StoreProducts } from "@/components/store/StoreProducts";
 import { StoreFooter } from "@/components/store/StoreFooter";
 import { StoreHeader } from "@/components/store/StoreHeader";
 import { CartProvider } from "@/contexts/CartContext";
+import { MenuItem } from "@/integrations/supabase/types/menu";
 
 interface StoreData {
   profile: {
@@ -28,7 +29,7 @@ interface StoreData {
     hero_title: string;
     icon_image_url: string | null;
     id: string;
-    menu_items: any[];
+    menu_items: MenuItem[];
     store_name: string;
     theme_color: string;
     updated_at: string;
@@ -111,13 +112,16 @@ export default function Store() {
         image_url: up.products.image_url,
       }));
 
+      // Ensure menu_items and footer_links are properly parsed as arrays
+      const parsedSettings = {
+        ...settings,
+        menu_items: Array.isArray(settings.menu_items) ? settings.menu_items : [],
+        footer_links: Array.isArray(settings.footer_links) ? settings.footer_links : [],
+      };
+
       return {
         profile,
-        settings: {
-          ...settings,
-          footer_links: settings.footer_links || [],
-          menu_items: settings.menu_items || [],
-        },
+        settings: parsedSettings,
         products,
       };
     },
