@@ -47,8 +47,18 @@ interface StoreData {
 const formatUrl = (url: string): string => {
   if (!url) return '#';
   
-  // If it's an absolute URL or starts with /, return as is
-  if (url.startsWith('http://') || url.startsWith('https://') || url.startsWith('/')) {
+  // If it's already a valid URL with protocol, return as is
+  if (url.startsWith('http://') || url.startsWith('https://')) {
+    return url;
+  }
+  
+  // If it looks like a domain (contains a dot and no spaces)
+  if (url.includes('.') && !url.includes(' ')) {
+    return `https://${url}`;
+  }
+  
+  // If it starts with /, treat as internal route
+  if (url.startsWith('/')) {
     return url;
   }
   
