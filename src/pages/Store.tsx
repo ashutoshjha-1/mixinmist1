@@ -43,6 +43,19 @@ interface StoreData {
   }[];
 }
 
+// Helper function to ensure URL is properly formatted
+const formatUrl = (url: string): string => {
+  if (!url) return '#';
+  
+  // If it's an absolute URL or starts with /, return as is
+  if (url.startsWith('http://') || url.startsWith('https://') || url.startsWith('/')) {
+    return url;
+  }
+  
+  // Otherwise, ensure it starts with /
+  return `/${url}`;
+};
+
 export default function Store() {
   const { username } = useParams<{ username: string }>();
 
@@ -116,15 +129,15 @@ export default function Store() {
       const menuItemsJson = settings.menu_items || [];
       const footerLinksJson = settings.footer_links || [];
 
-      // Type assertion after validating the structure
+      // Type assertion after validating the structure and formatting URLs
       const parsedMenuItems = (Array.isArray(menuItemsJson) ? menuItemsJson : []).map((item: any) => ({
         label: String(item.label || ''),
-        url: String(item.url || '')
+        url: formatUrl(String(item.url || ''))
       })) as MenuItem[];
 
       const parsedFooterLinks = (Array.isArray(footerLinksJson) ? footerLinksJson : []).map((link: any) => ({
         label: String(link.label || ''),
-        url: String(link.url || '')
+        url: formatUrl(String(link.url || ''))
       })) as FooterLink[];
 
       return {
