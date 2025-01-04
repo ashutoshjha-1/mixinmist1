@@ -112,11 +112,25 @@ export default function Store() {
         image_url: up.products.image_url,
       }));
 
-      // Ensure menu_items and footer_links are properly parsed as arrays
+      // Parse and validate menu_items and footer_links
+      const menuItems = Array.isArray(settings.menu_items) 
+        ? settings.menu_items.map((item: any) => ({
+            label: String(item.label || ''),
+            url: String(item.url || '')
+          }))
+        : [];
+
+      const footerLinks = Array.isArray(settings.footer_links)
+        ? settings.footer_links.map((link: any) => ({
+            label: String(link.label || ''),
+            url: String(link.url || '')
+          }))
+        : [];
+
       const parsedSettings = {
         ...settings,
-        menu_items: Array.isArray(settings.menu_items) ? settings.menu_items : [],
-        footer_links: Array.isArray(settings.footer_links) ? settings.footer_links : [],
+        menu_items: menuItems,
+        footer_links: footerLinks,
       };
 
       return {
