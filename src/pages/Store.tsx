@@ -29,12 +29,12 @@ export default function Store() {
     queryKey: ["store", decodedStoreName],
     queryFn: async () => {
       try {
-        // First, get the profile
+        // First, get the profile using maybeSingle() instead of single()
         const { data: profile, error: profileError } = await supabase
           .from("profiles")
           .select()
           .eq("store_name", decodedStoreName)
-          .single();
+          .maybeSingle();
 
         if (profileError) {
           toast({
@@ -54,7 +54,7 @@ export default function Store() {
           .from("store_settings")
           .select()
           .eq("user_id", profile.id)
-          .single();
+          .maybeSingle();
 
         if (settingsError) {
           toast({
@@ -63,6 +63,15 @@ export default function Store() {
             variant: "destructive",
           });
           throw settingsError;
+        }
+
+        if (!settings) {
+          toast({
+            title: "Error",
+            description: "Store settings not found",
+            variant: "destructive",
+          });
+          return null;
         }
 
         // Get user products
