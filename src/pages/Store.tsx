@@ -113,8 +113,19 @@ export default function Store() {
       }));
 
       // Parse menu_items and footer_links from JSON
-      const parsedMenuItems = (settings.menu_items || []) as MenuItem[];
-      const parsedFooterLinks = (settings.footer_links || []) as FooterLink[];
+      const menuItemsJson = settings.menu_items || [];
+      const footerLinksJson = settings.footer_links || [];
+
+      // Type assertion after validating the structure
+      const parsedMenuItems = (Array.isArray(menuItemsJson) ? menuItemsJson : []).map((item: any) => ({
+        label: String(item.label || ''),
+        url: String(item.url || '')
+      })) as MenuItem[];
+
+      const parsedFooterLinks = (Array.isArray(footerLinksJson) ? footerLinksJson : []).map((link: any) => ({
+        label: String(link.label || ''),
+        url: String(link.url || '')
+      })) as FooterLink[];
 
       return {
         profile,
