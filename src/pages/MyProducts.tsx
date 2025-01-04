@@ -25,6 +25,7 @@ const MyProducts = () => {
         .from("user_products")
         .select(`
           product_id,
+          custom_price,
           products (
             id,
             name,
@@ -35,7 +36,10 @@ const MyProducts = () => {
         .eq("user_id", user.id);
 
       if (error) throw error;
-      return data.map(item => item.products);
+      return data.map(item => ({
+        ...item.products,
+        custom_price: item.custom_price
+      }));
     },
   });
 
@@ -129,7 +133,13 @@ const MyProducts = () => {
                 <CardContent className="p-4">
                   <h3 className="font-semibold text-sm mb-2">{product.name}</h3>
                   <p className="text-primary mb-2">
-                    ${product.price.toFixed(2)}
+                    ${product.custom_price.toFixed(2)}
+                  </p>
+                  <p className="text-sm text-gray-500 mb-2">
+                    Original Price: ${product.price.toFixed(2)}
+                  </p>
+                  <p className="text-sm text-green-600 mb-2">
+                    Earnings: ${(product.custom_price - product.price).toFixed(2)}
                   </p>
                   <Button
                     variant="destructive"
