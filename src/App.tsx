@@ -1,86 +1,22 @@
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-import Index from "@/pages/Index";
-import Dashboard from "@/pages/Dashboard";
-import SignIn from "@/pages/SignIn";
-import SignUp from "@/pages/SignUp";
+import Navbar from "@/components/Navbar";
 import Store from "@/pages/Store";
 import ProductPage from "@/pages/ProductPage";
-import FindProducts from "@/pages/FindProducts";
-import MyProducts from "@/pages/MyProducts";
-import CustomerOrders from "@/pages/dashboard/CustomerOrders";
+import CartPage from "@/pages/CartPage"; // Import the CartPage component
+import Dashboard from "@/pages/dashboard/Dashboard";
 import StoreSettings from "@/pages/dashboard/StoreSettings";
-import MyAccount from "@/pages/dashboard/MyAccount";
-import { AuthGuard } from "@/components/auth/AuthGuard";
-import { Toaster } from "@/components/ui/toaster";
-import { CartProvider } from "@/contexts/CartContext";
-import "./App.css";
 
 function App() {
   return (
     <Router>
+      <Navbar />
       <Routes>
-        <Route path="/" element={<Index />} />
-        <Route path="/sign-in" element={<SignIn />} />
-        <Route path="/sign-up" element={<SignUp />} />
         <Route path="/store/:username" element={<Store />} />
-        <Route 
-          path="/store/:storeName/product/:productId" 
-          element={
-            <CartProvider>
-              <ProductPage />
-            </CartProvider>
-          } 
-        />
-        <Route
-          path="/dashboard"
-          element={
-            <AuthGuard>
-              <Dashboard />
-            </AuthGuard>
-          }
-        />
-        <Route
-          path="/dashboard/find-products"
-          element={
-            <AuthGuard>
-              <FindProducts />
-            </AuthGuard>
-          }
-        />
-        <Route
-          path="/dashboard/my-products"
-          element={
-            <AuthGuard>
-              <MyProducts />
-            </AuthGuard>
-          }
-        />
-        <Route
-          path="/dashboard/customer-orders"
-          element={
-            <AuthGuard>
-              <CustomerOrders />
-            </AuthGuard>
-          }
-        />
-        <Route
-          path="/dashboard/store-settings"
-          element={
-            <AuthGuard>
-              <StoreSettings />
-            </AuthGuard>
-          }
-        />
-        <Route
-          path="/dashboard/my-account"
-          element={
-            <AuthGuard>
-              <MyAccount />
-            </AuthGuard>
-          }
-        />
+        <Route path="/store/:username/product/:productId" element={<ProductPage />} />
+        <Route path="/store/:username/cart" element={<CartPage />} /> {/* Add this new route */}
+        <Route path="/dashboard" element={<Dashboard />} />
+        <Route path="/dashboard/store-settings" element={<StoreSettings />} />
       </Routes>
-      <Toaster />
     </Router>
   );
 }
