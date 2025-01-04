@@ -12,7 +12,9 @@ type Product = Database["public"]["Tables"]["products"]["Row"];
 
 type StoreData = {
   profile: Profile;
-  settings: StoreSettings;
+  settings: Omit<StoreSettings, 'footer_links'> & {
+    footer_links: FooterLink[] | null;
+  };
   products: Product[];
 };
 
@@ -82,9 +84,15 @@ export default function Store() {
 
         const products = userProducts.map(up => up.products);
 
+        // Transform the footer_links from Json to FooterLink[]
+        const transformedSettings = {
+          ...settings,
+          footer_links: settings.footer_links as FooterLink[] | null
+        };
+
         return {
           profile,
-          settings,
+          settings: transformedSettings,
           products
         } as StoreData;
       } catch (error) {
@@ -114,7 +122,7 @@ export default function Store() {
   }
 
   const { settings, products } = storeData;
-  const footerLinks = settings.footer_links as FooterLink[] || [];
+  const footerLinks = settings.footer_links || [];
 
   return (
     <div className="min-h-screen">
