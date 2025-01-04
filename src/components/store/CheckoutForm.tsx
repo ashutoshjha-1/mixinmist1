@@ -14,7 +14,7 @@ interface CheckoutFormData {
 }
 
 export function CheckoutForm({ onSuccess }: { onSuccess: () => void }) {
-  const { username } = useParams<{ username: string }>();
+  const { storeName } = useParams<{ storeName: string }>();
   const { items, total, clearCart } = useCart();
   const { toast } = useToast();
   const {
@@ -25,26 +25,16 @@ export function CheckoutForm({ onSuccess }: { onSuccess: () => void }) {
 
   const onSubmit = async (data: CheckoutFormData) => {
     try {
-      console.log("Fetching profile for username:", username);
-      
-      // Get store owner's ID from their username
-      const { data: profile, error: profileError } = await supabase
+      // Get store owner's ID from their store name
+      const { data: profile } = await supabase
         .from("profiles")
         .select("id")
-        .ilike("username", username)
-        .maybeSingle();
-
-      if (profileError) {
-        console.error("Profile fetch error:", profileError);
-        throw profileError;
-      }
+        .eq("store_name", storeName)
+        .single();
 
       if (!profile) {
-        console.error("Profile not found for username:", username);
         throw new Error("Store not found");
       }
-
-      console.log("Found profile:", profile);
 
       // Create the order
       const { data: order, error: orderError } = await supabase
@@ -83,7 +73,6 @@ export function CheckoutForm({ onSuccess }: { onSuccess: () => void }) {
       clearCart();
       onSuccess();
     } catch (error: any) {
-      console.error("Checkout error:", error);
       toast({
         variant: "destructive",
         title: "Error placing order",

@@ -1,6 +1,4 @@
-export interface FooterLink {
+export type FooterLink = {
   label: string;
   url: string;
 }
-
-export type FooterLinks = FooterLink[];
