@@ -11,7 +11,7 @@ import { MenuItem } from "@/integrations/supabase/types/menu";
 import { FooterLink } from "@/integrations/supabase/types/footer";
 
 export default function CartPage() {
-  const { items, removeItem, updateQuantity, total } = useCart();
+  const { items, removeItem, updateQuantity } = useCart();
   const { username } = useParams();
   const navigate = useNavigate();
 
@@ -44,14 +44,14 @@ export default function CartPage() {
 
   if (!storeData) return null;
 
-  const menuItems = Array.isArray(storeData.menu_items) 
+  const menuItems: MenuItem[] = Array.isArray(storeData.menu_items) 
     ? storeData.menu_items.map(item => ({
         label: String(item.label || ''),
         url: String(item.url || '')
       }))
     : [];
 
-  const footerLinks = Array.isArray(storeData.footer_links)
+  const footerLinks: FooterLink[] = Array.isArray(storeData.footer_links)
     ? storeData.footer_links.map(link => ({
         label: String(link.label || ''),
         url: String(link.url || '')
@@ -127,8 +127,8 @@ export default function CartPage() {
       </main>
 
       <StoreFooter
-        themeColor={storeData.theme_color}
-        footerText={storeData.footer_text || ""}
+        themeColor={storeData.theme_color || '#4F46E5'}
+        footerText={storeData.footer_text || ''}
         footerLinks={footerLinks}
       />
     </div>
