@@ -12,6 +12,7 @@ import StoreSettings from "@/pages/dashboard/StoreSettings";
 import MyAccount from "@/pages/dashboard/MyAccount";
 import { AuthGuard } from "@/components/auth/AuthGuard";
 import { Toaster } from "@/components/ui/toaster";
+import { CartProvider } from "@/contexts/CartContext";
 import "./App.css";
 
 function App() {
@@ -22,7 +23,14 @@ function App() {
         <Route path="/sign-in" element={<SignIn />} />
         <Route path="/sign-up" element={<SignUp />} />
         <Route path="/store/:username" element={<Store />} />
-        <Route path="/store/:storeName/product/:productId" element={<ProductPage />} />
+        <Route 
+          path="/store/:storeName/product/:productId" 
+          element={
+            <CartProvider>
+              <ProductPage />
+            </CartProvider>
+          } 
+        />
         <Route
           path="/dashboard"
           element={
