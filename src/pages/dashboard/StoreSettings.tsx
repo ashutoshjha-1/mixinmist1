@@ -124,7 +124,12 @@ export default function StoreSettings() {
 
   const parsedSettings = {
     ...settings,
-    menu_items: settings.menu_items ? (settings.menu_items as MenuItem[]) : [],
+    menu_items: settings.menu_items 
+      ? (settings.menu_items as any[]).map((item: any) => ({
+          label: String(item.label || ''),
+          url: String(item.url || '')
+        })) as MenuItem[]
+      : [],
     footer_links: settings.footer_links ? (settings.footer_links as any[]) : [],
   };
 
