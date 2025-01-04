@@ -93,6 +93,23 @@ const FindProducts = () => {
         throw new Error("User not authenticated");
       }
 
+      // First check if the product is already in the user's store
+      const { data: existingProduct } = await supabase
+        .from("user_products")
+        .select("*")
+        .eq("user_id", user.id)
+        .eq("product_id", product.id)
+        .maybeSingle();
+
+      if (existingProduct) {
+        toast({
+          title: "Product Already Added",
+          description: `${product.name} is already in your store`,
+        });
+        setAddedProducts(prev => new Set([...prev, product.id]));
+        return;
+      }
+
       const { error } = await supabase
         .from("user_products")
         .insert({
@@ -102,7 +119,6 @@ const FindProducts = () => {
 
       if (error) throw error;
 
-      // Add product ID to the set of added products
       setAddedProducts(prev => new Set([...prev, product.id]));
 
       toast({
