@@ -3,6 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
+import { FooterLink } from "@/integrations/supabase/types";
 
 export default function Store() {
   const { storeName } = useParams();
@@ -109,7 +110,7 @@ export default function Store() {
             <div>
               <h4 className="text-lg font-semibold mb-4">Quick Links</h4>
               <ul className="space-y-2">
-                {settings.footer_links.map((link: any) => (
+                {(settings.footer_links || []).map((link: FooterLink) => (
                   <li key={link.url}>
                     <a href={link.url} className="hover:underline">
                       {link.label}
