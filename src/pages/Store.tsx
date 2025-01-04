@@ -4,6 +4,22 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import type { FooterLink } from "@/integrations/supabase/types/footer";
+import type { Database } from "@/integrations/supabase/types/database";
+
+type Profile = Database["public"]["Tables"]["profiles"]["Row"];
+type StoreSettings = Database["public"]["Tables"]["store_settings"]["Row"];
+type Product = Database["public"]["Tables"]["products"]["Row"];
+
+type StoreData = {
+  profile: Profile & {
+    store_settings: StoreSettings[];
+    user_products: {
+      products: Product;
+    }[];
+  };
+  settings: StoreSettings;
+  products: Product[];
+};
 
 export default function Store() {
   const { storeName } = useParams();
@@ -46,7 +62,7 @@ export default function Store() {
           profile,
           settings: profile.store_settings[0],
           products: profile.user_products.map(up => up.products)
-        };
+        } as StoreData;
       } catch (error) {
         console.error("Error loading store:", error);
         return null;
@@ -99,7 +115,7 @@ export default function Store() {
       <div className="max-w-7xl mx-auto px-4 py-16">
         <h2 className="text-3xl font-bold mb-8">Our Products</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {products.map((product: any) => (
+          {products.map((product) => (
             <div key={product.id} className="border rounded-lg overflow-hidden shadow-lg">
               <img 
                 src={product.image_url} 
