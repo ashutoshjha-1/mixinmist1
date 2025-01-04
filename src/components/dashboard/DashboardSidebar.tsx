@@ -97,9 +97,9 @@ export const DashboardSidebar = () => {
           </h2>
           <div className="space-y-2">
             <Button variant="ghost" className="w-full justify-start" asChild>
-              <Link to="/dashboard/profile">
+              <Link to="/dashboard/my-account">
                 <UserCircle className="mr-2 h-4 w-4" />
-                PROFILE
+                MY ACCOUNT
               </Link>
             </Button>
             <Button variant="ghost" className="w-full justify-start" asChild>
@@ -133,4 +133,4 @@ export const DashboardSidebar = () => {
       </div>
     </div>
   );
-};
+}

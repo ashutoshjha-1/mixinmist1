@@ -1,34 +1,69 @@
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
+import { AuthGuard } from "@/components/auth/AuthGuard";
 import Index from "@/pages/Index";
 import SignIn from "@/pages/SignIn";
 import SignUp from "@/pages/SignUp";
 import Dashboard from "@/pages/Dashboard";
-import FindProducts from "@/pages/FindProducts";
 import MyProducts from "@/pages/MyProducts";
+import FindProducts from "@/pages/FindProducts";
 import Store from "@/pages/Store";
 import StoreSettings from "@/pages/dashboard/StoreSettings";
-
-const queryClient = new QueryClient();
+import MyAccount from "@/pages/dashboard/MyAccount";
 
 function App() {
   return (
-    <QueryClientProvider client={queryClient}>
-      <Router>
-        <Routes>
-          <Route path="/" element={<Index />} />
-          <Route path="/sign-in" element={<SignIn />} />
-          <Route path="/sign-up" element={<SignUp />} />
-          <Route path="/dashboard" element={<Dashboard />} />
-          <Route path="/dashboard/find-products" element={<FindProducts />} />
-          <Route path="/dashboard/my-products" element={<MyProducts />} />
-          <Route path="/dashboard/store-settings" element={<StoreSettings />} />
-          <Route path="/store/:storeName" element={<Store />} />
-        </Routes>
-      </Router>
+    <Router>
+      <Routes>
+        <Route path="/" element={<Index />} />
+        <Route path="/signin" element={<SignIn />} />
+        <Route path="/signup" element={<SignUp />} />
+        <Route path="/store/:storeName" element={<Store />} />
+        
+        {/* Protected Dashboard Routes */}
+        <Route
+          path="/dashboard"
+          element={
+            <AuthGuard>
+              <Dashboard />
+            </AuthGuard>
+          }
+        />
+        <Route
+          path="/dashboard/my-products"
+          element={
+            <AuthGuard>
+              <MyProducts />
+            </AuthGuard>
+          }
+        />
+        <Route
+          path="/dashboard/find-products"
+          element={
+            <AuthGuard>
+              <FindProducts />
+            </AuthGuard>
+          }
+        />
+        <Route
+          path="/dashboard/store-settings"
+          element={
+            <AuthGuard>
+              <StoreSettings />
+            </AuthGuard>
+          }
+        />
+        <Route
+          path="/dashboard/my-account"
+          element={
+            <AuthGuard>
+              <MyAccount />
+            </AuthGuard>
+          }
+        />
+      </Routes>
       <Toaster />
-    </QueryClientProvider>
+    </Router>
   );
 }
 

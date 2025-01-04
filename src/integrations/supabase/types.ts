@@ -69,6 +69,7 @@ export type Database = {
       store_settings: {
         Row: {
           created_at: string
+          custom_domain: string | null
           footer_links: Json | null
           footer_text: string | null
           hero_image_url: string | null
@@ -82,6 +83,7 @@ export type Database = {
         }
         Insert: {
           created_at?: string
+          custom_domain?: string | null
           footer_links?: Json | null
           footer_text?: string | null
           hero_image_url?: string | null
@@ -95,6 +97,7 @@ export type Database = {
         }
         Update: {
           created_at?: string
+          custom_domain?: string | null
           footer_links?: Json | null
           footer_text?: string | null
           hero_image_url?: string | null
