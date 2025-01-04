@@ -40,21 +40,33 @@ interface StoreData {
 }
 
 export default function Store() {
-  const { storeName } = useParams<{ storeName: string }>();
+  const { username } = useParams<{ username: string }>();
 
-  const { data: storeData, isLoading } = useQuery({
-    queryKey: ["store", storeName],
+  const { data: storeData, isLoading, error } = useQuery({
+    queryKey: ["store", username],
     queryFn: async () => {
-      if (!storeName) throw new Error("Store name is required");
+      if (!username) throw new Error("Store username is required");
 
+      console.log("Fetching store data for username:", username);
+
+      // First try to find the profile by username
       const { data: profile, error: profileError } = await supabase
         .from("profiles")
         .select("*")
-        .eq("store_name", decodeURIComponent(storeName))
+        .ilike("username", username)
         .maybeSingle();
 
-      if (profileError) throw profileError;
-      if (!profile) throw new Error("Store not found");
+      if (profileError) {
+        console.error("Profile fetch error:", profileError);
+        throw profileError;
+      }
+
+      if (!profile) {
+        console.error("Profile not found for username:", username);
+        throw new Error("Store not found");
+      }
+
+      console.log("Found profile:", profile);
 
       const { data: settings, error: settingsError } = await supabase
         .from("store_settings")
@@ -62,8 +74,15 @@ export default function Store() {
         .eq("user_id", profile.id)
         .maybeSingle();
 
-      if (settingsError) throw settingsError;
-      if (!settings) throw new Error("Store settings not found");
+      if (settingsError) {
+        console.error("Settings fetch error:", settingsError);
+        throw settingsError;
+      }
+
+      if (!settings) {
+        console.error("Store settings not found for user:", profile.id);
+        throw new Error("Store settings not found");
+      }
 
       const { data: userProducts, error: userProductsError } = await supabase
         .from("user_products")
@@ -78,7 +97,10 @@ export default function Store() {
         `)
         .eq("user_id", profile.id);
 
-      if (userProductsError) throw userProductsError;
+      if (userProductsError) {
+        console.error("Products fetch error:", userProductsError);
+        throw userProductsError;
+      }
 
       const products = userProducts.map((up) => ({
         id: up.products.id,
@@ -101,11 +123,22 @@ export default function Store() {
   });
 
   if (isLoading) {
-    return <div>Loading store...</div>;
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-lg">Loading store...</div>
+      </div>
+    );
   }
 
-  if (!storeData) {
-    return <div>Store not found</div>;
+  if (error || !storeData) {
+    return (
+      <div className="min-h-screen flex flex-col items-center justify-center gap-4">
+        <h1 className="text-2xl font-bold">Store not found</h1>
+        <p className="text-gray-600">
+          The store you're looking for doesn't exist or might have been removed.
+        </p>
+      </div>
+    );
   }
 
   const { settings, products } = storeData;
