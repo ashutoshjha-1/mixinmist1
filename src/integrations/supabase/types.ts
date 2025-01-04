@@ -156,7 +156,9 @@ export type Database = {
           hero_image_url: string | null
           hero_subtitle: string | null
           hero_title: string | null
+          icon_image_url: string | null
           id: string
+          menu_items: Json | null
           store_name: string
           theme_color: string | null
           updated_at: string
@@ -170,7 +172,9 @@ export type Database = {
           hero_image_url?: string | null
           hero_subtitle?: string | null
           hero_title?: string | null
+          icon_image_url?: string | null
           id?: string
+          menu_items?: Json | null
           store_name: string
           theme_color?: string | null
           updated_at?: string
@@ -184,7 +188,9 @@ export type Database = {
           hero_image_url?: string | null
           hero_subtitle?: string | null
           hero_title?: string | null
+          icon_image_url?: string | null
           id?: string
+          menu_items?: Json | null
           store_name?: string
           theme_color?: string | null
           updated_at?: string
