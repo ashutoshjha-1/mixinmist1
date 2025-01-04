@@ -10,7 +10,6 @@ import {
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/components/ui/use-toast";
-import { useAuth } from "@supabase/auth-helpers-react";
 
 interface OrderItem {
   product_id: string;
@@ -33,17 +32,20 @@ const CustomerOrders = () => {
   const [orders, setOrders] = useState<Order[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const { toast } = useToast();
-  const user = useAuth();
 
   useEffect(() => {
-    if (user) {
-      fetchOrders();
-    }
-  }, [user]);
+    fetchOrders();
+  }, []);
 
   const fetchOrders = async () => {
     try {
       setIsLoading(true);
+      const { data: { session } } = await supabase.auth.getSession();
+      
+      if (!session?.user?.id) {
+        throw new Error("No authenticated user found");
+      }
+
       const { data: ordersData, error: ordersError } = await supabase
         .from("orders")
         .select(`
@@ -54,7 +56,7 @@ const CustomerOrders = () => {
             price
           )
         `)
-        .eq('store_id', user?.id)
+        .eq('store_id', session.user.id)
         .order("created_at", { ascending: false });
 
       if (ordersError) throw ordersError;

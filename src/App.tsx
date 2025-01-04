@@ -8,7 +8,7 @@ import ProductPage from "@/pages/ProductPage";
 import CartPage from "@/pages/CartPage";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as SonnerToaster } from "@/components/ui/sonner";
-import AuthGuard from "@/components/auth/AuthGuard";
+import { AuthGuard } from "@/components/auth/AuthGuard";
 import StoreSettings from "@/pages/dashboard/StoreSettings";
 import FindProducts from "@/pages/FindProducts";
 import MyProducts from "@/pages/MyProducts";
