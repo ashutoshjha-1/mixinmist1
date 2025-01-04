@@ -20,8 +20,8 @@ export default function StoreSettings() {
   const { data: settings, isLoading, error } = useQuery({
     queryKey: ["store-settings"],
     queryFn: async () => {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session?.user) {
         throw new Error("Not authenticated");
       }
 
@@ -29,7 +29,7 @@ export default function StoreSettings() {
         const { data: profile, error: profileError } = await supabase
           .from("profiles")
           .select("store_name")
-          .eq("id", user.id)
+          .eq("id", session.user.id)
           .maybeSingle();
 
         if (profileError) throw profileError;
@@ -38,7 +38,7 @@ export default function StoreSettings() {
         const { data, error } = await supabase
           .from("store_settings")
           .select("*")
-          .eq("user_id", user.id)
+          .eq("user_id", session.user.id)
           .maybeSingle();
 
         if (error) throw error;
@@ -46,6 +46,7 @@ export default function StoreSettings() {
 
         return { ...data, store_name: profile.store_name };
       } catch (error: any) {
+        console.error("Error fetching settings:", error);
         toast({
           variant: "destructive",
           title: "Error fetching settings",
@@ -54,34 +55,36 @@ export default function StoreSettings() {
         throw error;
       }
     },
-    retry: 1,
   });
 
   const updateSettings = useMutation({
     mutationFn: async (formData: FormData) => {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) throw new Error("Not authenticated");
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session?.user) throw new Error("Not authenticated");
 
       const menuItems = formData.get("menu_items");
       const newSettings = {
-        hero_title: String(formData.get("hero_title") || ""),
-        hero_subtitle: String(formData.get("hero_subtitle") || ""),
-        hero_image_url: String(formData.get("hero_image_url") || ""),
-        footer_text: String(formData.get("footer_text") || ""),
-        theme_color: String(formData.get("theme_color") || ""),
-        custom_domain: String(formData.get("custom_domain") || ""),
-        icon_image_url: String(formData.get("icon_image_url") || ""),
+        hero_title: formData.get("hero_title") || "",
+        hero_subtitle: formData.get("hero_subtitle") || "",
+        hero_image_url: formData.get("hero_image_url") || "",
+        footer_text: formData.get("footer_text") || "",
+        theme_color: formData.get("theme_color") || "",
+        custom_domain: formData.get("custom_domain") || "",
+        icon_image_url: formData.get("icon_image_url") || "",
         menu_items: menuItems ? JSON.parse(menuItems as string) : [],
       };
 
       const { data, error } = await supabase
         .from("store_settings")
         .update(newSettings)
-        .eq("user_id", user.id)
+        .eq("user_id", session.user.id)
         .select()
         .single();
 
-      if (error) throw error;
+      if (error) {
+        console.error("Error updating settings:", error);
+        throw error;
+      }
       return data;
     },
     onSuccess: () => {
@@ -92,7 +95,8 @@ export default function StoreSettings() {
       });
       setIsEditing(false);
     },
-    onError: (error) => {
+    onError: (error: Error) => {
+      console.error("Mutation error:", error);
       toast({
         variant: "destructive",
         title: "Error",
@@ -100,6 +104,20 @@ export default function StoreSettings() {
       });
     },
   });
+
+  const handleSignOut = async () => {
+    try {
+      const { error } = await supabase.auth.signOut();
+      if (error) throw error;
+      navigate("/");
+    } catch (error: any) {
+      toast({
+        variant: "destructive",
+        title: "Error signing out",
+        description: error.message,
+      });
+    }
+  };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -112,7 +130,7 @@ export default function StoreSettings() {
       <div className="min-h-screen bg-gray-50">
         <DashboardSidebar />
         <div className="ml-64 p-8">
-          <DashboardHeader onSignOut={() => {}} />
+          <DashboardHeader onSignOut={handleSignOut} />
           <div className="max-w-4xl mx-auto">
             <div className="text-red-500">Error loading settings: {error.message}</div>
           </div>
@@ -126,7 +144,7 @@ export default function StoreSettings() {
       <div className="min-h-screen bg-gray-50">
         <DashboardSidebar />
         <div className="ml-64 p-8">
-          <DashboardHeader onSignOut={() => {}} />
+          <DashboardHeader onSignOut={handleSignOut} />
           <div className="max-w-4xl mx-auto">
             <div>Loading settings...</div>
           </div>
@@ -150,7 +168,7 @@ export default function StoreSettings() {
     <div className="min-h-screen bg-gray-50">
       <DashboardSidebar />
       <div className="ml-64 p-8">
-        <DashboardHeader onSignOut={() => {}} />
+        <DashboardHeader onSignOut={handleSignOut} />
         <div className="max-w-4xl mx-auto">
           <div className="flex justify-between items-center mb-8">
             <h1 className="text-3xl font-bold">Store Settings</h1>
@@ -158,12 +176,14 @@ export default function StoreSettings() {
               <Button onClick={() => setIsEditing(!isEditing)}>
                 {isEditing ? "Cancel" : "Edit Settings"}
               </Button>
-              <Button
-                onClick={() => navigate(`/store/${settings.store_name}`)}
-                variant="outline"
-              >
-                Preview Store
-              </Button>
+              {settings.store_name && (
+                <Button
+                  onClick={() => navigate(`/${settings.store_name}`)}
+                  variant="outline"
+                >
+                  Preview Store
+                </Button>
+              )}
             </div>
           </div>
 
