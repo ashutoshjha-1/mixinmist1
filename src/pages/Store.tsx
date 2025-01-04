@@ -11,12 +11,7 @@ type StoreSettings = Database["public"]["Tables"]["store_settings"]["Row"];
 type Product = Database["public"]["Tables"]["products"]["Row"];
 
 type StoreData = {
-  profile: Profile & {
-    store_settings: StoreSettings[];
-    user_products: {
-      products: Product;
-    }[];
-  };
+  profile: Profile;
   settings: StoreSettings;
   products: Product[];
 };
@@ -32,18 +27,12 @@ export default function Store() {
     queryKey: ["store", decodedStoreName],
     queryFn: async () => {
       try {
-        // First, get the profile and related data
+        // First, get the profile
         const { data: profile, error: profileError } = await supabase
           .from("profiles")
-          .select(`
-            *,
-            store_settings!store_settings_user_id_fkey (*),
-            user_products (
-              products (*)
-            )
-          `)
+          .select()
           .eq("store_name", decodedStoreName)
-          .maybeSingle();
+          .single();
 
         if (profileError) {
           toast({
@@ -58,10 +47,45 @@ export default function Store() {
           return null;
         }
 
+        // Get store settings
+        const { data: settings, error: settingsError } = await supabase
+          .from("store_settings")
+          .select()
+          .eq("user_id", profile.id)
+          .single();
+
+        if (settingsError) {
+          toast({
+            title: "Error",
+            description: "Failed to load store settings",
+            variant: "destructive",
+          });
+          throw settingsError;
+        }
+
+        // Get user products
+        const { data: userProducts, error: productsError } = await supabase
+          .from("user_products")
+          .select(`
+            products (*)
+          `)
+          .eq("user_id", profile.id);
+
+        if (productsError) {
+          toast({
+            title: "Error",
+            description: "Failed to load products",
+            variant: "destructive",
+          });
+          throw productsError;
+        }
+
+        const products = userProducts.map(up => up.products);
+
         return {
           profile,
-          settings: profile.store_settings[0],
-          products: profile.user_products.map(up => up.products)
+          settings,
+          products
         } as StoreData;
       } catch (error) {
         console.error("Error loading store:", error);
