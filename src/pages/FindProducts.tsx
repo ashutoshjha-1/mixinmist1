@@ -54,6 +54,7 @@ const categories = [
 
 const FindProducts = () => {
   const [searchQuery, setSearchQuery] = useState("");
+  const [addedProducts, setAddedProducts] = useState<Set<string>>(new Set());
   const navigate = useNavigate();
   const { toast } = useToast();
 
@@ -100,6 +101,9 @@ const FindProducts = () => {
         });
 
       if (error) throw error;
+
+      // Add product ID to the set of added products
+      setAddedProducts(prev => new Set([...prev, product.id]));
 
       toast({
         title: "Product Added",
@@ -176,11 +180,12 @@ const FindProducts = () => {
                   <h3 className="font-semibold text-sm mb-2">{product.name}</h3>
                   <p className="text-primary mb-2">${product.price.toFixed(2)}</p>
                   <Button
-                    variant="outline"
+                    variant={addedProducts.has(product.id) ? "secondary" : "outline"}
                     className="w-full"
                     onClick={() => handleAddToStore(product)}
+                    disabled={addedProducts.has(product.id)}
                   >
-                    Add to My Store
+                    {addedProducts.has(product.id) ? "Added" : "Add to My Store"}
                   </Button>
                 </CardContent>
               </Card>
