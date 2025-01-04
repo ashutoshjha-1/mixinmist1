@@ -11,20 +11,39 @@ export default function Store() {
   const { data: storeData, isLoading: isLoadingStore } = useQuery({
     queryKey: ["store", storeName],
     queryFn: async () => {
-      const { data: profiles, error } = await supabase
+      // First, get the profile and related data
+      const { data: profile, error: profileError } = await supabase
         .from("profiles")
-        .select(`
-          *,
-          store_settings(*),
-          user_products(
-            products(*)
-          )
-        `)
+        .select("*")
         .eq("store_name", storeName)
         .single();
 
-      if (error) throw error;
-      return profiles;
+      if (profileError) throw profileError;
+
+      // Get store settings
+      const { data: settings, error: settingsError } = await supabase
+        .from("store_settings")
+        .select("*")
+        .eq("user_id", profile.id)
+        .single();
+
+      if (settingsError) throw settingsError;
+
+      // Get user products
+      const { data: userProducts, error: productsError } = await supabase
+        .from("user_products")
+        .select(`
+          products (*)
+        `)
+        .eq("user_id", profile.id);
+
+      if (productsError) throw productsError;
+
+      return {
+        profile,
+        settings,
+        products: userProducts.map(up => up.products)
+      };
     },
   });
 
@@ -36,8 +55,7 @@ export default function Store() {
     return <div>Store not found</div>;
   }
 
-  const settings = storeData.store_settings;
-  const products = storeData.user_products.map((up: any) => up.products);
+  const { settings, products } = storeData;
 
   return (
     <div className="min-h-screen">
@@ -85,7 +103,7 @@ export default function Store() {
         <div className="max-w-7xl mx-auto px-4">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             <div>
-              <h3 className="text-2xl font-bold mb-4">{storeData.store_name}</h3>
+              <h3 className="text-2xl font-bold mb-4">{storeData.profile.store_name}</h3>
               <p>{settings.footer_text}</p>
             </div>
             <div>
