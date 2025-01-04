@@ -7,6 +7,8 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { X } from "lucide-react";
 import { CheckoutForm } from "@/components/store/CheckoutForm";
+import { MenuItem } from "@/integrations/supabase/types/menu";
+import { FooterLink } from "@/integrations/supabase/types/footer";
 
 export default function CartPage() {
   const { items, removeItem, updateQuantity, total } = useCart();
