@@ -59,6 +59,7 @@ export default function ProductPage() {
       name: product.name,
       price: product.price,
       quantity: 1,
+      image_url: product.image_url, // Add the image_url here
     });
     toast({
       title: "Added to cart",
