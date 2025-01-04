@@ -21,6 +21,16 @@ export default function StoreSettings() {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error("Not authenticated");
 
+      // First get the profile to get the store name
+      const { data: profile, error: profileError } = await supabase
+        .from("profiles")
+        .select("store_name")
+        .eq("id", user.id)
+        .maybeSingle();
+
+      if (profileError) throw profileError;
+      if (!profile) throw new Error("Profile not found");
+
       const { data, error } = await supabase
         .from("store_settings")
         .select("*")
@@ -36,7 +46,7 @@ export default function StoreSettings() {
           .insert([
             {
               user_id: user.id,
-              store_name: "My Store", // Default store name
+              store_name: profile.store_name,
               hero_title: "Welcome to My Store",
               hero_subtitle: "Discover our amazing products",
               footer_text: "© 2024 All rights reserved",
@@ -47,10 +57,10 @@ export default function StoreSettings() {
           .single();
 
         if (createError) throw createError;
-        return newSettings;
+        return { ...newSettings, store_name: profile.store_name };
       }
 
-      return data;
+      return { ...data, store_name: profile.store_name };
     },
   });
 
@@ -101,7 +111,15 @@ export default function StoreSettings() {
   };
 
   const handlePreviewStore = () => {
-    navigate(`/store/${settings?.store_name}`);
+    if (settings?.store_name) {
+      navigate(`/store/${encodeURIComponent(settings.store_name)}`);
+    } else {
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "Store name not found",
+      });
+    }
   };
 
   if (isLoading) {
