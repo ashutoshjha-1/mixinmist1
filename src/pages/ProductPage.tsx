@@ -74,15 +74,15 @@ export default function ProductPage() {
     );
   }
 
-  const menuItems = Array.isArray(storeData.menu_items) 
-    ? storeData.menu_items.map(item => ({
+  const menuItems: MenuItem[] = Array.isArray(storeData.menu_items) 
+    ? (storeData.menu_items as any[]).map(item => ({
         label: String(item.label || ''),
         url: String(item.url || '')
       }))
     : [];
 
-  const footerLinks = Array.isArray(storeData.footer_links)
-    ? storeData.footer_links.map(link => ({
+  const footerLinks: FooterLink[] = Array.isArray(storeData.footer_links)
+    ? (storeData.footer_links as any[]).map(link => ({
         label: String(link.label || ''),
         url: String(link.url || '')
       }))
