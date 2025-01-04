@@ -1,20 +1,16 @@
-import React from "react";
 import { useParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { Button } from "@/components/ui/button";
-import { useCart } from "@/contexts/CartContext";
-import { useToast } from "@/hooks/use-toast";
 import { StoreHeader } from "@/components/store/StoreHeader";
 import { StoreFooter } from "@/components/store/StoreFooter";
 import { Card } from "@/components/ui/card";
-import { ShoppingCart, Star } from "lucide-react";
-import type { MenuItem, FooterLink } from "@/integrations/supabase/types";
+import { ProductImage } from "@/components/product/ProductImage";
+import { ProductDetails } from "@/components/product/ProductDetails";
+import { AddToCartSection } from "@/components/product/AddToCartSection";
+import type { MenuItem, FooterLink } from "@/types/store";
 
 export default function ProductPage() {
   const { storeName, productId } = useParams();
-  const { addItem } = useCart();
-  const { toast } = useToast();
 
   // Fetch store settings and product data
   const { data: storeData } = useQuery({
@@ -77,22 +73,6 @@ export default function ProductPage() {
     },
   });
 
-  const handleAddToCart = () => {
-    if (product) {
-      addItem({
-        id: product.id,
-        name: product.name,
-        price: product.price,
-        quantity: 1,
-        image_url: product.image_url,
-      });
-      toast({
-        title: "Added to cart",
-        description: "Product has been added to your cart",
-      });
-    }
-  };
-
   if (isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -103,7 +83,6 @@ export default function ProductPage() {
 
   if (!product || !storeData) return <div>Product not found</div>;
 
-  // Safely handle menu items and footer links
   const menuItems: MenuItem[] = Array.isArray(storeData.menu_items) 
     ? storeData.menu_items 
     : [];
@@ -123,67 +102,27 @@ export default function ProductPage() {
         <div className="max-w-6xl mx-auto">
           <Card className="overflow-hidden">
             <div className="grid md:grid-cols-2 gap-8 p-6">
-              {/* Product Image Section */}
               <div className="space-y-4">
-                <div className="aspect-square overflow-hidden rounded-lg bg-gray-100">
-                  <img
-                    src={product.image_url}
-                    alt={product.name}
-                    className="w-full h-full object-cover"
-                  />
-                </div>
+                <ProductImage 
+                  imageUrl={product.image_url} 
+                  productName={product.name} 
+                />
               </div>
 
-              {/* Product Details Section */}
               <div className="space-y-6">
-                <div>
-                  <h1 className="text-3xl font-bold text-gray-900 mb-2">
-                    {product.name}
-                  </h1>
-                  <div className="flex items-center gap-2 text-yellow-400">
-                    <Star className="fill-current" />
-                    <Star className="fill-current" />
-                    <Star className="fill-current" />
-                    <Star className="fill-current" />
-                    <Star className="fill-current" />
-                  </div>
-                </div>
+                <ProductDetails 
+                  name={product.name}
+                  price={product.price}
+                  description={product.description}
+                  productId={product.id}
+                />
 
-                <div className="text-3xl font-bold text-primary">
-                  ${product.price.toFixed(2)}
-                </div>
-
-                {product.description && (
-                  <div className="prose prose-sm">
-                    <h2 className="text-lg font-semibold text-gray-900">Description</h2>
-                    <p className="text-gray-600">{product.description}</p>
-                  </div>
-                )}
-
-                <div className="space-y-4">
-                  <Button
-                    size="lg"
-                    className="w-full"
-                    onClick={handleAddToCart}
-                  >
-                    <ShoppingCart className="mr-2" />
-                    Add to Cart
-                  </Button>
-                </div>
-
-                {/* Additional Product Information */}
-                <div className="border-t pt-6 space-y-4">
-                  <div className="grid grid-cols-2 gap-4 text-sm">
-                    <div>
-                      <span className="font-medium text-gray-900">Availability:</span>
-                      <span className="text-green-600 ml-2">In Stock</span>
-                    </div>
-                    <div>
-                      <span className="font-medium text-gray-900">SKU:</span>
-                      <span className="text-gray-600 ml-2">{product.id.slice(0, 8)}</span>
-                    </div>
-                  </div>
-                </div>
+                <AddToCartSection 
+                  productId={product.id}
+                  productName={product.name}
+                  productPrice={product.price}
+                  productImage={product.image_url}
+                />
               </div>
             </div>
           </Card>
