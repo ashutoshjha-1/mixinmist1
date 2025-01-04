@@ -1,11 +1,7 @@
 import { useParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-
-interface FooterLink {
-  label: string;
-  url: string;
-}
+import { FooterLink } from "@/integrations/supabase/types";
 
 interface StoreData {
   profile: {
@@ -84,15 +80,15 @@ export default function Store() {
 
       if (productsError) throw productsError;
 
-      // Parse the footer_links JSON
-      const parsedSettings = {
-        ...settings,
-        footer_links: (settings.footer_links || []) as FooterLink[],
-      };
+      // Parse the footer_links JSON and ensure it's an array of FooterLink
+      const parsedFooterLinks = (settings.footer_links || []) as FooterLink[];
 
       return {
         profile,
-        settings: parsedSettings,
+        settings: {
+          ...settings,
+          footer_links: parsedFooterLinks,
+        },
         products: products || [],
       };
     },
