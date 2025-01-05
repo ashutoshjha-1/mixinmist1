@@ -78,7 +78,7 @@ const CustomerOrders = () => {
 
   const fetchAllUserOrders = async () => {
     try {
-      // First fetch all orders
+      // Fetch all orders without filtering by store_id
       const { data: ordersData, error: ordersError } = await supabase
         .from("orders")
         .select(`
