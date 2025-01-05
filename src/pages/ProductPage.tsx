@@ -81,6 +81,7 @@ const ProductPageContent = () => {
       
       console.log("Fetching product for store:", storeName, "product:", productId);
       
+      // First get the profile ID for the store
       const { data: profile, error: profileError } = await supabase
         .from("profiles")
         .select("id")
@@ -99,8 +100,8 @@ const ProductPageContent = () => {
 
       console.log("Found profile:", profile);
 
-      // Updated query to properly join user_products with products
-      const { data: userProduct, error: productError } = await supabase
+      // First check if this product is associated with this store
+      const { data: userProduct, error: userProductError } = await supabase
         .from("user_products")
         .select(`
           custom_price,
@@ -116,18 +117,19 @@ const ProductPageContent = () => {
         .eq("product_id", productId)
         .maybeSingle();
 
-      if (productError) {
-        console.error("Product fetch error:", productError);
-        throw productError;
+      if (userProductError) {
+        console.error("Product fetch error:", userProductError);
+        throw userProductError;
       }
 
       if (!userProduct) {
-        console.error("Product not found:", productId);
+        console.error("Product not found for store:", storeName, "product:", productId);
         throw new Error("Product not found");
       }
 
-      console.log("Found product:", userProduct);
+      console.log("Found user product:", userProduct);
 
+      // Transform the data to match our expected format
       return {
         id: userProduct.products.id,
         name: userProduct.products.name,
