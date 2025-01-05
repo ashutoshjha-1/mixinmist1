@@ -10,10 +10,13 @@ import { supabase } from "@/integrations/supabase/client";
 const ProductPageContent = () => {
   const { storeName, productId } = useParams();
   
+  console.log("ProductPage params:", { storeName, productId });
+  
   const { data: storeSettings, isLoading: isLoadingSettings } = useQuery({
     queryKey: ["store-settings", storeName?.toLowerCase()],
     queryFn: async () => {
       if (!storeName) {
+        console.error("Store name is required but was undefined");
         throw new Error("Store name is required");
       }
 
@@ -53,6 +56,8 @@ const ProductPageContent = () => {
         throw new Error("Store settings not found");
       }
 
+      console.log("Found store settings:", settings);
+
       const menuItems = Array.isArray(settings.menu_items) 
         ? settings.menu_items.map((item: any) => ({
             label: String(item?.label || ''),
@@ -68,12 +73,25 @@ const ProductPageContent = () => {
     enabled: !!storeName,
   });
 
-  const { data: product, isLoading } = useStoreProduct(storeName, productId);
+  const { data: product, isLoading, error } = useStoreProduct(storeName, productId);
+
+  console.log("Product query result:", { product, isLoading, error });
 
   if (isLoading || isLoadingSettings) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-lg">Loading...</div>
+      </div>
+    );
+  }
+
+  if (error) {
+    console.error("Product fetch error:", error);
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-lg text-red-600">
+          {error instanceof Error ? error.message : "Failed to load product"}
+        </div>
       </div>
     );
   }

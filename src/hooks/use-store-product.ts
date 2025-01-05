@@ -6,11 +6,11 @@ export const useStoreProduct = (storeName: string | undefined, productId: string
     queryKey: ["store-product", storeName?.toLowerCase(), productId],
     queryFn: async () => {
       if (!storeName || !productId) {
-        console.error("Store name and product ID are required");
+        console.error("Store name and product ID are required", { storeName, productId });
         throw new Error("Store name and product ID are required");
       }
       
-      console.log("Fetching product for store:", storeName, "product:", productId);
+      console.log("Fetching product data:", { storeName, productId });
       
       // First get the profile ID for the store
       const { data: profile, error: profileError } = await supabase
@@ -60,13 +60,18 @@ export const useStoreProduct = (storeName: string | undefined, productId: string
         throw new Error("Product not found");
       }
 
-      return {
+      // Transform the data
+      const transformedProduct = {
         id: userProduct.products.id,
         name: userProduct.products.name,
         price: userProduct.custom_price,
         image_url: userProduct.products.image_url,
         description: userProduct.custom_description || userProduct.products.description,
       };
+
+      console.log("Transformed product data:", transformedProduct);
+
+      return transformedProduct;
     },
     enabled: !!storeName && !!productId,
   });
