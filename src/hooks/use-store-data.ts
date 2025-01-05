@@ -42,7 +42,10 @@ export const useStoreData = (username: string | undefined) => {
   return useQuery({
     queryKey: ["store", username?.toLowerCase()],
     queryFn: async () => {
-      if (!username) throw new Error("Store username is required");
+      if (!username) {
+        console.error("Store username is required but was undefined");
+        throw new Error("Store username is required");
+      }
 
       console.log("Fetching store data for username:", username);
 

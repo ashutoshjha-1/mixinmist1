@@ -14,14 +14,18 @@ const ProductPageContent = () => {
   const { addItem } = useCart();
   const { toast } = useToast();
 
-  const { data: storeSettings } = useQuery({
+  const { data: storeSettings, isLoading: isLoadingSettings } = useQuery({
     queryKey: ["store-settings", storeName?.toLowerCase()],
     queryFn: async () => {
+      if (!storeName) {
+        throw new Error("Store name is required");
+      }
+
       const { data: profile } = await supabase
         .from("profiles")
         .select("id")
         .ilike("username", storeName)
-        .single();
+        .maybeSingle();
 
       if (!profile) throw new Error("Store not found");
 
@@ -44,11 +48,16 @@ const ProductPageContent = () => {
         menu_items: menuItems
       };
     },
+    enabled: !!storeName,
   });
 
   const { data: product, isLoading } = useQuery({
     queryKey: ["store-product", storeName, productId],
     queryFn: async () => {
+      if (!storeName) {
+        throw new Error("Store name is required");
+      }
+      
       console.log("Fetching product for store:", storeName, "product:", productId);
       
       const { data: profile, error: profileError } = await supabase
@@ -103,9 +112,10 @@ const ProductPageContent = () => {
         description: userProduct.custom_description || userProduct.products.description,
       };
     },
+    enabled: !!storeName && !!productId,
   });
 
-  if (isLoading) return <div>Loading...</div>;
+  if (isLoading || isLoadingSettings) return <div>Loading...</div>;
   if (!product) return <div>Product not found</div>;
 
   const handleAddToCart = () => {
