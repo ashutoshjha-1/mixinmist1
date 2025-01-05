@@ -149,6 +149,7 @@ export type Database = {
       }
       store_settings: {
         Row: {
+          bottom_menu_items: Json | null
           created_at: string
           custom_domain: string | null
           footer_links: Json | null
@@ -165,6 +166,7 @@ export type Database = {
           user_id: string
         }
         Insert: {
+          bottom_menu_items?: Json | null
           created_at?: string
           custom_domain?: string | null
           footer_links?: Json | null
@@ -181,6 +183,7 @@ export type Database = {
           user_id: string
         }
         Update: {
+          bottom_menu_items?: Json | null
           created_at?: string
           custom_domain?: string | null
           footer_links?: Json | null

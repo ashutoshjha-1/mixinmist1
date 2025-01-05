@@ -30,6 +30,7 @@ interface StoreData {
     icon_image_url: string | null;
     id: string;
     menu_items: MenuItem[];
+    bottom_menu_items: MenuItem[];
     store_name: string;
     theme_color: string;
     updated_at: string;
@@ -180,6 +181,7 @@ export default function Store() {
           themeColor={settings.theme_color}
           footerText={settings.footer_text}
           footerLinks={settings.footer_links}
+          bottomMenuItems={settings.bottom_menu_items}
         />
       </div>
     </CartProvider>
