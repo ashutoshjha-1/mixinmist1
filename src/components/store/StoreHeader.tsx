@@ -21,6 +21,7 @@ interface StoreHeaderProps {
 export function StoreHeader({ iconImageUrl, menuItems }: StoreHeaderProps) {
   const { items, total, removeItem, updateQuantity } = useCart();
   const [showCheckout, setShowCheckout] = useState(false);
+  const [isCartOpen, setIsCartOpen] = useState(false);
 
   const handleQuantityChange = (id: string, change: number) => {
     const item = items.find((i) => i.id === id);
@@ -28,6 +29,11 @@ export function StoreHeader({ iconImageUrl, menuItems }: StoreHeaderProps) {
       const newQuantity = Math.max(1, item.quantity + change);
       updateQuantity(id, newQuantity);
     }
+  };
+
+  const handleCheckoutClick = () => {
+    setIsCartOpen(false); // Close the cart sheet
+    setShowCheckout(true); // Show the checkout dialog
   };
 
   return (
@@ -61,7 +67,7 @@ export function StoreHeader({ iconImageUrl, menuItems }: StoreHeaderProps) {
               </nav>
             )}
 
-            <Sheet>
+            <Sheet open={isCartOpen} onOpenChange={setIsCartOpen}>
               <SheetTrigger asChild>
                 <Button variant="ghost" size="icon" className="relative">
                   <ShoppingCart className="h-5 w-5" />
@@ -137,7 +143,7 @@ export function StoreHeader({ iconImageUrl, menuItems }: StoreHeaderProps) {
                       </div>
                       <Button
                         className="w-full"
-                        onClick={() => setShowCheckout(true)}
+                        onClick={handleCheckoutClick}
                       >
                         Checkout
                       </Button>
