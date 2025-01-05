@@ -1,113 +1,70 @@
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/components/ui/use-toast";
 import { DashboardSidebar } from "@/components/dashboard/DashboardSidebar";
 import { useAdminCheck } from "@/hooks/use-admin-check";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { OrdersTable } from "@/components/dashboard/orders/OrdersTable";
-import { Order } from "@/types/order";
+import { useOrders } from "@/hooks/use-orders";
 
 const CustomerOrders = () => {
+  const navigate = useNavigate();
   const { toast } = useToast();
   const { data: isAdmin } = useAdminCheck();
   const [userId, setUserId] = useState<string | undefined>(undefined);
-  const [orders, setOrders] = useState<Order[]>([]);
-  const [allUserOrders, setAllUserOrders] = useState<Order[]>([]);
 
   useEffect(() => {
-    const initializeData = async () => {
+    const checkAuth = async () => {
       try {
-        const { data: { user }, error: userError } = await supabase.auth.getUser();
+        const { data: { session }, error: sessionError } = await supabase.auth.getSession();
         
-        if (userError) {
-          console.error("Auth error:", userError);
-          throw userError;
-        }
-
-        if (!user) {
-          console.error("No authenticated user found");
-          toast({
-            variant: "destructive",
-            title: "Authentication Error",
-            description: "Please sign in to view orders",
-          });
+        if (sessionError) {
+          console.error("Session error:", sessionError);
+          navigate("/signin");
           return;
         }
 
-        console.log("Current user:", user);
-        setUserId(user.id);
-
-        // Fetch orders for the current user
-        const { data: ordersData, error: ordersError } = await supabase
-          .from("orders")
-          .select(`
-            *,
-            order_items (
-              id,
-              order_id,
-              product_id,
-              quantity,
-              price,
-              created_at
-            )
-          `)
-          .eq('store_id', user.id)
-          .order('created_at', { ascending: false });
-
-        if (ordersError) throw ordersError;
-        console.log("Fetched orders:", ordersData);
-        setOrders(ordersData || []);
-
-        // If admin, fetch all user orders
-        if (isAdmin) {
-          const { data: allOrdersData, error: allOrdersError } = await supabase
-            .from("orders")
-            .select(`
-              *,
-              order_items (
-                id,
-                order_id,
-                product_id,
-                quantity,
-                price,
-                created_at
-              )
-            `)
-            .order('created_at', { ascending: false });
-
-          if (allOrdersError) throw allOrdersError;
-
-          // Fetch store names
-          const { data: profilesData, error: profilesError } = await supabase
-            .from("profiles")
-            .select("id, store_name");
-
-          if (profilesError) throw profilesError;
-
-          const storeNameMap = new Map(
-            profilesData?.map(profile => [profile.id, profile.store_name])
-          );
-
-          const ordersWithStoreNames = allOrdersData?.map(order => ({
-            ...order,
-            store_name: storeNameMap.get(order.store_id) || "Unknown Store"
-          })) || [];
-
-          console.log("All user orders with items:", ordersWithStoreNames);
-          setAllUserOrders(ordersWithStoreNames);
+        if (!session) {
+          console.log("No session found, redirecting to signin");
+          navigate("/signin");
+          return;
         }
+
+        console.log("Session found:", session.user.id);
+        setUserId(session.user.id);
+
       } catch (error: any) {
-        console.error("Initialization error:", error);
+        console.error("Auth check error:", error);
         toast({
           variant: "destructive",
-          title: "Error",
-          description: "Failed to initialize data. Please try refreshing the page.",
+          title: "Authentication Error",
+          description: "Please sign in to view orders",
         });
+        navigate("/signin");
       }
     };
 
-    initializeData();
-  }, [isAdmin]);
+    checkAuth();
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      if (session) {
+        setUserId(session.user.id);
+      } else {
+        navigate("/signin");
+      }
+    });
+
+    return () => {
+      subscription.unsubscribe();
+    };
+  }, [navigate, toast]);
+
+  const { orders, allUserOrders } = useOrders(userId, isAdmin);
+
+  if (!userId) {
+    return null; // Don't render anything while checking authentication
+  }
 
   return (
     <div className="min-h-screen bg-gray-50">
