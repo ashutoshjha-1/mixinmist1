@@ -3,8 +3,17 @@ import { AdminProductDialog } from "@/components/store/AdminProductDialog";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 
-export const ProductManagement = () => {
-  const [isAdminDialogOpen, setIsAdminDialogOpen] = useState(false);
+interface ProductManagementProps {
+  isAdminDialogOpen: boolean;
+  setIsAdminDialogOpen: (open: boolean) => void;
+  onSuccess?: () => void;
+}
+
+export const ProductManagement = ({ 
+  isAdminDialogOpen, 
+  setIsAdminDialogOpen,
+  onSuccess 
+}: ProductManagementProps) => {
   const [editingProduct, setEditingProduct] = useState<any>(null);
   const { toast } = useToast();
 
@@ -47,6 +56,9 @@ export const ProductManagement = () => {
 
       setIsAdminDialogOpen(false);
       setEditingProduct(null);
+      if (onSuccess) {
+        onSuccess();
+      }
     } catch (error: any) {
       toast({
         variant: "destructive",

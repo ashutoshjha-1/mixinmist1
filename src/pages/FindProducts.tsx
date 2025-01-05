@@ -131,7 +131,16 @@ const FindProducts = () => {
           />
         )}
 
-        <ProductManagement />
+        {isAdmin && (
+          <ProductManagement 
+            isAdminDialogOpen={isAdminDialogOpen}
+            setIsAdminDialogOpen={setIsAdminDialogOpen}
+            onSuccess={() => {
+              refetch();
+              setIsAdminDialogOpen(false);
+            }}
+          />
+        )}
       </div>
     </div>
   );
