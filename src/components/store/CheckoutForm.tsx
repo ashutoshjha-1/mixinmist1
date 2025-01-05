@@ -95,6 +95,29 @@ export function CheckoutForm({ onSuccess }: { onSuccess: () => void }) {
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+      {/* Cart Summary Section */}
+      <div className="mb-6 border-b pb-4">
+        <h3 className="text-lg font-semibold mb-3">Order Summary</h3>
+        <div className="space-y-2">
+          {items.map((item) => (
+            <div key={item.id} className="flex justify-between items-center">
+              <div className="flex items-center space-x-2">
+                <img
+                  src={item.image_url}
+                  alt={item.name}
+                  className="h-10 w-10 object-cover rounded"
+                />
+                <div>
+                  <p className="font-medium">{item.name}</p>
+                  <p className="text-sm text-gray-500">Qty: {item.quantity}</p>
+                </div>
+              </div>
+              <p className="font-medium">${(item.price * item.quantity).toFixed(2)}</p>
+            </div>
+          ))}
+        </div>
+      </div>
+
       <div>
         <Input
           {...register("customerName", { required: "Name is required" })}
@@ -132,10 +155,11 @@ export function CheckoutForm({ onSuccess }: { onSuccess: () => void }) {
         )}
       </div>
 
-      <div className="pt-4">
-        <p className="text-lg font-semibold mb-4">
-          Total: ${total.toFixed(2)}
-        </p>
+      <div className="pt-4 border-t">
+        <div className="flex justify-between items-center mb-4">
+          <span className="text-lg font-semibold">Total</span>
+          <span className="text-lg font-semibold">${total.toFixed(2)}</span>
+        </div>
         <Button
           type="submit"
           className="w-full"
