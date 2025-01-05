@@ -51,7 +51,7 @@ export const useStoreData = (username: string | undefined) => {
         .from("profiles")
         .select("*")
         .ilike("username", username)
-        .maybeSingle();
+        .single();
 
       if (profileError) {
         console.error("Profile fetch error:", profileError);
@@ -70,7 +70,7 @@ export const useStoreData = (username: string | undefined) => {
         .from("store_settings")
         .select("*")
         .eq("user_id", profile.id)
-        .maybeSingle();
+        .single();
 
       if (settingsError) {
         console.error("Settings fetch error:", settingsError);
@@ -82,11 +82,10 @@ export const useStoreData = (username: string | undefined) => {
         throw new Error("Store settings not found");
       }
 
-      // Get user products with a simpler query
-      const { data: userProducts, error: userProductsError } = await supabase
+      // Get products with a single query
+      const { data: userProducts, error: productsError } = await supabase
         .from("user_products")
         .select(`
-          product_id,
           custom_price,
           products (
             id,
@@ -96,40 +95,23 @@ export const useStoreData = (username: string | undefined) => {
         `)
         .eq("user_id", profile.id);
 
-      if (userProductsError) {
-        console.error("User products fetch error:", userProductsError);
-        throw userProductsError;
+      if (productsError) {
+        console.error("Products fetch error:", productsError);
+        throw productsError;
       }
 
-      // Transform the joined data
-      const products = userProducts.map(up => ({
+      // Transform the products data
+      const products = (userProducts || []).map((up) => ({
         id: up.products.id,
         name: up.products.name,
         price: up.custom_price,
         image_url: up.products.image_url,
       }));
 
-      // Parse menu items and footer links
-      const menuItems = Array.isArray(settings.menu_items) 
-        ? settings.menu_items.map((item: any) => ({
-            label: String(item.label || ''),
-            url: String(item.url || '')
-          }))
-        : [];
-
-      const footerLinks = Array.isArray(settings.footer_links)
-        ? settings.footer_links.map((link: any) => ({
-            label: String(link.label || ''),
-            url: String(link.url || '')
-          }))
-        : [];
-
-      const bottomMenuItems = Array.isArray(settings.bottom_menu_items)
-        ? settings.bottom_menu_items.map((item: any) => ({
-            label: String(item.label || ''),
-            url: String(item.url || '')
-          }))
-        : [];
+      // Ensure menu items and footer links are properly typed
+      const menuItems = (settings.menu_items || []) as MenuItem[];
+      const footerLinks = (settings.footer_links || []) as FooterLink[];
+      const bottomMenuItems = (settings.bottom_menu_items || []) as MenuItem[];
 
       return {
         profile,
