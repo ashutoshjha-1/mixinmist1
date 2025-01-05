@@ -82,7 +82,7 @@ export const useStoreData = (username: string | undefined) => {
         throw new Error("Store settings not found");
       }
 
-      // Get user products with a simpler query first
+      // Get user products directly without joins
       const { data: userProducts, error: userProductsError } = await supabase
         .from("user_products")
         .select("product_id, custom_price")
@@ -93,8 +93,23 @@ export const useStoreData = (username: string | undefined) => {
         throw userProductsError;
       }
 
-      // Then get the product details
+      // Get product details in a separate query
       const productIds = userProducts.map(up => up.product_id);
+      
+      if (productIds.length === 0) {
+        // Return empty products array if no products found
+        return {
+          profile,
+          settings: {
+            ...settings,
+            menu_items: Array.isArray(settings.menu_items) ? settings.menu_items : [],
+            footer_links: Array.isArray(settings.footer_links) ? settings.footer_links : [],
+            bottom_menu_items: Array.isArray(settings.bottom_menu_items) ? settings.bottom_menu_items : [],
+          },
+          products: [],
+        };
+      }
+
       const { data: productsData, error: productsError } = await supabase
         .from("products")
         .select("id, name, image_url")
@@ -105,7 +120,7 @@ export const useStoreData = (username: string | undefined) => {
         throw productsError;
       }
 
-      // Combine the data
+      // Combine the data manually
       const products = productsData.map(product => {
         const userProduct = userProducts.find(up => up.product_id === product.id);
         return {
@@ -138,16 +153,14 @@ export const useStoreData = (username: string | undefined) => {
           }))
         : [];
 
-      const parsedSettings = {
-        ...settings,
-        menu_items: menuItems,
-        footer_links: footerLinks,
-        bottom_menu_items: bottomMenuItems,
-      };
-
       return {
         profile,
-        settings: parsedSettings,
+        settings: {
+          ...settings,
+          menu_items: menuItems,
+          footer_links: footerLinks,
+          bottom_menu_items: bottomMenuItems,
+        },
         products,
       };
     },
