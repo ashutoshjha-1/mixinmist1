@@ -8,10 +8,6 @@ import SignUp from "@/pages/SignUp";
 import Dashboard from "@/pages/Dashboard";
 import Store from "@/pages/Store";
 import FindProducts from "@/pages/FindProducts";
-import Orders from "@/pages/Orders";
-import Settings from "@/pages/Settings";
-import StoreSettings from "@/pages/StoreSettings";
-import Product from "@/pages/Product";
 import { CartProvider } from "@/contexts/CartContext";
 
 function App() {
@@ -39,32 +35,8 @@ function App() {
               </AuthGuard>
             }
           />
-          <Route
-            path="/dashboard/orders"
-            element={
-              <AuthGuard>
-                <Orders />
-              </AuthGuard>
-            }
-          />
-          <Route
-            path="/dashboard/settings"
-            element={
-              <AuthGuard>
-                <Settings />
-              </AuthGuard>
-            }
-          />
-          <Route
-            path="/dashboard/store"
-            element={
-              <AuthGuard>
-                <StoreSettings />
-              </AuthGuard>
-            }
-          />
           <Route path="/store/:username" element={<Store />} />
-          <Route path="/store/:username/product/:id" element={<Product />} />
+          <Route path="/store/:username/product/:id" element={<Store />} />
         </Routes>
         <Toaster />
       </CartProvider>
