@@ -1,4 +1,4 @@
-import { Store, ShoppingCart } from "lucide-react";
+import { Store, ShoppingCart, X } from "lucide-react";
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
