@@ -12,11 +12,11 @@ export const useStoreProduct = (storeName: string | undefined, productId: string
       
       console.log("Fetching product data:", { storeName, productId });
       
-      // First get the profile ID for the store using case-insensitive search
+      // First get the profile using username (case-insensitive search)
       const { data: profile, error: profileError } = await supabase
         .from("profiles")
-        .select("id, store_name")
-        .ilike("store_name", storeName)
+        .select("id")
+        .ilike("username", storeName)
         .maybeSingle();
 
       if (profileError) {
@@ -25,7 +25,7 @@ export const useStoreProduct = (storeName: string | undefined, productId: string
       }
 
       if (!profile) {
-        console.error("Store not found for store name:", storeName);
+        console.error("Store not found for username:", storeName);
         throw new Error("Store not found");
       }
 
