@@ -14,7 +14,7 @@ interface CheckoutFormData {
 }
 
 export function CheckoutForm({ onSuccess }: { onSuccess: () => void }) {
-  const { storeName } = useParams<{ storeName: string }>();
+  const { username } = useParams<{ username: string }>();
   const { items, total, clearCart } = useCart();
   const { toast } = useToast();
   const {
@@ -25,11 +25,11 @@ export function CheckoutForm({ onSuccess }: { onSuccess: () => void }) {
 
   const onSubmit = async (data: CheckoutFormData) => {
     try {
-      // Get store owner's ID from their store name
+      // Get store owner's ID from their username
       const { data: profile } = await supabase
         .from("profiles")
         .select("id")
-        .eq("store_name", storeName)
+        .eq("username", username)
         .single();
 
       if (!profile) {
