@@ -4,7 +4,7 @@ import { FooterLink } from "@/integrations/supabase/types/footer";
 interface StoreFooterProps {
   themeColor: string;
   footerText: string | null;
-  footerLinks: FooterLink[];
+  footerLinks: FooterLink[] | null;
 }
 
 export const StoreFooter = ({ themeColor, footerText, footerLinks }: StoreFooterProps) => {
