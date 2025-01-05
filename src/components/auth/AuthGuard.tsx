@@ -18,7 +18,6 @@ export const AuthGuard = ({ children }: { children: React.ReactNode }) => {
         
         if (sessionError) {
           console.error("Session error:", sessionError);
-          // Don't try to sign out if there's already a session error
           navigate("/signin");
           return;
         }
@@ -34,8 +33,6 @@ export const AuthGuard = ({ children }: { children: React.ReactNode }) => {
         
         if (userError) {
           console.error("User verification error:", userError);
-          // Clear session token before signing out
-          localStorage.removeItem('sb-zevuqoiqmlkudholotmp-auth-token');
           await supabase.auth.signOut();
           toast({
             title: "Session Expired",
@@ -48,8 +45,6 @@ export const AuthGuard = ({ children }: { children: React.ReactNode }) => {
 
         if (!user) {
           console.error("No user found");
-          // Clear session token before signing out
-          localStorage.removeItem('sb-zevuqoiqmlkudholotmp-auth-token');
           await supabase.auth.signOut();
           navigate("/signin");
           return;
@@ -58,8 +53,6 @@ export const AuthGuard = ({ children }: { children: React.ReactNode }) => {
         console.log("Auth check successful, user:", user.id);
       } catch (error) {
         console.error("Auth check error:", error);
-        // Clear session token before signing out
-        localStorage.removeItem('sb-zevuqoiqmlkudholotmp-auth-token');
         await supabase.auth.signOut();
         navigate("/signin");
       }
