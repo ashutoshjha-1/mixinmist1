@@ -109,20 +109,26 @@ export const useStoreData = (username: string | undefined) => {
       }));
 
       // Parse and type-check menu items and footer links
-      const menuItems = (settings.menu_items || []).map((item: any) => ({
-        label: String(item.label || ''),
-        url: String(item.url || '')
-      })) as MenuItem[];
+      const menuItems = Array.isArray(settings.menu_items) 
+        ? settings.menu_items.map((item: any) => ({
+            label: String(item?.label || ''),
+            url: String(item?.url || '')
+          }))
+        : [];
 
-      const footerLinks = (settings.footer_links || []).map((link: any) => ({
-        label: String(link.label || ''),
-        url: String(link.url || '')
-      })) as FooterLink[];
+      const footerLinks = Array.isArray(settings.footer_links)
+        ? settings.footer_links.map((link: any) => ({
+            label: String(link?.label || ''),
+            url: String(link?.url || '')
+          }))
+        : [];
 
-      const bottomMenuItems = (settings.bottom_menu_items || []).map((item: any) => ({
-        label: String(item.label || ''),
-        url: String(item.url || '')
-      })) as MenuItem[];
+      const bottomMenuItems = Array.isArray(settings.bottom_menu_items)
+        ? settings.bottom_menu_items.map((item: any) => ({
+            label: String(item?.label || ''),
+            url: String(item?.url || '')
+          }))
+        : [];
 
       return {
         profile,
