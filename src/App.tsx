@@ -1,45 +1,86 @@
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-import { Toaster } from "@/components/ui/toaster";
-import { AuthGuard } from "@/components/auth/AuthGuard";
-import AdminSignIn from "@/pages/AdminSignIn";
 import Index from "@/pages/Index";
+import Dashboard from "@/pages/Dashboard";
 import SignIn from "@/pages/SignIn";
 import SignUp from "@/pages/SignUp";
-import Dashboard from "@/pages/Dashboard";
 import Store from "@/pages/Store";
+import ProductPage from "@/pages/ProductPage";
 import FindProducts from "@/pages/FindProducts";
+import MyProducts from "@/pages/MyProducts";
+import CustomerOrders from "@/pages/dashboard/CustomerOrders";
+import StoreSettings from "@/pages/dashboard/StoreSettings";
+import MyAccount from "@/pages/dashboard/MyAccount";
+import { AuthGuard } from "@/components/auth/AuthGuard";
+import { Toaster } from "@/components/ui/toaster";
 import { CartProvider } from "@/contexts/CartContext";
+import "./App.css";
 
 function App() {
   return (
     <Router>
-      <CartProvider>
-        <Routes>
-          <Route path="/" element={<Index />} />
-          <Route path="/signin" element={<SignIn />} />
-          <Route path="/signup" element={<SignUp />} />
-          <Route path="/admin/signin" element={<AdminSignIn />} />
-          <Route
-            path="/dashboard"
-            element={
-              <AuthGuard>
-                <Dashboard />
-              </AuthGuard>
-            }
-          />
-          <Route
-            path="/dashboard/products"
-            element={
-              <AuthGuard>
-                <FindProducts />
-              </AuthGuard>
-            }
-          />
-          <Route path="/store/:username" element={<Store />} />
-          <Route path="/store/:username/product/:id" element={<Store />} />
-        </Routes>
-        <Toaster />
-      </CartProvider>
+      <Routes>
+        <Route path="/" element={<Index />} />
+        <Route path="/sign-in" element={<SignIn />} />
+        <Route path="/sign-up" element={<SignUp />} />
+        <Route path="/store/:username" element={<Store />} />
+        <Route 
+          path="/store/:storeName/product/:productId" 
+          element={
+            <CartProvider>
+              <ProductPage />
+            </CartProvider>
+          } 
+        />
+        <Route
+          path="/dashboard"
+          element={
+            <AuthGuard>
+              <Dashboard />
+            </AuthGuard>
+          }
+        />
+        <Route
+          path="/dashboard/find-products"
+          element={
+            <AuthGuard>
+              <FindProducts />
+            </AuthGuard>
+          }
+        />
+        <Route
+          path="/dashboard/my-products"
+          element={
+            <AuthGuard>
+              <MyProducts />
+            </AuthGuard>
+          }
+        />
+        <Route
+          path="/dashboard/customer-orders"
+          element={
+            <AuthGuard>
+              <CustomerOrders />
+            </AuthGuard>
+          }
+        />
+        <Route
+          path="/dashboard/store-settings"
+          element={
+            <AuthGuard>
+              <StoreSettings />
+            </AuthGuard>
+          }
+        />
+        <Route
+          path="/dashboard/my-account"
+          element={
+            <AuthGuard>
+              <MyAccount />
+            </AuthGuard>
+          }
+        />
+      </Routes>
+      <Toaster />
     </Router>
   );
 }

@@ -1,36 +1,15 @@
 import { useEffect } from "react";
-import { useNavigate, useLocation } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 
-interface AuthGuardProps {
-  children: React.ReactNode;
-  requireAdmin?: boolean;
-}
-
-export const AuthGuard = ({ children, requireAdmin = false }: AuthGuardProps) => {
+export const AuthGuard = ({ children }: { children: React.ReactNode }) => {
   const navigate = useNavigate();
-  const location = useLocation();
 
   useEffect(() => {
     const checkAuth = async () => {
       const { data: { session } } = await supabase.auth.getSession();
-      
       if (!session) {
         navigate("/signin");
-        return;
-      }
-
-      if (requireAdmin) {
-        const { data: roleData } = await supabase
-          .from('user_roles')
-          .select('role')
-          .eq('user_id', session.user.id)
-          .single();
-
-        if (!roleData || roleData.role !== 'admin') {
-          navigate("/signin");
-          return;
-        }
       }
     };
 
@@ -43,7 +22,7 @@ export const AuthGuard = ({ children, requireAdmin = false }: AuthGuardProps) =>
     });
 
     return () => subscription.unsubscribe();
-  }, [navigate, requireAdmin]);
+  }, [navigate]);
 
   return <>{children}</>;
 };
