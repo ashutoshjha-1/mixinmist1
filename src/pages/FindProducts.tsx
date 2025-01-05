@@ -14,6 +14,7 @@ const FindProducts = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [addedProducts, setAddedProducts] = useState<Set<string>>(new Set());
   const [isAdminDialogOpen, setIsAdminDialogOpen] = useState(false);
+  const [editingProduct, setEditingProduct] = useState<any>(null);
   const navigate = useNavigate();
   const { toast } = useToast();
   const { data: isAdmin = false, isLoading: isAdminLoading } = useAdminCheck();
@@ -110,7 +111,7 @@ const FindProducts = () => {
 
   const handleEditProduct = async (product: any) => {
     console.log("Editing product:", product);
-    // For now just open the admin dialog with the product data
+    setEditingProduct(product);
     setIsAdminDialogOpen(true);
   };
 
@@ -138,7 +139,10 @@ const FindProducts = () => {
             searchQuery={searchQuery}
             onSearchChange={setSearchQuery}
             isAdmin={isAdmin}
-            onAddNewProduct={() => setIsAdminDialogOpen(true)}
+            onAddNewProduct={() => {
+              setEditingProduct(null);
+              setIsAdminDialogOpen(true);
+            }}
           />
         </div>
 
@@ -157,7 +161,9 @@ const FindProducts = () => {
             onSuccess={() => {
               refetch();
               setIsAdminDialogOpen(false);
+              setEditingProduct(null);
             }}
+            editingProduct={editingProduct}
           />
         )}
       </div>

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { AdminProductDialog } from "@/components/store/AdminProductDialog";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
@@ -7,14 +7,15 @@ interface ProductManagementProps {
   isAdminDialogOpen: boolean;
   setIsAdminDialogOpen: (open: boolean) => void;
   onSuccess?: () => void;
+  editingProduct?: any;
 }
 
 export const ProductManagement = ({ 
   isAdminDialogOpen, 
   setIsAdminDialogOpen,
-  onSuccess 
+  onSuccess,
+  editingProduct 
 }: ProductManagementProps) => {
-  const [editingProduct, setEditingProduct] = useState<any>(null);
   const { toast } = useToast();
 
   const handleSaveProduct = async (productData: any) => {
@@ -55,7 +56,6 @@ export const ProductManagement = ({
       }
 
       setIsAdminDialogOpen(false);
-      setEditingProduct(null);
       if (onSuccess) {
         onSuccess();
       }
@@ -74,7 +74,6 @@ export const ProductManagement = ({
         isOpen={isAdminDialogOpen}
         onClose={() => {
           setIsAdminDialogOpen(false);
-          setEditingProduct(null);
         }}
         onSave={handleSaveProduct}
         product={editingProduct}
