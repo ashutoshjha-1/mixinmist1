@@ -54,11 +54,12 @@ export default function Store() {
 
       console.log("Fetching store data for username:", username);
 
+      // First get the profile
       const { data: profile, error: profileError } = await supabase
         .from("profiles")
         .select("*")
         .ilike("username", username)
-        .maybeSingle();
+        .single();
 
       if (profileError) {
         console.error("Profile fetch error:", profileError);
@@ -72,11 +73,12 @@ export default function Store() {
 
       console.log("Found profile:", profile);
 
+      // Then get store settings
       const { data: settings, error: settingsError } = await supabase
         .from("store_settings")
         .select("*")
         .eq("user_id", profile.id)
-        .maybeSingle();
+        .single();
 
       if (settingsError) {
         console.error("Settings fetch error:", settingsError);
@@ -88,32 +90,41 @@ export default function Store() {
         throw new Error("Store settings not found");
       }
 
+      // Get user products with a simpler query first
       const { data: userProducts, error: userProductsError } = await supabase
         .from("user_products")
-        .select(`
-          product_id,
-          custom_price,
-          products (
-            id,
-            name,
-            image_url
-          )
-        `)
+        .select("product_id, custom_price")
         .eq("user_id", profile.id);
 
       if (userProductsError) {
-        console.error("Products fetch error:", userProductsError);
+        console.error("User products fetch error:", userProductsError);
         throw userProductsError;
       }
 
-      const products = userProducts.map((up) => ({
-        id: up.products.id,
-        name: up.products.name,
-        price: up.custom_price,
-        image_url: up.products.image_url,
-      }));
+      // Then get the product details
+      const productIds = userProducts.map(up => up.product_id);
+      const { data: productsData, error: productsError } = await supabase
+        .from("products")
+        .select("id, name, image_url")
+        .in("id", productIds);
 
-      // Parse and validate menu_items and footer_links
+      if (productsError) {
+        console.error("Products fetch error:", productsError);
+        throw productsError;
+      }
+
+      // Combine the data
+      const products = productsData.map(product => {
+        const userProduct = userProducts.find(up => up.product_id === product.id);
+        return {
+          id: product.id,
+          name: product.name,
+          price: userProduct?.custom_price || 0,
+          image_url: product.image_url,
+        };
+      });
+
+      // Parse menu items and footer links
       const menuItems = Array.isArray(settings.menu_items) 
         ? settings.menu_items.map((item: any) => ({
             label: String(item.label || ''),
