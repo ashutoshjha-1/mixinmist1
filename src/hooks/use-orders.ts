@@ -34,11 +34,18 @@ export const useOrders = (userId: string | undefined, isAdmin: boolean | undefin
 
       console.log("Fetched orders data:", ordersData);
       
-      // Ensure order_items is always an array
-      const processedOrders = ordersData?.map(order => ({
-        ...order,
-        order_items: Array.isArray(order.order_items) ? order.order_items : []
-      })) || [];
+      // Ensure order_items is always an array and log the processing
+      const processedOrders = ordersData?.map(order => {
+        const processedOrder = {
+          ...order,
+          order_items: Array.isArray(order.order_items) ? order.order_items : []
+        };
+        console.log(`Processed order ${order.id}:`, {
+          originalItems: order.order_items,
+          processedItems: processedOrder.order_items
+        });
+        return processedOrder;
+      }) || [];
       
       setOrders(processedOrders);
     } catch (error: any) {
@@ -87,12 +94,19 @@ export const useOrders = (userId: string | undefined, isAdmin: boolean | undefin
         profilesData?.map(profile => [profile.id, profile.store_name]) || []
       );
 
-      // Process orders to ensure order_items is always an array
-      const processedOrders = ordersData?.map(order => ({
-        ...order,
-        store_name: storeNameMap.get(order.store_id) || "Unknown Store",
-        order_items: Array.isArray(order.order_items) ? order.order_items : []
-      })) || [];
+      // Process orders to ensure order_items is always an array and log the processing
+      const processedOrders = ordersData?.map(order => {
+        const processedOrder = {
+          ...order,
+          store_name: storeNameMap.get(order.store_id) || "Unknown Store",
+          order_items: Array.isArray(order.order_items) ? order.order_items : []
+        };
+        console.log(`Processed all-user order ${order.id}:`, {
+          originalItems: order.order_items,
+          processedItems: processedOrder.order_items
+        });
+        return processedOrder;
+      }) || [];
 
       console.log("Processed all orders with store names:", processedOrders);
       setAllUserOrders(processedOrders);

@@ -17,7 +17,7 @@ export function OrdersTableRow({
   formatDate 
 }: OrdersTableRowProps) {
   const totalItems = React.useMemo(() => {
-    if (!Array.isArray(order.order_items)) {
+    if (!order.order_items || !Array.isArray(order.order_items)) {
       console.error(`Order ${order.id} has invalid order_items:`, order.order_items);
       return 0;
     }
@@ -31,7 +31,13 @@ export function OrdersTableRow({
     }, 0);
   }, [order.id, order.order_items]);
 
-  console.log(`Order ${order.id} items:`, order.order_items, `Total items:`, totalItems);
+  // Debug logging
+  console.log(`Order ${order.id} details:`, {
+    orderItems: order.order_items,
+    totalItems: totalItems,
+    isArray: Array.isArray(order.order_items),
+    itemsLength: order.order_items?.length
+  });
 
   return (
     <TableRow key={order.id} className="hover:bg-muted/50">
