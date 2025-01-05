@@ -12,30 +12,73 @@ const Navbar = () => {
   const { toast } = useToast();
 
   useEffect(() => {
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setSession(session);
-    });
+    // Initial session check
+    const checkSession = async () => {
+      try {
+        const { data: { session: currentSession }, error } = await supabase.auth.getSession();
+        if (error) {
+          console.error("Session check error:", error);
+          return;
+        }
+        setSession(currentSession);
+      } catch (error) {
+        console.error("Session check failed:", error);
+      }
+    };
 
+    checkSession();
+
+    // Set up auth state change listener
     const {
       data: { subscription },
-    } = supabase.auth.onAuthStateChange((_event, session) => {
+    } = supabase.auth.onAuthStateChange(async (_event, session) => {
+      console.log("Auth state changed:", _event, session?.user?.id);
       setSession(session);
     });
 
-    return () => subscription.unsubscribe();
+    return () => {
+      subscription.unsubscribe();
+    };
   }, []);
 
   const handleSignOut = async () => {
     try {
+      // First check if we have a valid session
+      const { data: { session: currentSession } } = await supabase.auth.getSession();
+      
+      if (!currentSession) {
+        console.log("No active session found, redirecting to signin");
+        navigate("/signin");
+        return;
+      }
+
       const { error } = await supabase.auth.signOut();
-      if (error) throw error;
+      if (error) {
+        console.error("Sign out error:", error);
+        throw error;
+      }
+
+      console.log("Successfully signed out");
+      setSession(null);
       navigate("/");
+      
+      toast({
+        title: "Signed out successfully",
+        description: "You have been signed out of your account.",
+      });
     } catch (error: any) {
+      console.error("Sign out failed:", error);
       toast({
         variant: "destructive",
         title: "Error signing out",
-        description: error.message,
+        description: error.message || "An unexpected error occurred",
       });
+      
+      // If we get a 403 error, the session is already invalid
+      if (error.status === 403) {
+        setSession(null);
+        navigate("/signin");
+      }
     }
   };
 
