@@ -128,10 +128,18 @@ export default function Store() {
           }))
         : [];
 
+      const bottomMenuItems = Array.isArray(settings.bottom_menu_items)
+        ? settings.bottom_menu_items.map((item: any) => ({
+            label: String(item.label || ''),
+            url: String(item.url || '')
+          }))
+        : [];
+
       const parsedSettings = {
         ...settings,
         menu_items: menuItems,
         footer_links: footerLinks,
+        bottom_menu_items: bottomMenuItems,
       };
 
       return {
