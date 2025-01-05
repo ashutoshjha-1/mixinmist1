@@ -25,16 +25,21 @@ export function CheckoutForm({ onSuccess }: { onSuccess: () => void }) {
 
   const onSubmit = async (data: CheckoutFormData) => {
     try {
-      // Get store owner's ID from their username
-      const { data: profile } = await supabase
+      console.log("Searching for profile with username:", username);
+      
+      // Get store owner's ID from their username using case-insensitive comparison
+      const { data: profile, error: profileError } = await supabase
         .from("profiles")
         .select("id")
-        .eq("username", username)
+        .ilike("username", username || '')
         .single();
 
-      if (!profile) {
+      if (profileError || !profile) {
+        console.error("Profile error:", profileError);
         throw new Error("Store not found");
       }
+
+      console.log("Found profile:", profile);
 
       // Create the order
       const { data: order, error: orderError } = await supabase
@@ -49,7 +54,10 @@ export function CheckoutForm({ onSuccess }: { onSuccess: () => void }) {
         .select()
         .single();
 
-      if (orderError) throw orderError;
+      if (orderError) {
+        console.error("Order error:", orderError);
+        throw orderError;
+      }
 
       // Create order items
       const orderItems = items.map((item) => ({
@@ -63,7 +71,10 @@ export function CheckoutForm({ onSuccess }: { onSuccess: () => void }) {
         .from("order_items")
         .insert(orderItems);
 
-      if (itemsError) throw itemsError;
+      if (itemsError) {
+        console.error("Order items error:", itemsError);
+        throw itemsError;
+      }
 
       toast({
         title: "Order placed successfully!",
@@ -73,6 +84,7 @@ export function CheckoutForm({ onSuccess }: { onSuccess: () => void }) {
       clearCart();
       onSuccess();
     } catch (error: any) {
+      console.error("Checkout error:", error);
       toast({
         variant: "destructive",
         title: "Error placing order",
