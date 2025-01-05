@@ -1,4 +1,4 @@
-import { Store, ShoppingCart, X } from "lucide-react";
+import { Store, ShoppingCart, X, Plus, Minus } from "lucide-react";
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -19,8 +19,16 @@ interface StoreHeaderProps {
 }
 
 export function StoreHeader({ iconImageUrl, menuItems }: StoreHeaderProps) {
-  const { items, total, removeItem } = useCart();
+  const { items, total, removeItem, updateQuantity } = useCart();
   const [showCheckout, setShowCheckout] = useState(false);
+
+  const handleQuantityChange = (id: string, change: number) => {
+    const item = items.find((i) => i.id === id);
+    if (item) {
+      const newQuantity = Math.max(1, item.quantity + change);
+      updateQuantity(id, newQuantity);
+    }
+  };
 
   return (
     <header className="bg-white shadow-sm">
@@ -59,7 +67,7 @@ export function StoreHeader({ iconImageUrl, menuItems }: StoreHeaderProps) {
                   <ShoppingCart className="h-5 w-5" />
                   {items.length > 0 && (
                     <span className="absolute -top-1 -right-1 bg-primary text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
-                      {items.length}
+                      {items.reduce((sum, item) => sum + item.quantity, 0)}
                     </span>
                   )}
                 </Button>
@@ -91,6 +99,25 @@ export function StoreHeader({ iconImageUrl, menuItems }: StoreHeaderProps) {
                               <p className="text-sm text-gray-500">
                                 ${item.price.toFixed(2)} x {item.quantity}
                               </p>
+                              <div className="flex items-center space-x-2 mt-2">
+                                <Button
+                                  variant="outline"
+                                  size="icon"
+                                  className="h-6 w-6"
+                                  onClick={() => handleQuantityChange(item.id, -1)}
+                                >
+                                  <Minus className="h-3 w-3" />
+                                </Button>
+                                <span>{item.quantity}</span>
+                                <Button
+                                  variant="outline"
+                                  size="icon"
+                                  className="h-6 w-6"
+                                  onClick={() => handleQuantityChange(item.id, 1)}
+                                >
+                                  <Plus className="h-3 w-3" />
+                                </Button>
+                              </div>
                             </div>
                           </div>
                           <Button
@@ -98,7 +125,7 @@ export function StoreHeader({ iconImageUrl, menuItems }: StoreHeaderProps) {
                             size="sm"
                             onClick={() => removeItem(item.id)}
                           >
-                            Remove
+                            <X className="h-4 w-4" />
                           </Button>
                         </div>
                       ))}
