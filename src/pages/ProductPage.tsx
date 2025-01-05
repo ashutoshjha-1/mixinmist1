@@ -8,26 +8,24 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 
 const ProductPageContent = () => {
-  const params = useParams<{ store: string; productId: string }>();
-  const storeName = params.store;
-  const productId = params.productId;
+  const { store, productId } = useParams<{ store: string; productId: string }>();
   
-  console.log("ProductPage params:", { storeName, productId });
+  console.log("ProductPage params:", { store, productId });
   
   const { data: storeSettings, isLoading: isLoadingSettings } = useQuery({
-    queryKey: ["store-settings", storeName],
+    queryKey: ["store-settings", store],
     queryFn: async () => {
-      if (!storeName) {
+      if (!store) {
         console.error("Store name is required but was undefined");
         throw new Error("Store name is required");
       }
 
-      console.log("Fetching store settings for store name:", storeName);
+      console.log("Fetching store settings for store name:", store);
 
       const { data: profile, error: profileError } = await supabase
         .from("profiles")
         .select("id")
-        .eq("store_name", storeName)
+        .eq("store_name", store)
         .maybeSingle();
 
       if (profileError) {
@@ -36,7 +34,7 @@ const ProductPageContent = () => {
       }
 
       if (!profile) {
-        console.error("Store not found for store name:", storeName);
+        console.error("Store not found for store name:", store);
         throw new Error("Store not found");
       }
 
@@ -72,10 +70,10 @@ const ProductPageContent = () => {
         menu_items: menuItems
       };
     },
-    enabled: !!storeName,
+    enabled: !!store,
   });
 
-  const { data: product, isLoading, error } = useStoreProduct(storeName, productId);
+  const { data: product, isLoading, error } = useStoreProduct(store, productId);
 
   console.log("Product query result:", { product, isLoading, error });
 
