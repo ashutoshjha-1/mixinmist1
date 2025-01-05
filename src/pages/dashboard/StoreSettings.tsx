@@ -10,6 +10,7 @@ import { HeroSection } from "@/components/dashboard/store-settings/HeroSection";
 import { FooterSection } from "@/components/dashboard/store-settings/FooterSection";
 import { HeaderSection } from "@/components/dashboard/store-settings/HeaderSection";
 import { MenuItem } from "@/integrations/supabase/types/menu";
+import { FooterLink } from "@/integrations/supabase/types/footer";
 
 export default function StoreSettings() {
   const { toast } = useToast();
@@ -44,7 +45,7 @@ export default function StoreSettings() {
         if (error) throw error;
         if (!data) throw new Error("Store settings not found");
 
-        // Parse menu items and bottom menu items
+        // Parse menu items, bottom menu items, and footer links
         const menuItems = data.menu_items 
           ? (data.menu_items as any[]).map((item: any) => ({
               label: String(item.label || ''),
@@ -59,11 +60,19 @@ export default function StoreSettings() {
             }))
           : [];
 
+        const footerLinks = data.footer_links 
+          ? (data.footer_links as any[]).map((link: any) => ({
+              label: String(link.label || ''),
+              url: String(link.url || '')
+            }))
+          : [];
+
         return { 
           ...data, 
           store_name: profile.store_name,
           menu_items: menuItems,
-          bottom_menu_items: bottomMenuItems
+          bottom_menu_items: bottomMenuItems,
+          footer_links: footerLinks
         };
       } catch (error: any) {
         toast({
@@ -84,6 +93,7 @@ export default function StoreSettings() {
 
       const menuItems = formData.get("menu_items");
       const bottomMenuItems = formData.get("bottom_menu_items");
+      const footerLinks = formData.get("footer_links");
       
       const newSettings = {
         hero_title: String(formData.get("hero_title") || ""),
@@ -95,6 +105,7 @@ export default function StoreSettings() {
         icon_image_url: String(formData.get("icon_image_url") || ""),
         menu_items: menuItems ? JSON.parse(menuItems as string) : [],
         bottom_menu_items: bottomMenuItems ? JSON.parse(bottomMenuItems as string) : [],
+        footer_links: footerLinks ? JSON.parse(footerLinks as string) : [],
       };
 
       const { data, error } = await supabase
