@@ -1,13 +1,13 @@
 import React from "react";
 import { useForm } from "react-hook-form";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { useCart } from "@/contexts/CartContext";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useParams } from "react-router-dom";
 import { DialogTitle } from "@/components/ui/dialog";
-import { MinusIcon, PlusIcon } from "lucide-react";
+import { CartItemRow } from "./checkout/CartItemRow";
+import { CustomerForm } from "./checkout/CustomerForm";
 
 interface CheckoutFormData {
   customerName: string;
@@ -105,87 +105,19 @@ export function CheckoutForm({ onSuccess }: { onSuccess: () => void }) {
       {/* Cart Items Section */}
       <div className="space-y-4">
         <h3 className="font-medium text-lg">Cart Items</h3>
-        <div className="space-y-3">
+        <div className="space-y-3 divide-y">
           {items.map((item) => (
-            <div key={item.id} className="flex justify-between items-center">
-              <div className="flex items-center space-x-3">
-                <img
-                  src={item.image_url}
-                  alt={item.name}
-                  className="h-12 w-12 object-cover rounded"
-                />
-                <div>
-                  <p className="font-medium">{item.name}</p>
-                  <div className="flex items-center space-x-2 mt-1">
-                    <button
-                      type="button"
-                      onClick={() => handleQuantityChange(item.id, item.quantity - 1)}
-                      className="p-1 rounded-full hover:bg-gray-100"
-                    >
-                      <MinusIcon className="h-4 w-4" />
-                    </button>
-                    <span className="text-sm">Qty: {item.quantity}</span>
-                    <button
-                      type="button"
-                      onClick={() => handleQuantityChange(item.id, item.quantity + 1)}
-                      className="p-1 rounded-full hover:bg-gray-100"
-                    >
-                      <PlusIcon className="h-4 w-4" />
-                    </button>
-                  </div>
-                </div>
-              </div>
-              <p className="font-medium">${(item.price * item.quantity).toFixed(2)}</p>
-            </div>
+            <CartItemRow
+              key={item.id}
+              item={item}
+              onQuantityChange={handleQuantityChange}
+            />
           ))}
         </div>
       </div>
 
       {/* Customer Information */}
-      <div className="space-y-4">
-        <h3 className="font-medium text-lg">Customer Information</h3>
-        <div className="space-y-3">
-          <div>
-            <Input
-              {...register("customerName", { required: "Name is required" })}
-              placeholder="Your Name"
-              className="w-full"
-            />
-            {errors.customerName && (
-              <p className="text-sm text-red-500 mt-1">{errors.customerName.message}</p>
-            )}
-          </div>
-
-          <div>
-            <Input
-              {...register("customerEmail", {
-                required: "Email is required",
-                pattern: {
-                  value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
-                  message: "Invalid email address",
-                },
-              })}
-              type="email"
-              placeholder="Your Email"
-              className="w-full"
-            />
-            {errors.customerEmail && (
-              <p className="text-sm text-red-500 mt-1">{errors.customerEmail.message}</p>
-            )}
-          </div>
-
-          <div>
-            <Input
-              {...register("customerAddress", { required: "Address is required" })}
-              placeholder="Delivery Address"
-              className="w-full"
-            />
-            {errors.customerAddress && (
-              <p className="text-sm text-red-500 mt-1">{errors.customerAddress.message}</p>
-            )}
-          </div>
-        </div>
-      </div>
+      <CustomerForm register={register} errors={errors} />
 
       {/* Total and Submit */}
       <div className="pt-4 border-t">
