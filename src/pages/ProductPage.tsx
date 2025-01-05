@@ -99,6 +99,7 @@ const ProductPageContent = () => {
 
       console.log("Found profile:", profile);
 
+      // Updated query to properly join user_products with products
       const { data: userProduct, error: productError } = await supabase
         .from("user_products")
         .select(`
@@ -124,6 +125,8 @@ const ProductPageContent = () => {
         console.error("Product not found:", productId);
         throw new Error("Product not found");
       }
+
+      console.log("Found product:", userProduct);
 
       return {
         id: userProduct.products.id,
