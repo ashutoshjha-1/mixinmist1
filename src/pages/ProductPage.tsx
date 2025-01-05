@@ -13,19 +13,19 @@ const ProductPageContent = () => {
   console.log("ProductPage params:", { storeName, productId });
   
   const { data: storeSettings, isLoading: isLoadingSettings } = useQuery({
-    queryKey: ["store-settings", storeName?.toLowerCase()],
+    queryKey: ["store-settings", storeName],
     queryFn: async () => {
       if (!storeName) {
         console.error("Store name is required but was undefined");
         throw new Error("Store name is required");
       }
 
-      console.log("Fetching store settings for username:", storeName);
+      console.log("Fetching store settings for store name:", storeName);
 
       const { data: profile, error: profileError } = await supabase
         .from("profiles")
         .select("id")
-        .ilike("username", storeName)
+        .eq("store_name", storeName)
         .maybeSingle();
 
       if (profileError) {
@@ -34,7 +34,7 @@ const ProductPageContent = () => {
       }
 
       if (!profile) {
-        console.error("Store not found for username:", storeName);
+        console.error("Store not found for store name:", storeName);
         throw new Error("Store not found");
       }
 

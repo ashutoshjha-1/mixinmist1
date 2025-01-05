@@ -3,7 +3,7 @@ import { supabase } from "@/integrations/supabase/client";
 
 export const useStoreProduct = (storeName: string | undefined, productId: string | undefined) => {
   return useQuery({
-    queryKey: ["store-product", storeName?.toLowerCase(), productId],
+    queryKey: ["store-product", storeName, productId],
     queryFn: async () => {
       if (!storeName || !productId) {
         console.error("Store name and product ID are required", { storeName, productId });
@@ -15,8 +15,8 @@ export const useStoreProduct = (storeName: string | undefined, productId: string
       // First get the profile ID for the store
       const { data: profile, error: profileError } = await supabase
         .from("profiles")
-        .select("id")
-        .ilike("username", storeName)
+        .select("id, store_name")
+        .eq("store_name", storeName)
         .maybeSingle();
 
       if (profileError) {
@@ -25,7 +25,7 @@ export const useStoreProduct = (storeName: string | undefined, productId: string
       }
 
       if (!profile) {
-        console.error("Store not found for username:", storeName);
+        console.error("Store not found for store name:", storeName);
         throw new Error("Store not found");
       }
 
@@ -55,7 +55,7 @@ export const useStoreProduct = (storeName: string | undefined, productId: string
         throw userProductError;
       }
 
-      if (!userProduct) {
+      if (!userProduct || !userProduct.products) {
         console.error("Product not found for store:", storeName, "product:", productId);
         throw new Error("Product not found");
       }
