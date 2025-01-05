@@ -1,21 +1,25 @@
 import React from "react";
 import { Button } from "@/components/ui/button";
 import { useCart } from "@/contexts/CartContext";
-import { useToast } from "@/hooks/use-toast";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { CheckoutForm } from "./CheckoutForm";
+import { useState } from "react";
 
-interface ProductDetailsProps {
-  product: {
-    id: string;
-    name: string;
-    price: number;
-    image_url: string;
-    description?: string;
-  };
+interface Product {
+  id: string;
+  name: string;
+  price: number;
+  image_url: string;
+  description?: string | null;
 }
 
-export const ProductDetails: React.FC<ProductDetailsProps> = ({ product }) => {
-  const { addItem } = useCart();
-  const { toast } = useToast();
+interface ProductDetailsProps {
+  product: Product;
+}
+
+export const ProductDetails = ({ product }: ProductDetailsProps) => {
+  const { addItem, items } = useCart();
+  const [showCheckout, setShowCheckout] = useState(false);
 
   const handleAddToCart = () => {
     addItem({
@@ -25,40 +29,51 @@ export const ProductDetails: React.FC<ProductDetailsProps> = ({ product }) => {
       quantity: 1,
       image_url: product.image_url,
     });
-    toast({
-      title: "Added to cart",
-      description: "Product has been added to your cart",
-    });
   };
 
   return (
-    <div className="grid md:grid-cols-2 gap-8">
-      <div>
-        <img
-          src={product.image_url}
-          alt={product.name}
-          className="w-full rounded-lg shadow-lg"
-        />
-      </div>
-      <div className="space-y-6">
-        <h1 className="text-3xl font-bold">{product.name}</h1>
-        <p className="text-2xl font-semibold text-primary">
-          ${product.price.toFixed(2)}
-        </p>
-        {product.description && (
-          <div>
-            <h2 className="text-lg font-semibold mb-2">Description</h2>
+    <div className="max-w-6xl mx-auto px-4 py-8">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+        <div>
+          <img
+            src={product.image_url}
+            alt={product.name}
+            className="w-full h-[500px] object-cover rounded-lg"
+          />
+        </div>
+        <div className="space-y-6">
+          <h1 className="text-3xl font-bold">{product.name}</h1>
+          <p className="text-2xl font-bold text-primary">
+            ${product.price.toFixed(2)}
+          </p>
+          {product.description && (
             <p className="text-gray-600">{product.description}</p>
+          )}
+          <div className="space-y-4">
+            <Button onClick={handleAddToCart} className="w-full">
+              Add to Cart
+            </Button>
+            {items.length > 0 && (
+              <Button
+                onClick={() => setShowCheckout(true)}
+                variant="outline"
+                className="w-full"
+              >
+                Checkout ({items.length} items)
+              </Button>
+            )}
           </div>
-        )}
-        <Button
-          size="lg"
-          className="w-full"
-          onClick={handleAddToCart}
-        >
-          Add to Cart
-        </Button>
+        </div>
       </div>
+
+      <Dialog open={showCheckout} onOpenChange={setShowCheckout}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Checkout</DialogTitle>
+          </DialogHeader>
+          <CheckoutForm onSuccess={() => setShowCheckout(false)} />
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
