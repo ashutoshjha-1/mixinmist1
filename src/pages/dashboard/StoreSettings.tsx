@@ -44,7 +44,27 @@ export default function StoreSettings() {
         if (error) throw error;
         if (!data) throw new Error("Store settings not found");
 
-        return { ...data, store_name: profile.store_name };
+        // Parse menu items and bottom menu items
+        const menuItems = data.menu_items 
+          ? (data.menu_items as any[]).map((item: any) => ({
+              label: String(item.label || ''),
+              url: String(item.url || '')
+            }))
+          : [];
+
+        const bottomMenuItems = data.bottom_menu_items 
+          ? (data.bottom_menu_items as any[]).map((item: any) => ({
+              label: String(item.label || ''),
+              url: String(item.url || '')
+            }))
+          : [];
+
+        return { 
+          ...data, 
+          store_name: profile.store_name,
+          menu_items: menuItems,
+          bottom_menu_items: bottomMenuItems
+        };
       } catch (error: any) {
         toast({
           variant: "destructive",
@@ -63,6 +83,8 @@ export default function StoreSettings() {
       if (!user) throw new Error("Not authenticated");
 
       const menuItems = formData.get("menu_items");
+      const bottomMenuItems = formData.get("bottom_menu_items");
+      
       const newSettings = {
         hero_title: String(formData.get("hero_title") || ""),
         hero_subtitle: String(formData.get("hero_subtitle") || ""),
@@ -72,6 +94,7 @@ export default function StoreSettings() {
         custom_domain: String(formData.get("custom_domain") || ""),
         icon_image_url: String(formData.get("icon_image_url") || ""),
         menu_items: menuItems ? JSON.parse(menuItems as string) : [],
+        bottom_menu_items: bottomMenuItems ? JSON.parse(bottomMenuItems as string) : [],
       };
 
       const { data, error } = await supabase
@@ -135,17 +158,6 @@ export default function StoreSettings() {
     );
   }
 
-  const parsedSettings = {
-    ...settings,
-    menu_items: settings.menu_items 
-      ? (settings.menu_items as any[]).map((item: any) => ({
-          label: String(item.label || ''),
-          url: String(item.url || '')
-        })) as MenuItem[]
-      : [],
-    footer_links: settings.footer_links ? (settings.footer_links as any[]) : [],
-  };
-
   return (
     <div className="min-h-screen bg-gray-50">
       <DashboardSidebar />
@@ -169,9 +181,9 @@ export default function StoreSettings() {
 
           {isEditing ? (
             <form onSubmit={handleSubmit} className="space-y-8">
-              <HeaderSection isEditing={isEditing} settings={parsedSettings} />
-              <HeroSection isEditing={isEditing} settings={parsedSettings} />
-              <FooterSection isEditing={isEditing} settings={parsedSettings} />
+              <HeaderSection isEditing={isEditing} settings={settings} />
+              <HeroSection isEditing={isEditing} settings={settings} />
+              <FooterSection isEditing={isEditing} settings={settings} />
 
               <Button type="submit" className="w-full">
                 Save Changes
@@ -179,9 +191,9 @@ export default function StoreSettings() {
             </form>
           ) : (
             <div className="space-y-8">
-              <HeaderSection isEditing={isEditing} settings={parsedSettings} />
-              <HeroSection isEditing={isEditing} settings={parsedSettings} />
-              <FooterSection isEditing={isEditing} settings={parsedSettings} />
+              <HeaderSection isEditing={isEditing} settings={settings} />
+              <HeroSection isEditing={isEditing} settings={settings} />
+              <FooterSection isEditing={isEditing} settings={settings} />
             </div>
           )}
         </div>
