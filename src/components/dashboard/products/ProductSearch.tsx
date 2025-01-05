@@ -41,7 +41,7 @@ export const ProductSearch = ({
       <Button 
         className="w-32 bg-[#8B5CF6] hover:bg-[#7C3AED] text-white"
       >
-        EDIT PRODUCTS
+        ADD PRODUCTS
       </Button>
     </div>
   );
