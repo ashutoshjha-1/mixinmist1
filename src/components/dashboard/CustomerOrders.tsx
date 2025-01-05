@@ -32,34 +32,54 @@ const CustomerOrders = () => {
   const { data: isAdmin } = useAdminCheck();
 
   useEffect(() => {
-    fetchOrders();
-    if (isAdmin) {
-      fetchAllUserOrders();
-    }
+    const initializeData = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      console.log("Current user:", user);
+      
+      if (!user) {
+        console.error("No authenticated user found");
+        toast({
+          variant: "destructive",
+          title: "Authentication Error",
+          description: "Please sign in to view orders",
+        });
+        return;
+      }
+
+      await fetchOrders(user.id);
+      if (isAdmin) {
+        await fetchAllUserOrders();
+      }
+    };
+
+    initializeData();
   }, [isAdmin]);
 
-  const fetchOrders = async () => {
+  const fetchOrders = async (userId: string) => {
     try {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) return;
-
+      console.log("Fetching orders for user:", userId);
       const { data: ordersData, error: ordersError } = await supabase
         .from("orders")
         .select("*, order_items(*)")
-        .eq('store_id', user.id)
+        .eq('store_id', userId)
         .order("created_at", { ascending: false });
 
-      if (ordersError) throw ordersError;
+      if (ordersError) {
+        console.error("Error fetching orders:", ordersError);
+        throw ordersError;
+      }
+
+      console.log("Fetched orders data:", ordersData);
 
       const ordersWithItems = ordersData?.map(order => ({
         ...order,
         order_items: order.order_items || []
       })) || [];
 
-      console.log("Fetched orders with items:", ordersWithItems);
+      console.log("Processed orders with items:", ordersWithItems);
       setOrders(ordersWithItems);
     } catch (error: any) {
-      console.error("Error fetching orders:", error);
+      console.error("Error in fetchOrders:", error);
       toast({
         variant: "destructive",
         title: "Error fetching orders",
@@ -70,37 +90,44 @@ const CustomerOrders = () => {
 
   const fetchAllUserOrders = async () => {
     try {
-      // First fetch orders with their items
+      console.log("Fetching all user orders as admin");
       const { data: ordersData, error: ordersError } = await supabase
         .from("orders")
         .select("*, order_items(*)")
         .order("created_at", { ascending: false });
 
-      if (ordersError) throw ordersError;
+      if (ordersError) {
+        console.error("Error fetching all orders:", ordersError);
+        throw ordersError;
+      }
 
-      // Then fetch all profiles in one query
+      console.log("Fetched all orders data:", ordersData);
+
       const { data: profilesData, error: profilesError } = await supabase
         .from("profiles")
         .select("id, store_name");
 
-      if (profilesError) throw profilesError;
+      if (profilesError) {
+        console.error("Error fetching profiles:", profilesError);
+        throw profilesError;
+      }
 
-      // Create a map for quick store name lookups
+      console.log("Fetched profiles data:", profilesData);
+
       const storeNameMap = new Map(
         profilesData?.map(profile => [profile.id, profile.store_name]) || []
       );
 
-      // Combine the data
       const ordersWithStoreNames = ordersData?.map(order => ({
         ...order,
         order_items: order.order_items || [],
         store_name: storeNameMap.get(order.store_id) || "Unknown Store"
       })) || [];
 
-      console.log("All user orders with items:", ordersWithStoreNames);
+      console.log("Processed all orders with store names:", ordersWithStoreNames);
       setAllUserOrders(ordersWithStoreNames);
     } catch (error: any) {
-      console.error("Error fetching all user orders:", error);
+      console.error("Error in fetchAllUserOrders:", error);
       toast({
         variant: "destructive",
         title: "Error fetching all user orders",
