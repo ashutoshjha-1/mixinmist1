@@ -7,9 +7,11 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { OrdersTable } from "@/components/dashboard/orders/OrdersTable";
 
 interface OrderItem {
+  id: string;
   product_id: string;
   quantity: number;
   price: number;
+  created_at: string;
 }
 
 interface Order {
@@ -76,21 +78,8 @@ const CustomerOrders = () => {
       const { data: ordersData, error: ordersError } = await supabase
         .from("orders")
         .select(`
-          id,
-          customer_name,
-          customer_email,
-          customer_address,
-          total_amount,
-          status,
-          created_at,
-          store_id,
-          order_items!order_items_order_id_fkey (
-            id,
-            product_id,
-            quantity,
-            price,
-            created_at
-          )
+          *,
+          order_items (*)
         `)
         .eq('store_id', userId)
         .order('created_at', { ascending: false });
@@ -118,21 +107,8 @@ const CustomerOrders = () => {
       const { data: ordersData, error: ordersError } = await supabase
         .from("orders")
         .select(`
-          id,
-          customer_name,
-          customer_email,
-          customer_address,
-          total_amount,
-          status,
-          created_at,
-          store_id,
-          order_items!order_items_order_id_fkey (
-            id,
-            product_id,
-            quantity,
-            price,
-            created_at
-          )
+          *,
+          order_items (*)
         `)
         .order('created_at', { ascending: false });
 
