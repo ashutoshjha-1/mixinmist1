@@ -33,22 +33,37 @@ const CustomerOrders = () => {
 
   useEffect(() => {
     const initializeData = async () => {
-      const { data: { user } } = await supabase.auth.getUser();
-      console.log("Current user:", user);
-      
-      if (!user) {
-        console.error("No authenticated user found");
+      try {
+        const { data: { user }, error: userError } = await supabase.auth.getUser();
+        
+        if (userError) {
+          console.error("Auth error:", userError);
+          throw userError;
+        }
+
+        if (!user) {
+          console.error("No authenticated user found");
+          toast({
+            variant: "destructive",
+            title: "Authentication Error",
+            description: "Please sign in to view orders",
+          });
+          return;
+        }
+
+        console.log("Current user:", user);
+        await fetchOrders(user.id);
+        
+        if (isAdmin) {
+          await fetchAllUserOrders();
+        }
+      } catch (error: any) {
+        console.error("Initialization error:", error);
         toast({
           variant: "destructive",
-          title: "Authentication Error",
-          description: "Please sign in to view orders",
+          title: "Error",
+          description: "Failed to initialize data. Please try refreshing the page.",
         });
-        return;
-      }
-
-      await fetchOrders(user.id);
-      if (isAdmin) {
-        await fetchAllUserOrders();
       }
     };
 
@@ -60,9 +75,12 @@ const CustomerOrders = () => {
       console.log("Fetching orders for user:", userId);
       const { data: ordersData, error: ordersError } = await supabase
         .from("orders")
-        .select("*, order_items(*)")
+        .select(`
+          *,
+          order_items (*)
+        `)
         .eq('store_id', userId)
-        .order("created_at", { ascending: false });
+        .order('created_at', { ascending: false });
 
       if (ordersError) {
         console.error("Error fetching orders:", ordersError);
@@ -91,10 +109,19 @@ const CustomerOrders = () => {
   const fetchAllUserOrders = async () => {
     try {
       console.log("Fetching all user orders as admin");
+      const { data: { user } } = await supabase.auth.getUser();
+      
+      if (!user) {
+        throw new Error("No authenticated user found");
+      }
+
       const { data: ordersData, error: ordersError } = await supabase
         .from("orders")
-        .select("*, order_items(*)")
-        .order("created_at", { ascending: false });
+        .select(`
+          *,
+          order_items (*)
+        `)
+        .order('created_at', { ascending: false });
 
       if (ordersError) {
         console.error("Error fetching all orders:", ordersError);
