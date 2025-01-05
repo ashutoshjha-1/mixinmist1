@@ -16,7 +16,7 @@ const FindProducts = () => {
   const [isAdminDialogOpen, setIsAdminDialogOpen] = useState(false);
   const navigate = useNavigate();
   const { toast } = useToast();
-  const { data: isAdmin, isLoading: isAdminLoading } = useAdminCheck();
+  const { data: isAdmin = false, isLoading: isAdminLoading } = useAdminCheck();
 
   const { data: products, isLoading: isProductsLoading, refetch } = useQuery({
     queryKey: ["products"],
@@ -106,6 +106,12 @@ const FindProducts = () => {
 
   const isLoading = isAdminLoading || isProductsLoading;
 
+  if (isLoading) {
+    return <div className="text-center py-12">Loading...</div>;
+  }
+
+  console.log("Is admin:", isAdmin); // Add this line for debugging
+
   return (
     <div className="min-h-screen bg-gray-50">
       <DashboardSidebar />
@@ -122,16 +128,12 @@ const FindProducts = () => {
           />
         </div>
 
-        {isLoading ? (
-          <div className="text-center py-12">Loading products...</div>
-        ) : (
-          <ProductGrid
-            products={filteredProducts}
-            isAdmin={isAdmin}
-            addedProducts={addedProducts}
-            onAddToStore={handleAddToStore}
-          />
-        )}
+        <ProductGrid
+          products={filteredProducts}
+          isAdmin={isAdmin}
+          addedProducts={addedProducts}
+          onAddToStore={handleAddToStore}
+        />
 
         {isAdmin && (
           <ProductManagement 
