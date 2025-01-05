@@ -15,7 +15,7 @@ export const RoleBasedSettings = () => {
       // Use the get_user_role function instead of direct query
       const { data, error } = await supabase
         .rpc('get_user_role', {
-          user_id: user.id
+          p_user_id: user.id
         });
 
       if (error) throw error;
