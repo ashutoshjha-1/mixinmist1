@@ -8,6 +8,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useQuery } from "@tanstack/react-query";
 import { ProductCard } from "@/components/store/ProductCard";
+import { AdminProductDialog } from "@/components/store/AdminProductDialog";
 
 const categories = [
   {
@@ -55,10 +56,25 @@ const categories = [
 const FindProducts = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [addedProducts, setAddedProducts] = useState<Set<string>>(new Set());
+  const [isAdminDialogOpen, setIsAdminDialogOpen] = useState(false);
+  const [editingProduct, setEditingProduct] = useState<any>(null);
   const navigate = useNavigate();
   const { toast } = useToast();
 
-  const { data: products, isLoading } = useQuery({
+  const { data: isAdmin } = useQuery({
+    queryKey: ["isAdmin"],
+    queryFn: async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return false;
+      
+      const { data } = await supabase.rpc('is_admin', {
+        user_id: user.id
+      });
+      return !!data;
+    }
+  });
+
+  const { data: products, isLoading, refetch } = useQuery({
     queryKey: ["products"],
     queryFn: async () => {
       const { data, error } = await supabase
@@ -140,6 +156,60 @@ const FindProducts = () => {
     }
   };
 
+  const handleEditProduct = (product: any) => {
+    setEditingProduct(product);
+    setIsAdminDialogOpen(true);
+  };
+
+  const handleSaveProduct = async (productData: any) => {
+    try {
+      if (editingProduct) {
+        const { error } = await supabase
+          .from("products")
+          .update({
+            name: productData.name,
+            price: productData.price,
+            description: productData.description,
+            image_url: productData.image_url,
+          })
+          .eq("id", editingProduct.id);
+
+        if (error) throw error;
+
+        toast({
+          title: "Success",
+          description: "Product updated successfully",
+        });
+      } else {
+        const { error } = await supabase
+          .from("products")
+          .insert([{
+            name: productData.name,
+            price: productData.price,
+            description: productData.description,
+            image_url: productData.image_url,
+          }]);
+
+        if (error) throw error;
+
+        toast({
+          title: "Success",
+          description: "Product added successfully",
+        });
+      }
+
+      setIsAdminDialogOpen(false);
+      setEditingProduct(null);
+      refetch();
+    } catch (error: any) {
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: error.message,
+      });
+    }
+  };
+
   const filteredProducts = products?.filter((product) =>
     product.name.toLowerCase().includes(searchQuery.toLowerCase())
   );
@@ -160,10 +230,24 @@ const FindProducts = () => {
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
             />
-            <Button variant="default">ADD MY LOGO TO PRODUCTS</Button>
+            <div className="space-x-4">
+              {isAdmin && (
+                <Button 
+                  variant="default"
+                  onClick={() => {
+                    setEditingProduct(null);
+                    setIsAdminDialogOpen(true);
+                  }}
+                >
+                  Add New Product
+                </Button>
+              )}
+              <Button variant="default">ADD MY LOGO TO PRODUCTS</Button>
+            </div>
           </div>
         </div>
 
+        {/* Categories grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
           {categories.map((category) => (
             <div
@@ -195,10 +279,22 @@ const FindProducts = () => {
                 product={product}
                 onAddToStore={handleAddToStore}
                 isAdded={addedProducts.has(product.id)}
+                isAdmin={isAdmin}
+                onEdit={handleEditProduct}
               />
             ))}
           </div>
         )}
+
+        <AdminProductDialog
+          isOpen={isAdminDialogOpen}
+          onClose={() => {
+            setIsAdminDialogOpen(false);
+            setEditingProduct(null);
+          }}
+          onSave={handleSaveProduct}
+          product={editingProduct}
+        />
       </div>
     </div>
   );

@@ -1,7 +1,8 @@
-import React from 'react';
+import React from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { AddProductDialog } from "./AddProductDialog";
+import { Pencil } from "lucide-react";
 
 interface ProductCardProps {
   product: {
@@ -11,45 +12,63 @@ interface ProductCardProps {
     image_url: string;
     description?: string;
   };
-  onAddToStore: (productId: string, customPrice: number, customName: string, customDescription: string) => void;
-  isAdded: boolean;
+  onAddToStore: (productId: string, price: number, name: string, description: string) => void;
+  isAdded?: boolean;
+  isAdmin?: boolean;
+  onEdit?: (product: any) => void;
 }
 
-export const ProductCard = ({ product, onAddToStore, isAdded }: ProductCardProps) => {
-  const [showPriceDialog, setShowPriceDialog] = React.useState(false);
-
-  const handleAddToStore = (customPrice: number, customName: string, customDescription: string) => {
-    onAddToStore(product.id, customPrice, customName, customDescription);
-  };
+export const ProductCard = ({ 
+  product, 
+  onAddToStore, 
+  isAdded,
+  isAdmin,
+  onEdit
+}: ProductCardProps) => {
+  const [isDialogOpen, setIsDialogOpen] = React.useState(false);
 
   return (
-    <>
-      <Card className="overflow-hidden">
-        <img
-          src={product.image_url}
-          alt={product.name}
-          className="w-full h-48 object-cover"
-        />
-        <CardContent className="p-4">
-          <h3 className="font-semibold text-sm mb-2">{product.name}</h3>
-          <p className="text-primary mb-2">${product.price.toFixed(2)}</p>
+    <Card className="overflow-hidden">
+      <CardContent className="p-0">
+        <div className="relative aspect-square">
+          <img
+            src={product.image_url}
+            alt={product.name}
+            className="w-full h-full object-cover"
+          />
+          {isAdmin && onEdit && (
+            <Button
+              variant="secondary"
+              size="icon"
+              className="absolute top-2 right-2"
+              onClick={() => onEdit(product)}
+            >
+              <Pencil className="h-4 w-4" />
+            </Button>
+          )}
+        </div>
+        <div className="p-4">
+          <h3 className="font-semibold mb-1">{product.name}</h3>
+          <p className="text-sm text-gray-500 mb-4">${product.price.toFixed(2)}</p>
           <Button
-            variant={isAdded ? "secondary" : "outline"}
+            variant={isAdded ? "secondary" : "default"}
             className="w-full"
-            onClick={() => setShowPriceDialog(true)}
+            onClick={() => setIsDialogOpen(true)}
             disabled={isAdded}
           >
-            {isAdded ? "Added" : "Add to My Store"}
+            {isAdded ? "Added to Store" : "Add to Store"}
           </Button>
-        </CardContent>
-      </Card>
-
+        </div>
+      </CardContent>
       <AddProductDialog
-        isOpen={showPriceDialog}
-        onClose={() => setShowPriceDialog(false)}
-        onConfirm={handleAddToStore}
+        isOpen={isDialogOpen}
+        onClose={() => setIsDialogOpen(false)}
+        onConfirm={(price, name, description) => {
+          onAddToStore(product.id, price, name, description);
+          setIsDialogOpen(false);
+        }}
         product={product}
       />
-    </>
+    </Card>
   );
 };
