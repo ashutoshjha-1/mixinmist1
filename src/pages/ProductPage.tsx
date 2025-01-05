@@ -7,8 +7,9 @@ import { useCart } from "@/contexts/CartContext";
 import { useToast } from "@/hooks/use-toast";
 import { StoreHeader } from "@/components/store/StoreHeader";
 import { MenuItem } from "@/integrations/supabase/types/menu";
+import { CartProvider } from "@/contexts/CartContext";
 
-export default function ProductPage() {
+const ProductPageContent = () => {
   const { storeName, productId } = useParams();
   const { addItem } = useCart();
   const { toast } = useToast();
@@ -160,5 +161,13 @@ export default function ProductPage() {
         </div>
       </div>
     </div>
+  );
+};
+
+export default function ProductPage() {
+  return (
+    <CartProvider>
+      <ProductPageContent />
+    </CartProvider>
   );
 }
