@@ -1,4 +1,5 @@
 export interface FooterLink {
+  id: string;
   label: string;
-  url: string;
+  href: string;
 }
