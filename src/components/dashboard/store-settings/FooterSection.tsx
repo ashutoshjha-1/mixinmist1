@@ -3,6 +3,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { Plus, X } from "lucide-react";
+import { SectionTitle } from "./SectionTitle";
 
 interface MenuItem {
   label: string;
@@ -33,9 +34,11 @@ export function FooterSection({ isEditing, settings }: FooterSectionProps) {
 
   if (isEditing) {
     return (
-      <div className="space-y-6">
+      <div className="space-y-6 bg-white p-6 rounded-lg shadow-sm border border-gray-100">
+        <SectionTitle>Footer Settings</SectionTitle>
+        
         <div>
-          <label className="block text-sm font-medium mb-2">Footer Text</label>
+          <label className="block text-sm font-medium text-gray-700 mb-2">Footer Text</label>
           <Textarea
             name="footer_text"
             defaultValue={settings.footer_text || ""}
@@ -46,7 +49,7 @@ export function FooterSection({ isEditing, settings }: FooterSectionProps) {
 
         <div>
           <div className="flex justify-between items-center mb-4">
-            <label className="block text-sm font-medium">Bottom Menu Items</label>
+            <label className="block text-sm font-medium text-gray-700">Bottom Menu Items</label>
             <Button
               type="button"
               variant="outline"
@@ -106,22 +109,26 @@ export function FooterSection({ isEditing, settings }: FooterSectionProps) {
   }
 
   return (
-    <div>
-      <h3 className="text-lg font-medium mb-2">Footer</h3>
-      <p className="text-gray-600 mb-4">{settings.footer_text || "© 2024 All rights reserved"}</p>
-      
-      {settings.bottom_menu_items && settings.bottom_menu_items.length > 0 && (
-        <div>
-          <p className="text-sm font-medium mb-2">Bottom Menu Items</p>
-          <ul className="space-y-2">
-            {settings.bottom_menu_items.map((item, index) => (
-              <li key={index} className="text-gray-600">
-                {item.label} - <span className="text-blue-500">{item.url}</span>
-              </li>
-            ))}
-          </ul>
-        </div>
-      )}
+    <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-100">
+      <SectionTitle>Footer</SectionTitle>
+      <div className="space-y-4">
+        <p className="text-gray-700">
+          <span className="font-medium">Footer Text:</span> {settings.footer_text || "© 2024 All rights reserved"}
+        </p>
+        
+        {settings.bottom_menu_items && settings.bottom_menu_items.length > 0 && (
+          <div>
+            <p className="text-sm font-medium text-gray-700 mb-2">Bottom Menu Items</p>
+            <ul className="space-y-2">
+              {settings.bottom_menu_items.map((item, index) => (
+                <li key={index} className="text-gray-600">
+                  {item.label} - <span className="text-blue-500">{item.url}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
+      </div>
     </div>
   );
 }

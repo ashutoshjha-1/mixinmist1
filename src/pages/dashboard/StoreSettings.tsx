@@ -176,7 +176,7 @@ export default function StoreSettings() {
         <DashboardHeader onSignOut={() => {}} />
         <div className="max-w-4xl mx-auto">
           <div className="flex justify-between items-center mb-8">
-            <h1 className="text-3xl font-bold">Store Settings</h1>
+            <h1 className="text-3xl font-bold text-gray-900">Store Settings</h1>
             <div className="space-x-4">
               <Button onClick={() => setIsEditing(!isEditing)}>
                 {isEditing ? "Cancel" : "Edit Settings"}
@@ -191,7 +191,7 @@ export default function StoreSettings() {
           </div>
 
           {isEditing ? (
-            <form onSubmit={handleSubmit} className="space-y-8">
+            <form onSubmit={handleSubmit} className="space-y-6">
               <HeaderSection isEditing={isEditing} settings={settings} />
               <HeroSection isEditing={isEditing} settings={settings} />
               <FooterSection isEditing={isEditing} settings={settings} />
@@ -201,7 +201,7 @@ export default function StoreSettings() {
               </Button>
             </form>
           ) : (
-            <div className="space-y-8">
+            <div className="space-y-6">
               <HeaderSection isEditing={isEditing} settings={settings} />
               <HeroSection isEditing={isEditing} settings={settings} />
               <FooterSection isEditing={isEditing} settings={settings} />

@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Plus, X } from "lucide-react";
+import { SectionTitle } from "./SectionTitle";
 
 interface MenuItem {
   label: string;
@@ -31,19 +32,22 @@ export function HeaderSection({ isEditing, settings }: HeaderSectionProps) {
 
   if (isEditing) {
     return (
-      <div className="space-y-6">
+      <div className="space-y-6 bg-white p-6 rounded-lg shadow-sm border border-gray-100">
+        <SectionTitle>Header Settings</SectionTitle>
+        
         <div>
-          <label className="block text-sm font-medium mb-2">Store Icon URL</label>
+          <label className="block text-sm font-medium text-gray-700 mb-2">Store Icon URL</label>
           <Input
             name="icon_image_url"
             defaultValue={settings.icon_image_url || ""}
             placeholder="https://example.com/store-icon.png"
+            className="w-full"
           />
         </div>
 
         <div>
           <div className="flex justify-between items-center mb-4">
-            <label className="block text-sm font-medium">Menu Items</label>
+            <label className="block text-sm font-medium text-gray-700">Menu Items</label>
             <Button
               type="button"
               variant="outline"
@@ -103,11 +107,11 @@ export function HeaderSection({ isEditing, settings }: HeaderSectionProps) {
   }
 
   return (
-    <div>
-      <h3 className="text-lg font-medium mb-2">Header</h3>
+    <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-100">
+      <SectionTitle>Header</SectionTitle>
       {settings.icon_image_url && (
         <div className="mb-4">
-          <p className="text-sm font-medium mb-2">Store Icon</p>
+          <p className="text-sm font-medium text-gray-700 mb-2">Store Icon</p>
           <img
             src={settings.icon_image_url}
             alt="Store Icon"
@@ -117,7 +121,7 @@ export function HeaderSection({ isEditing, settings }: HeaderSectionProps) {
       )}
       {settings.menu_items && settings.menu_items.length > 0 && (
         <div>
-          <p className="text-sm font-medium mb-2">Menu Items</p>
+          <p className="text-sm font-medium text-gray-700 mb-2">Menu Items</p>
           <ul className="space-y-2">
             {settings.menu_items.map((item, index) => (
               <li key={index} className="text-gray-600">
