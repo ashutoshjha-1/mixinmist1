@@ -70,6 +70,7 @@ const CustomerOrders = () => {
 
   const fetchAllUserOrders = async () => {
     try {
+      // First fetch all orders with their items
       const { data: ordersData, error: ordersError } = await supabase
         .from("orders")
         .select(`
@@ -84,6 +85,7 @@ const CustomerOrders = () => {
 
       if (ordersError) throw ordersError;
 
+      // Then fetch store names for all orders
       const uniqueStoreIds = [...new Set(ordersData?.map(order => order.store_id) || [])];
       const { data: profilesData, error: profilesError } = await supabase
         .from("profiles")
