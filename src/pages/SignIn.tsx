@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
@@ -11,16 +11,30 @@ const SignIn = () => {
   const { toast } = useToast();
   const [loading, setLoading] = useState(false);
 
+  useEffect(() => {
+    // Check for existing session on component mount
+    const checkSession = async () => {
+      const { data: { session }, error } = await supabase.auth.getSession();
+      if (session) {
+        navigate("/dashboard");
+      }
+    };
+    checkSession();
+  }, [navigate]);
+
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setLoading(true);
 
-    const formData = new FormData(e.currentTarget);
-    const email = formData.get("email") as string;
-    const password = formData.get("password") as string;
-
     try {
-      const { error } = await supabase.auth.signInWithPassword({
+      // Clear any existing session first
+      await supabase.auth.signOut();
+
+      const formData = new FormData(e.currentTarget);
+      const email = formData.get("email") as string;
+      const password = formData.get("password") as string;
+
+      const { data, error } = await supabase.auth.signInWithPassword({
         email,
         password,
       });
@@ -42,17 +56,20 @@ const SignIn = () => {
         return;
       }
 
-      toast({
-        title: "Success!",
-        description: "You have been signed in.",
-      });
-      
-      navigate("/dashboard");
+      if (data.session) {
+        toast({
+          title: "Success!",
+          description: "You have been signed in.",
+        });
+        navigate("/dashboard");
+      } else {
+        throw new Error("No session created");
+      }
     } catch (error: any) {
       toast({
         variant: "destructive",
         title: "Error",
-        description: error.message,
+        description: error.message || "An unexpected error occurred",
       });
     } finally {
       setLoading(false);
