@@ -82,10 +82,18 @@ export const useStoreData = (username: string | undefined) => {
         throw new Error("Store settings not found");
       }
 
-      // Get user products directly without joins
+      // Get user products with a simpler query
       const { data: userProducts, error: userProductsError } = await supabase
         .from("user_products")
-        .select("product_id, custom_price")
+        .select(`
+          product_id,
+          custom_price,
+          products (
+            id,
+            name,
+            image_url
+          )
+        `)
         .eq("user_id", profile.id);
 
       if (userProductsError) {
@@ -93,43 +101,13 @@ export const useStoreData = (username: string | undefined) => {
         throw userProductsError;
       }
 
-      // Get product details in a separate query
-      const productIds = userProducts.map(up => up.product_id);
-      
-      if (productIds.length === 0) {
-        // Return empty products array if no products found
-        return {
-          profile,
-          settings: {
-            ...settings,
-            menu_items: Array.isArray(settings.menu_items) ? settings.menu_items : [],
-            footer_links: Array.isArray(settings.footer_links) ? settings.footer_links : [],
-            bottom_menu_items: Array.isArray(settings.bottom_menu_items) ? settings.bottom_menu_items : [],
-          },
-          products: [],
-        };
-      }
-
-      const { data: productsData, error: productsError } = await supabase
-        .from("products")
-        .select("id, name, image_url")
-        .in("id", productIds);
-
-      if (productsError) {
-        console.error("Products fetch error:", productsError);
-        throw productsError;
-      }
-
-      // Combine the data manually
-      const products = productsData.map(product => {
-        const userProduct = userProducts.find(up => up.product_id === product.id);
-        return {
-          id: product.id,
-          name: product.name,
-          price: userProduct?.custom_price || 0,
-          image_url: product.image_url,
-        };
-      });
+      // Transform the joined data
+      const products = userProducts.map(up => ({
+        id: up.products.id,
+        name: up.products.name,
+        price: up.custom_price,
+        image_url: up.products.image_url,
+      }));
 
       // Parse menu items and footer links
       const menuItems = Array.isArray(settings.menu_items) 
