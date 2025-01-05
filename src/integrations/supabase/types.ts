@@ -274,6 +274,12 @@ export type Database = {
         }
         Returns: boolean
       }
+      promote_to_admin: {
+        Args: {
+          email_to_promote: string
+        }
+        Returns: undefined
+      }
       user_has_role: {
         Args: {
           user_id: string
