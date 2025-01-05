@@ -6,6 +6,8 @@ import { useCart } from "@/contexts/CartContext";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useParams } from "react-router-dom";
+import { DialogTitle } from "@/components/ui/dialog";
+import { MinusIcon, PlusIcon } from "lucide-react";
 
 interface CheckoutFormData {
   customerName: string;
@@ -15,7 +17,7 @@ interface CheckoutFormData {
 
 export function CheckoutForm({ onSuccess }: { onSuccess: () => void }) {
   const { username } = useParams<{ username: string }>();
-  const { items, total, clearCart } = useCart();
+  const { items, total, clearCart, updateQuantity } = useCart();
   const { toast } = useToast();
   const {
     register,
@@ -27,7 +29,6 @@ export function CheckoutForm({ onSuccess }: { onSuccess: () => void }) {
     try {
       console.log("Searching for profile with username:", username);
       
-      // Get store owner's ID from their username using case-insensitive comparison
       const { data: profile, error: profileError } = await supabase
         .from("profiles")
         .select("id")
@@ -41,7 +42,6 @@ export function CheckoutForm({ onSuccess }: { onSuccess: () => void }) {
 
       console.log("Found profile:", profile);
 
-      // Create the order
       const { data: order, error: orderError } = await supabase
         .from("orders")
         .insert({
@@ -59,7 +59,6 @@ export function CheckoutForm({ onSuccess }: { onSuccess: () => void }) {
         throw orderError;
       }
 
-      // Create order items
       const orderItems = items.map((item) => ({
         order_id: order.id,
         product_id: item.id,
@@ -93,23 +92,47 @@ export function CheckoutForm({ onSuccess }: { onSuccess: () => void }) {
     }
   };
 
+  const handleQuantityChange = (itemId: string, newQuantity: number) => {
+    if (newQuantity >= 1) {
+      updateQuantity(itemId, newQuantity);
+    }
+  };
+
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-      {/* Cart Summary Section */}
-      <div className="mb-6 border-b pb-4">
-        <h3 className="text-lg font-semibold mb-3">Order Summary</h3>
-        <div className="space-y-2">
+    <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+      <DialogTitle className="text-xl font-semibold">Checkout</DialogTitle>
+      
+      {/* Cart Items Section */}
+      <div className="space-y-4">
+        <h3 className="font-medium text-lg">Cart Items</h3>
+        <div className="space-y-3">
           {items.map((item) => (
             <div key={item.id} className="flex justify-between items-center">
-              <div className="flex items-center space-x-2">
+              <div className="flex items-center space-x-3">
                 <img
                   src={item.image_url}
                   alt={item.name}
-                  className="h-10 w-10 object-cover rounded"
+                  className="h-12 w-12 object-cover rounded"
                 />
                 <div>
                   <p className="font-medium">{item.name}</p>
-                  <p className="text-sm text-gray-500">Qty: {item.quantity}</p>
+                  <div className="flex items-center space-x-2 mt-1">
+                    <button
+                      type="button"
+                      onClick={() => handleQuantityChange(item.id, item.quantity - 1)}
+                      className="p-1 rounded-full hover:bg-gray-100"
+                    >
+                      <MinusIcon className="h-4 w-4" />
+                    </button>
+                    <span className="text-sm">Qty: {item.quantity}</span>
+                    <button
+                      type="button"
+                      onClick={() => handleQuantityChange(item.id, item.quantity + 1)}
+                      className="p-1 rounded-full hover:bg-gray-100"
+                    >
+                      <PlusIcon className="h-4 w-4" />
+                    </button>
+                  </div>
                 </div>
               </div>
               <p className="font-medium">${(item.price * item.quantity).toFixed(2)}</p>
@@ -118,43 +141,53 @@ export function CheckoutForm({ onSuccess }: { onSuccess: () => void }) {
         </div>
       </div>
 
-      <div>
-        <Input
-          {...register("customerName", { required: "Name is required" })}
-          placeholder="Your Name"
-        />
-        {errors.customerName && (
-          <p className="text-sm text-red-500">{errors.customerName.message}</p>
-        )}
+      {/* Customer Information */}
+      <div className="space-y-4">
+        <h3 className="font-medium text-lg">Customer Information</h3>
+        <div className="space-y-3">
+          <div>
+            <Input
+              {...register("customerName", { required: "Name is required" })}
+              placeholder="Your Name"
+              className="w-full"
+            />
+            {errors.customerName && (
+              <p className="text-sm text-red-500 mt-1">{errors.customerName.message}</p>
+            )}
+          </div>
+
+          <div>
+            <Input
+              {...register("customerEmail", {
+                required: "Email is required",
+                pattern: {
+                  value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
+                  message: "Invalid email address",
+                },
+              })}
+              type="email"
+              placeholder="Your Email"
+              className="w-full"
+            />
+            {errors.customerEmail && (
+              <p className="text-sm text-red-500 mt-1">{errors.customerEmail.message}</p>
+            )}
+          </div>
+
+          <div>
+            <Input
+              {...register("customerAddress", { required: "Address is required" })}
+              placeholder="Delivery Address"
+              className="w-full"
+            />
+            {errors.customerAddress && (
+              <p className="text-sm text-red-500 mt-1">{errors.customerAddress.message}</p>
+            )}
+          </div>
+        </div>
       </div>
 
-      <div>
-        <Input
-          {...register("customerEmail", {
-            required: "Email is required",
-            pattern: {
-              value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
-              message: "Invalid email address",
-            },
-          })}
-          type="email"
-          placeholder="Your Email"
-        />
-        {errors.customerEmail && (
-          <p className="text-sm text-red-500">{errors.customerEmail.message}</p>
-        )}
-      </div>
-
-      <div>
-        <Input
-          {...register("customerAddress", { required: "Address is required" })}
-          placeholder="Delivery Address"
-        />
-        {errors.customerAddress && (
-          <p className="text-sm text-red-500">{errors.customerAddress.message}</p>
-        )}
-      </div>
-
+      {/* Total and Submit */}
       <div className="pt-4 border-t">
         <div className="flex justify-between items-center mb-4">
           <span className="text-lg font-semibold">Total</span>
@@ -162,7 +195,7 @@ export function CheckoutForm({ onSuccess }: { onSuccess: () => void }) {
         </div>
         <Button
           type="submit"
-          className="w-full"
+          className="w-full bg-indigo-600 hover:bg-indigo-700"
           disabled={isSubmitting}
         >
           {isSubmitting ? "Processing..." : "Place Order"}
