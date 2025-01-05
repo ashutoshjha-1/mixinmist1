@@ -6,7 +6,6 @@ import { Button } from "@/components/ui/button";
 import { useCart } from "@/contexts/CartContext";
 import { useToast } from "@/hooks/use-toast";
 import { StoreHeader } from "@/components/store/StoreHeader";
-import { MenuItem } from "@/integrations/supabase/types/menu";
 import { CartProvider } from "@/contexts/CartContext";
 
 const ProductPageContent = () => {
@@ -21,25 +20,46 @@ const ProductPageContent = () => {
         throw new Error("Store name is required");
       }
 
-      const { data: profile } = await supabase
+      console.log("Fetching store settings for username:", storeName);
+
+      const { data: profile, error: profileError } = await supabase
         .from("profiles")
         .select("id")
         .ilike("username", storeName)
         .maybeSingle();
 
-      if (!profile) throw new Error("Store not found");
+      if (profileError) {
+        console.error("Profile fetch error:", profileError);
+        throw profileError;
+      }
 
-      const { data: settings } = await supabase
+      if (!profile) {
+        console.error("Store not found for username:", storeName);
+        throw new Error("Store not found");
+      }
+
+      console.log("Found profile:", profile);
+
+      const { data: settings, error: settingsError } = await supabase
         .from("store_settings")
         .select("*")
         .eq("user_id", profile.id)
-        .single();
+        .maybeSingle();
 
-      // Parse and validate menu_items
+      if (settingsError) {
+        console.error("Settings fetch error:", settingsError);
+        throw settingsError;
+      }
+
+      if (!settings) {
+        console.error("Store settings not found for user:", profile.id);
+        throw new Error("Store settings not found");
+      }
+
       const menuItems = Array.isArray(settings.menu_items) 
         ? settings.menu_items.map((item: any) => ({
-            label: String(item.label || ''),
-            url: String(item.url || '')
+            label: String(item?.label || ''),
+            url: String(item?.url || '')
           }))
         : [];
 
@@ -52,10 +72,11 @@ const ProductPageContent = () => {
   });
 
   const { data: product, isLoading } = useQuery({
-    queryKey: ["store-product", storeName, productId],
+    queryKey: ["store-product", storeName?.toLowerCase(), productId],
     queryFn: async () => {
-      if (!storeName) {
-        throw new Error("Store name is required");
+      if (!storeName || !productId) {
+        console.error("Store name and product ID are required");
+        throw new Error("Store name and product ID are required");
       }
       
       console.log("Fetching product for store:", storeName, "product:", productId);
@@ -115,8 +136,21 @@ const ProductPageContent = () => {
     enabled: !!storeName && !!productId,
   });
 
-  if (isLoading || isLoadingSettings) return <div>Loading...</div>;
-  if (!product) return <div>Product not found</div>;
+  if (isLoading || isLoadingSettings) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-lg">Loading...</div>
+      </div>
+    );
+  }
+
+  if (!product) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-lg text-red-600">Product not found</div>
+      </div>
+    );
+  }
 
   const handleAddToCart = () => {
     addItem({
