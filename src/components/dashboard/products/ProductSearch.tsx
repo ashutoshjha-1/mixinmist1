@@ -15,22 +15,24 @@ export const ProductSearch = ({
   isAdmin = false,
   onAddNewProduct
 }: ProductSearchProps) => {
+  console.log("ProductSearch rendered, isAdmin:", isAdmin); // Debug log
+
   return (
-    <div className="flex justify-between items-center gap-4">
-      <Input
-        type="search"
-        placeholder="Search products..."
-        className="max-w-sm"
-        value={searchQuery}
-        onChange={(e) => onSearchChange(e.target.value)}
-      />
+    <div className="flex justify-between items-center gap-4 w-full">
+      <div className="flex-1">
+        <Input
+          type="search"
+          placeholder="Search products..."
+          value={searchQuery}
+          onChange={(e) => onSearchChange(e.target.value)}
+        />
+      </div>
       {isAdmin && (
         <Button 
-          variant="default"
           onClick={onAddNewProduct}
-          className="whitespace-nowrap"
+          className="flex items-center gap-2 bg-primary hover:bg-primary-600 text-white"
         >
-          <Plus className="w-4 h-4 mr-2" />
+          <Plus className="h-4 w-4" />
           Add Product
         </Button>
       )}
