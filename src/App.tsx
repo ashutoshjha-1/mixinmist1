@@ -10,23 +10,26 @@ import CustomerOrders from "@/pages/dashboard/CustomerOrders";
 import MyAccount from "@/pages/dashboard/MyAccount";
 import StoreSettings from "@/pages/dashboard/StoreSettings";
 import { Toaster } from "@/components/ui/toaster";
+import { CartProvider } from "@/contexts/CartContext";
 import "./App.css";
 
 function App() {
   return (
     <Router>
-      <Routes>
-        <Route path="/" element={<Index />} />
-        <Route path="/signin" element={<SignIn />} />
-        <Route path="/dashboard" element={<Dashboard />} />
-        <Route path="/store/:username" element={<Store />} />
-        <Route path="/store/:username/product/:productId" element={<ProductPage />} />
-        <Route path="/dashboard/find-products" element={<FindProducts />} />
-        <Route path="/dashboard/my-products" element={<MyProducts />} />
-        <Route path="/dashboard/customer-orders" element={<CustomerOrders />} />
-        <Route path="/dashboard/my-account" element={<MyAccount />} />
-        <Route path="/dashboard/store-settings" element={<StoreSettings />} />
-      </Routes>
+      <CartProvider>
+        <Routes>
+          <Route path="/" element={<Index />} />
+          <Route path="/signin" element={<SignIn />} />
+          <Route path="/dashboard" element={<Dashboard />} />
+          <Route path="/store/:username" element={<Store />} />
+          <Route path="/store/:username/product/:productId" element={<ProductPage />} />
+          <Route path="/dashboard/find-products" element={<FindProducts />} />
+          <Route path="/dashboard/my-products" element={<MyProducts />} />
+          <Route path="/dashboard/customer-orders" element={<CustomerOrders />} />
+          <Route path="/dashboard/my-account" element={<MyAccount />} />
+          <Route path="/dashboard/store-settings" element={<StoreSettings />} />
+        </Routes>
+      </CartProvider>
       <Toaster />
     </Router>
   );

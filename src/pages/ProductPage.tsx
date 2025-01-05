@@ -3,13 +3,12 @@ import { useParams } from "react-router-dom";
 import { useStoreProduct } from "@/hooks/use-store-product";
 import { StoreHeader } from "@/components/store/StoreHeader";
 import { ProductDetails } from "@/components/store/ProductDetails";
-import { CartProvider } from "@/contexts/CartContext";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 
-const ProductPageContent = () => {
-  const params = useParams<{ store: string; productId: string }>();
-  const store = params?.store;
+export default function ProductPage() {
+  const params = useParams<{ username: string; productId: string }>();
+  const store = params?.username;
   const productId = params?.productId;
   
   console.log("ProductPage params:", { store, productId });
@@ -118,13 +117,5 @@ const ProductPageContent = () => {
         <ProductDetails product={product} />
       </div>
     </div>
-  );
-};
-
-export default function ProductPage() {
-  return (
-    <CartProvider>
-      <ProductPageContent />
-    </CartProvider>
   );
 }
