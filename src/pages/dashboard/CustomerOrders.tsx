@@ -29,6 +29,7 @@ interface Order {
   status: string;
   created_at: string;
   order_items: OrderItem[];
+  store_id: string;
   store_name?: string;
 }
 
@@ -77,6 +78,7 @@ const CustomerOrders = () => {
 
   const fetchAllUserOrders = async () => {
     try {
+      // First fetch all orders
       const { data: ordersData, error: ordersError } = await supabase
         .from("orders")
         .select(`
@@ -85,18 +87,30 @@ const CustomerOrders = () => {
             product_id,
             quantity,
             price
-          ),
-          profiles!orders_store_id_fkey (
-            store_name
           )
         `)
         .order("created_at", { ascending: false });
 
       if (ordersError) throw ordersError;
 
+      // Then fetch store names for each unique store_id
+      const uniqueStoreIds = [...new Set(ordersData?.map(order => order.store_id) || [])];
+      const { data: profilesData, error: profilesError } = await supabase
+        .from("profiles")
+        .select("id, store_name")
+        .in("id", uniqueStoreIds);
+
+      if (profilesError) throw profilesError;
+
+      // Create a map of store_id to store_name
+      const storeNameMap = new Map(
+        profilesData?.map(profile => [profile.id, profile.store_name])
+      );
+
+      // Combine the data
       const ordersWithStoreName = ordersData?.map(order => ({
         ...order,
-        store_name: order.profiles?.store_name
+        store_name: storeNameMap.get(order.store_id) || "Unknown Store"
       })) || [];
 
       setAllUserOrders(ordersWithStoreName);
