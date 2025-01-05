@@ -33,8 +33,11 @@ export function OrdersTableRow({
   formatDate 
 }: OrdersTableRowProps) {
   const totalItems = Array.isArray(order.order_items) 
-    ? order.order_items.reduce((sum, item) => sum + item.quantity, 0) 
+    ? order.order_items.reduce((sum, item) => sum + (item?.quantity || 0), 0) 
     : 0;
+
+  console.log("Order items for order", order.id, ":", order.order_items);
+  console.log("Calculated total items:", totalItems);
 
   return (
     <TableRow key={order.id} className="hover:bg-muted/50">

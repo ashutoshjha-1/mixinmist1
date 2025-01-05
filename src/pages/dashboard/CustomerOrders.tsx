@@ -47,7 +47,7 @@ const CustomerOrders = () => {
         .from("orders")
         .select(`
           *,
-          order_items (
+          order_items!order_items_order_id_fkey (
             product_id,
             quantity,
             price
@@ -74,7 +74,7 @@ const CustomerOrders = () => {
         .from("orders")
         .select(`
           *,
-          order_items (
+          order_items!order_items_order_id_fkey (
             product_id,
             quantity,
             price
@@ -101,6 +101,7 @@ const CustomerOrders = () => {
         store_name: storeNameMap.get(order.store_id) || "Unknown Store"
       })) || [];
 
+      console.log("All user orders with items:", ordersWithStoreName);
       setAllUserOrders(ordersWithStoreName);
     } catch (error: any) {
       toast({
