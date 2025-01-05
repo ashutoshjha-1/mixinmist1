@@ -18,7 +18,7 @@ export const useAdminCheck = () => {
         // First check if user has a role
         const { data: hasRole, error: roleCheckError } = await supabase
           .rpc('user_has_role', {
-            user_id: user.id
+            input_user_id: user.id
           });
 
         if (roleCheckError) {
