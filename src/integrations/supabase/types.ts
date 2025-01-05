@@ -282,7 +282,7 @@ export type Database = {
       }
       user_has_role: {
         Args: {
-          input_user_id: string
+          user_id: string
         }
         Returns: boolean
       }
