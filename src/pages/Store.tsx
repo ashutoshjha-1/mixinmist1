@@ -23,7 +23,7 @@ interface StoreData {
     created_at: string;
     custom_domain: string | null;
     footer_links: FooterLink[];
-    footer_text: string;
+    footer_text: string | null;
     hero_image_url: string | null;
     hero_subtitle: string;
     hero_title: string;
