@@ -108,6 +108,12 @@ const FindProducts = () => {
     }
   };
 
+  const handleEditProduct = async (product: any) => {
+    console.log("Editing product:", product);
+    // For now just open the admin dialog with the product data
+    setIsAdminDialogOpen(true);
+  };
+
   const filteredProducts = products?.filter((product) =>
     product.name.toLowerCase().includes(searchQuery.toLowerCase())
   );
@@ -141,6 +147,7 @@ const FindProducts = () => {
           isAdmin={isAdmin}
           addedProducts={addedProducts}
           onAddToStore={handleAddToStore}
+          onEdit={handleEditProduct}
         />
 
         {isAdmin && (
