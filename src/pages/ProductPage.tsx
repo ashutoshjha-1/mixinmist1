@@ -8,7 +8,9 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 
 const ProductPageContent = () => {
-  const { store, productId } = useParams();
+  const params = useParams<{ store: string; productId: string }>();
+  const store = params?.store;
+  const productId = params?.productId;
   
   console.log("ProductPage params:", { store, productId });
   
