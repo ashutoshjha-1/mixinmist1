@@ -1,18 +1,15 @@
 import React from "react";
 import { useParams } from "react-router-dom";
+import { useStoreProduct } from "@/hooks/use-store-product";
+import { StoreHeader } from "@/components/store/StoreHeader";
+import { ProductDetails } from "@/components/store/ProductDetails";
+import { CartProvider } from "@/contexts/CartContext";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { Button } from "@/components/ui/button";
-import { useCart } from "@/contexts/CartContext";
-import { useToast } from "@/hooks/use-toast";
-import { StoreHeader } from "@/components/store/StoreHeader";
-import { CartProvider } from "@/contexts/CartContext";
 
 const ProductPageContent = () => {
   const { storeName, productId } = useParams();
-  const { addItem } = useCart();
-  const { toast } = useToast();
-
+  
   const { data: storeSettings, isLoading: isLoadingSettings } = useQuery({
     queryKey: ["store-settings", storeName?.toLowerCase()],
     queryFn: async () => {
@@ -71,75 +68,7 @@ const ProductPageContent = () => {
     enabled: !!storeName,
   });
 
-  const { data: product, isLoading } = useQuery({
-    queryKey: ["store-product", storeName?.toLowerCase(), productId],
-    queryFn: async () => {
-      if (!storeName || !productId) {
-        console.error("Store name and product ID are required");
-        throw new Error("Store name and product ID are required");
-      }
-      
-      console.log("Fetching product for store:", storeName, "product:", productId);
-      
-      // First get the profile ID for the store
-      const { data: profile, error: profileError } = await supabase
-        .from("profiles")
-        .select("id")
-        .ilike("username", storeName)
-        .maybeSingle();
-
-      if (profileError) {
-        console.error("Profile fetch error:", profileError);
-        throw profileError;
-      }
-
-      if (!profile) {
-        console.error("Store not found for username:", storeName);
-        throw new Error("Store not found");
-      }
-
-      console.log("Found profile:", profile);
-
-      // First check if this product is associated with this store
-      const { data: userProduct, error: userProductError } = await supabase
-        .from("user_products")
-        .select(`
-          custom_price,
-          custom_description,
-          products (
-            id,
-            name,
-            image_url,
-            description
-          )
-        `)
-        .eq("user_id", profile.id)
-        .eq("product_id", productId)
-        .maybeSingle();
-
-      if (userProductError) {
-        console.error("Product fetch error:", userProductError);
-        throw userProductError;
-      }
-
-      if (!userProduct) {
-        console.error("Product not found for store:", storeName, "product:", productId);
-        throw new Error("Product not found");
-      }
-
-      console.log("Found user product:", userProduct);
-
-      // Transform the data to match our expected format
-      return {
-        id: userProduct.products.id,
-        name: userProduct.products.name,
-        price: userProduct.custom_price,
-        image_url: userProduct.products.image_url,
-        description: userProduct.custom_description || userProduct.products.description,
-      };
-    },
-    enabled: !!storeName && !!productId,
-  });
+  const { data: product, isLoading } = useStoreProduct(storeName, productId);
 
   if (isLoading || isLoadingSettings) {
     return (
@@ -157,20 +86,6 @@ const ProductPageContent = () => {
     );
   }
 
-  const handleAddToCart = () => {
-    addItem({
-      id: product.id,
-      name: product.name,
-      price: product.price,
-      quantity: 1,
-      image_url: product.image_url,
-    });
-    toast({
-      title: "Added to cart",
-      description: "Product has been added to your cart",
-    });
-  };
-
   return (
     <div className="min-h-screen bg-gray-50">
       {storeSettings && (
@@ -180,34 +95,7 @@ const ProductPageContent = () => {
         />
       )}
       <div className="max-w-6xl mx-auto px-4 py-8">
-        <div className="grid md:grid-cols-2 gap-8">
-          <div>
-            <img
-              src={product.image_url}
-              alt={product.name}
-              className="w-full rounded-lg shadow-lg"
-            />
-          </div>
-          <div className="space-y-6">
-            <h1 className="text-3xl font-bold">{product.name}</h1>
-            <p className="text-2xl font-semibold text-primary">
-              ${product.price.toFixed(2)}
-            </p>
-            {product.description && (
-              <div>
-                <h2 className="text-lg font-semibold mb-2">Description</h2>
-                <p className="text-gray-600">{product.description}</p>
-              </div>
-            )}
-            <Button
-              size="lg"
-              className="w-full"
-              onClick={handleAddToCart}
-            >
-              Add to Cart
-            </Button>
-          </div>
-        </div>
+        <ProductDetails product={product} />
       </div>
     </div>
   );
