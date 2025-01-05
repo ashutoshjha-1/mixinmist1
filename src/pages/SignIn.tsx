@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { useToast } from "@/components/ui/use-toast";
+import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 
 const SignIn = () => {
@@ -30,7 +30,10 @@ const SignIn = () => {
       // Clear any existing session first
       await supabase.auth.signOut();
 
-      const formData = new FormData(e.currentTarget);
+      // Get form element and create FormData
+      const form = e.target as HTMLFormElement;
+      const formData = new FormData(form);
+      
       const email = formData.get("email") as string;
       const password = formData.get("password") as string;
 
