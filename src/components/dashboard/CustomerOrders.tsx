@@ -47,7 +47,7 @@ const CustomerOrders = () => {
         .from("orders")
         .select(`
           *,
-          order_items!order_items_order_id_fkey (
+          order_items (
             id,
             product_id,
             quantity,
@@ -78,29 +78,42 @@ const CustomerOrders = () => {
 
   const fetchAllUserOrders = async () => {
     try {
+      // First fetch all orders with order items
       const { data: ordersData, error: ordersError } = await supabase
         .from("orders")
         .select(`
           *,
-          order_items!order_items_order_id_fkey (
+          order_items (
             id,
             product_id,
             quantity,
             price,
             created_at
-          ),
-          profiles!orders_store_id_fkey (
-            store_name
           )
         `)
         .order("created_at", { ascending: false });
 
       if (ordersError) throw ordersError;
 
+      // Then fetch store names for all unique store IDs
+      const uniqueStoreIds = [...new Set(ordersData?.map(order => order.store_id) || [])];
+      const { data: profilesData, error: profilesError } = await supabase
+        .from("profiles")
+        .select("id, store_name")
+        .in("id", uniqueStoreIds);
+
+      if (profilesError) throw profilesError;
+
+      // Create a map of store IDs to store names
+      const storeNameMap = new Map(
+        profilesData?.map(profile => [profile.id, profile.store_name])
+      );
+
+      // Combine orders with store names
       const ordersWithStoreNames = ordersData?.map(order => ({
         ...order,
         order_items: order.order_items || [],
-        store_name: order.profiles?.store_name || "Unknown Store"
+        store_name: storeNameMap.get(order.store_id) || "Unknown Store"
       })) || [];
 
       console.log("All user orders with items:", ordersWithStoreNames);
