@@ -45,16 +45,7 @@ const CustomerOrders = () => {
 
       const { data: ordersData, error: ordersError } = await supabase
         .from("orders")
-        .select(`
-          *,
-          order_items (
-            id,
-            product_id,
-            quantity,
-            price,
-            created_at
-          )
-        `)
+        .select("*, order_items(*)")
         .eq('store_id', user.id)
         .order("created_at", { ascending: false });
 
@@ -68,6 +59,7 @@ const CustomerOrders = () => {
       console.log("Fetched orders with items:", ordersWithItems);
       setOrders(ordersWithItems);
     } catch (error: any) {
+      console.error("Error fetching orders:", error);
       toast({
         variant: "destructive",
         title: "Error fetching orders",
@@ -78,38 +70,27 @@ const CustomerOrders = () => {
 
   const fetchAllUserOrders = async () => {
     try {
-      // First fetch all orders with order items
+      // First fetch orders with their items
       const { data: ordersData, error: ordersError } = await supabase
         .from("orders")
-        .select(`
-          *,
-          order_items (
-            id,
-            product_id,
-            quantity,
-            price,
-            created_at
-          )
-        `)
+        .select("*, order_items(*)")
         .order("created_at", { ascending: false });
 
       if (ordersError) throw ordersError;
 
-      // Then fetch store names for all unique store IDs
-      const uniqueStoreIds = [...new Set(ordersData?.map(order => order.store_id) || [])];
+      // Then fetch all profiles in one query
       const { data: profilesData, error: profilesError } = await supabase
         .from("profiles")
-        .select("id, store_name")
-        .in("id", uniqueStoreIds);
+        .select("id, store_name");
 
       if (profilesError) throw profilesError;
 
-      // Create a map of store IDs to store names
+      // Create a map for quick store name lookups
       const storeNameMap = new Map(
-        profilesData?.map(profile => [profile.id, profile.store_name])
+        profilesData?.map(profile => [profile.id, profile.store_name]) || []
       );
 
-      // Combine orders with store names
+      // Combine the data
       const ordersWithStoreNames = ordersData?.map(order => ({
         ...order,
         order_items: order.order_items || [],
@@ -119,6 +100,7 @@ const CustomerOrders = () => {
       console.log("All user orders with items:", ordersWithStoreNames);
       setAllUserOrders(ordersWithStoreNames);
     } catch (error: any) {
+      console.error("Error fetching all user orders:", error);
       toast({
         variant: "destructive",
         title: "Error fetching all user orders",
