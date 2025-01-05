@@ -47,6 +47,8 @@ export const AuthGuard = ({ children }: { children: React.ReactNode }) => {
           navigate("/signin");
           return;
         }
+
+        console.log("Auth check successful, user:", user.id);
       } catch (error) {
         console.error("Auth check error:", error);
         await supabase.auth.signOut();
@@ -60,7 +62,8 @@ export const AuthGuard = ({ children }: { children: React.ReactNode }) => {
     // Set up auth state change listener
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
       console.log("Auth state changed:", event);
-      if (!session) {
+      if (event === 'SIGNED_OUT' || !session) {
+        console.log("No session in auth state change, redirecting to signin");
         navigate("/signin");
       }
     });
