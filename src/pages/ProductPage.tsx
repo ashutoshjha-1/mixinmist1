@@ -25,7 +25,7 @@ const ProductPageContent = () => {
       const { data: profile, error: profileError } = await supabase
         .from("profiles")
         .select("id")
-        .eq("store_name", store)
+        .ilike("store_name", store)
         .maybeSingle();
 
       if (profileError) {

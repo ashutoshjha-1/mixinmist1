@@ -12,11 +12,11 @@ export const useStoreProduct = (storeName: string | undefined, productId: string
       
       console.log("Fetching product data:", { storeName, productId });
       
-      // First get the profile ID for the store
+      // First get the profile ID for the store using case-insensitive search
       const { data: profile, error: profileError } = await supabase
         .from("profiles")
         .select("id, store_name")
-        .eq("store_name", storeName)
+        .ilike("store_name", storeName)
         .maybeSingle();
 
       if (profileError) {
