@@ -16,9 +16,9 @@ const FindProducts = () => {
   const [isAdminDialogOpen, setIsAdminDialogOpen] = useState(false);
   const navigate = useNavigate();
   const { toast } = useToast();
-  const { data: isAdmin } = useAdminCheck();
+  const { data: isAdmin, isLoading: isAdminLoading } = useAdminCheck();
 
-  const { data: products, isLoading, refetch } = useQuery({
+  const { data: products, isLoading: isProductsLoading, refetch } = useQuery({
     queryKey: ["products"],
     queryFn: async () => {
       const { data, error } = await supabase
@@ -103,6 +103,8 @@ const FindProducts = () => {
   const filteredProducts = products?.filter((product) =>
     product.name.toLowerCase().includes(searchQuery.toLowerCase())
   );
+
+  const isLoading = isAdminLoading || isProductsLoading;
 
   return (
     <div className="min-h-screen bg-gray-50">
