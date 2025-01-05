@@ -43,12 +43,17 @@ const CustomerOrders = () => {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) return;
 
-      // Fetch orders with order items in a single query
       const { data: ordersData, error: ordersError } = await supabase
         .from("orders")
         .select(`
           *,
-          order_items (*)
+          order_items!order_items_order_id_fkey (
+            id,
+            product_id,
+            quantity,
+            price,
+            created_at
+          )
         `)
         .eq('store_id', user.id)
         .order("created_at", { ascending: false });
@@ -73,13 +78,20 @@ const CustomerOrders = () => {
 
   const fetchAllUserOrders = async () => {
     try {
-      // Fetch all orders with order items and store names in a single query
       const { data: ordersData, error: ordersError } = await supabase
         .from("orders")
         .select(`
           *,
-          order_items (*),
-          profiles!orders_store_id_fkey (store_name)
+          order_items!order_items_order_id_fkey (
+            id,
+            product_id,
+            quantity,
+            price,
+            created_at
+          ),
+          profiles!orders_store_id_fkey (
+            store_name
+          )
         `)
         .order("created_at", { ascending: false });
 
