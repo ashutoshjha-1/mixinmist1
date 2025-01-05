@@ -5,8 +5,6 @@ import { DashboardSidebar } from "@/components/dashboard/DashboardSidebar";
 import { useAdminCheck } from "@/hooks/use-admin-check";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { OrdersTable } from "@/components/dashboard/orders/OrdersTable";
-import { Button } from "@/components/ui/button";
-import { RefreshCw } from "lucide-react";
 
 interface OrderItem {
   product_id: string;
@@ -30,7 +28,6 @@ interface Order {
 const CustomerOrders = () => {
   const [orders, setOrders] = useState<Order[]>([]);
   const [allUserOrders, setAllUserOrders] = useState<Order[]>([]);
-  const [isRefreshing, setIsRefreshing] = useState(false);
   const { toast } = useToast();
   const { data: isAdmin } = useAdminCheck();
 
@@ -84,7 +81,6 @@ const CustomerOrders = () => {
 
   const fetchAllUserOrders = async () => {
     try {
-      setIsRefreshing(true);
       // First fetch all orders
       const { data: ordersData, error: ordersError } = await supabase
         .from("orders")
@@ -130,24 +126,13 @@ const CustomerOrders = () => {
 
       console.log("All user orders with items:", ordersWithStoreNames);
       setAllUserOrders(ordersWithStoreNames);
-
-      toast({
-        title: "Orders refreshed successfully",
-        description: "The orders list has been updated with the latest data.",
-      });
     } catch (error: any) {
       toast({
         variant: "destructive",
         title: "Error fetching all user orders",
         description: error.message,
       });
-    } finally {
-      setIsRefreshing(false);
     }
-  };
-
-  const handleRefresh = () => {
-    fetchAllUserOrders();
   };
 
   return (
@@ -157,25 +142,12 @@ const CustomerOrders = () => {
         <Tabs defaultValue="customer-orders" className="w-full">
           <div className="flex items-center justify-between mb-8">
             <h1 className="text-2xl font-semibold tracking-tight">Orders</h1>
-            <div className="flex items-center gap-4">
-              <TabsList>
-                <TabsTrigger value="customer-orders">Customer Orders</TabsTrigger>
-                {isAdmin && (
-                  <TabsTrigger value="all-orders">All User Orders</TabsTrigger>
-                )}
-              </TabsList>
+            <TabsList>
+              <TabsTrigger value="customer-orders">Customer Orders</TabsTrigger>
               {isAdmin && (
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={handleRefresh}
-                  disabled={isRefreshing}
-                >
-                  <RefreshCw className={`mr-2 h-4 w-4 ${isRefreshing ? 'animate-spin' : ''}`} />
-                  Refresh
-                </Button>
+                <TabsTrigger value="all-orders">All User Orders</TabsTrigger>
               )}
-            </div>
+            </TabsList>
           </div>
 
           <TabsContent value="customer-orders">
