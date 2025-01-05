@@ -86,57 +86,59 @@ const CustomerOrders = () => {
   };
 
   return (
-    <div className="p-8 space-y-8 bg-background">
-      <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-semibold tracking-tight">Customer Orders</h1>
-      </div>
-      <div className="rounded-lg border bg-card text-card-foreground shadow-sm">
-        <Table>
-          <TableHeader>
-            <TableRow className="bg-muted/50">
-              <TableHead className="font-semibold">Order ID</TableHead>
-              <TableHead className="font-semibold">Customer</TableHead>
-              <TableHead className="font-semibold">Date</TableHead>
-              <TableHead className="font-semibold">Amount</TableHead>
-              <TableHead className="font-semibold">Status</TableHead>
-              <TableHead className="font-semibold">Items</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {orders.map((order) => (
-              <TableRow key={order.id} className="hover:bg-muted/50">
-                <TableCell className="font-mono text-sm">{order.id}</TableCell>
-                <TableCell>
-                  <div className="space-y-1">
-                    <p className="font-medium leading-none">
-                      {order.customer_name}
-                    </p>
-                    <p className="text-sm text-muted-foreground">
-                      {order.customer_email}
-                    </p>
-                  </div>
-                </TableCell>
-                <TableCell className="text-muted-foreground">
-                  {formatDate(order.created_at)}
-                </TableCell>
-                <TableCell className="font-medium">
-                  ${order.total_amount.toFixed(2)}
-                </TableCell>
-                <TableCell>
-                  <Badge
-                    variant="secondary"
-                    className={`${getStatusColor(order.status)}`}
-                  >
-                    {order.status.toUpperCase()}
-                  </Badge>
-                </TableCell>
-                <TableCell className="text-muted-foreground">
-                  {order.order_items.length} item(s)
-                </TableCell>
+    <div className="ml-64 min-h-screen bg-background">
+      <div className="p-8">
+        <div className="flex items-center justify-between mb-8">
+          <h1 className="text-2xl font-semibold tracking-tight">Customer Orders</h1>
+        </div>
+        <div className="rounded-lg border bg-card">
+          <Table>
+            <TableHeader>
+              <TableRow className="bg-muted/50">
+                <TableHead className="w-[200px] font-medium">Order ID</TableHead>
+                <TableHead className="font-medium">Customer</TableHead>
+                <TableHead className="font-medium">Date</TableHead>
+                <TableHead className="font-medium">Amount</TableHead>
+                <TableHead className="font-medium">Status</TableHead>
+                <TableHead className="font-medium text-right">Items</TableHead>
               </TableRow>
-            ))}
-          </TableBody>
-        </Table>
+            </TableHeader>
+            <TableBody>
+              {orders.map((order) => (
+                <TableRow key={order.id} className="hover:bg-muted/50">
+                  <TableCell className="font-mono text-sm">{order.id}</TableCell>
+                  <TableCell>
+                    <div className="space-y-1">
+                      <p className="font-medium leading-none">
+                        {order.customer_name}
+                      </p>
+                      <p className="text-sm text-muted-foreground">
+                        {order.customer_email}
+                      </p>
+                    </div>
+                  </TableCell>
+                  <TableCell className="text-muted-foreground">
+                    {formatDate(order.created_at)}
+                  </TableCell>
+                  <TableCell className="font-medium">
+                    ${order.total_amount.toFixed(2)}
+                  </TableCell>
+                  <TableCell>
+                    <Badge
+                      variant="secondary"
+                      className={`${getStatusColor(order.status)}`}
+                    >
+                      {order.status.toUpperCase()}
+                    </Badge>
+                  </TableCell>
+                  <TableCell className="text-right text-muted-foreground">
+                    {order.order_items.length} item(s)
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </div>
       </div>
     </div>
   );
