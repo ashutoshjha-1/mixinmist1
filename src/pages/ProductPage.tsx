@@ -5,11 +5,34 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { useCart } from "@/contexts/CartContext";
 import { useToast } from "@/hooks/use-toast";
+import { StoreHeader } from "@/components/store/StoreHeader";
+import { CartProvider } from "@/contexts/CartContext";
 
 export default function ProductPage() {
   const { storeName, productId } = useParams();
   const { addItem } = useCart();
   const { toast } = useToast();
+
+  const { data: storeSettings } = useQuery({
+    queryKey: ["store-settings", storeName?.toLowerCase()],
+    queryFn: async () => {
+      const { data: profile } = await supabase
+        .from("profiles")
+        .select("id")
+        .ilike("username", storeName)
+        .single();
+
+      if (!profile) throw new Error("Store not found");
+
+      const { data: settings } = await supabase
+        .from("store_settings")
+        .select("*")
+        .eq("user_id", profile.id)
+        .single();
+
+      return settings;
+    },
+  });
 
   const { data: product, isLoading } = useQuery({
     queryKey: ["store-product", storeName, productId],
@@ -88,37 +111,45 @@ export default function ProductPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <div className="max-w-6xl mx-auto px-4 py-8">
-        <div className="grid md:grid-cols-2 gap-8">
-          <div>
-            <img
-              src={product.image_url}
-              alt={product.name}
-              className="w-full rounded-lg shadow-lg"
-            />
-          </div>
-          <div className="space-y-6">
-            <h1 className="text-3xl font-bold">{product.name}</h1>
-            <p className="text-2xl font-semibold text-primary">
-              ${product.price.toFixed(2)}
-            </p>
-            {product.description && (
-              <div>
-                <h2 className="text-lg font-semibold mb-2">Description</h2>
-                <p className="text-gray-600">{product.description}</p>
-              </div>
-            )}
-            <Button
-              size="lg"
-              className="w-full"
-              onClick={handleAddToCart}
-            >
-              Add to Cart
-            </Button>
+    <CartProvider>
+      <div className="min-h-screen bg-gray-50">
+        {storeSettings && (
+          <StoreHeader
+            iconImageUrl={storeSettings.icon_image_url}
+            menuItems={storeSettings.menu_items as any[]}
+          />
+        )}
+        <div className="max-w-6xl mx-auto px-4 py-8">
+          <div className="grid md:grid-cols-2 gap-8">
+            <div>
+              <img
+                src={product.image_url}
+                alt={product.name}
+                className="w-full rounded-lg shadow-lg"
+              />
+            </div>
+            <div className="space-y-6">
+              <h1 className="text-3xl font-bold">{product.name}</h1>
+              <p className="text-2xl font-semibold text-primary">
+                ${product.price.toFixed(2)}
+              </p>
+              {product.description && (
+                <div>
+                  <h2 className="text-lg font-semibold mb-2">Description</h2>
+                  <p className="text-gray-600">{product.description}</p>
+                </div>
+              )}
+              <Button
+                size="lg"
+                className="w-full"
+                onClick={handleAddToCart}
+              >
+                Add to Cart
+              </Button>
+            </div>
           </div>
         </div>
       </div>
-    </div>
+    </CartProvider>
   );
 }
