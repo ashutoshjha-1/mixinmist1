@@ -5,7 +5,8 @@ import { StoreFooter } from "@/components/store/StoreFooter";
 import { StoreHeader } from "@/components/store/StoreHeader";
 import { CartProvider } from "@/contexts/CartContext";
 import { useStoreData } from "@/hooks/use-store-data";
-import { MenuItem, FooterLink } from "@/integrations/supabase/types";
+import { MenuItem } from "@/integrations/supabase/types/menu";
+import { FooterLink } from "@/integrations/supabase/types/footer";
 
 export default function Store() {
   const { username } = useParams<{ username: string }>();
