@@ -8,6 +8,7 @@ import { OrdersTable } from "@/components/dashboard/orders/OrdersTable";
 
 interface OrderItem {
   id: string;
+  order_id: string;
   product_id: string;
   quantity: number;
   price: number;
@@ -79,7 +80,14 @@ const CustomerOrders = () => {
         .from("orders")
         .select(`
           *,
-          order_items (*)
+          order_items (
+            id,
+            order_id,
+            product_id,
+            quantity,
+            price,
+            created_at
+          )
         `)
         .eq('store_id', userId)
         .order('created_at', { ascending: false });
@@ -108,7 +116,14 @@ const CustomerOrders = () => {
         .from("orders")
         .select(`
           *,
-          order_items (*)
+          order_items (
+            id,
+            order_id,
+            product_id,
+            quantity,
+            price,
+            created_at
+          )
         `)
         .order('created_at', { ascending: false });
 

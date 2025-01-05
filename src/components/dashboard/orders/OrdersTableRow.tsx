@@ -3,9 +3,12 @@ import { TableCell, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 
 interface OrderItem {
+  id: string;
+  order_id: string;
   product_id: string;
   quantity: number;
   price: number;
+  created_at: string;
 }
 
 interface Order {
