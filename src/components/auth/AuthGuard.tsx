@@ -10,28 +10,30 @@ export const AuthGuard = ({ children }: { children: React.ReactNode }) => {
   useEffect(() => {
     const checkAuth = async () => {
       try {
-        // First check if there's a valid session
-        const { data: { session }, error: sessionError } = await supabase.auth.getSession();
-        
-        if (sessionError) {
-          console.error("Session error:", sessionError);
+        // Clear any existing session first to ensure clean state
+        const currentSession = await supabase.auth.getSession();
+        if (currentSession.error) {
+          console.error("Session retrieval error:", currentSession.error);
           await supabase.auth.signOut();
+          localStorage.clear(); // Clear all local storage
           navigate("/signin");
           return;
         }
 
-        if (!session) {
-          console.log("No session found, redirecting to signin");
+        if (!currentSession.data.session) {
+          console.log("No valid session found, redirecting to signin");
+          localStorage.clear(); // Clear all local storage
           navigate("/signin");
           return;
         }
 
-        // Verify the session is still valid by getting the user
+        // Verify the session is still valid
         const { data: { user }, error: userError } = await supabase.auth.getUser();
         
         if (userError) {
           console.error("User verification error:", userError);
           await supabase.auth.signOut();
+          localStorage.clear(); // Clear all local storage
           toast({
             title: "Session Expired",
             description: "Please sign in again",
@@ -44,6 +46,7 @@ export const AuthGuard = ({ children }: { children: React.ReactNode }) => {
         if (!user) {
           console.error("No user found");
           await supabase.auth.signOut();
+          localStorage.clear(); // Clear all local storage
           navigate("/signin");
           return;
         }
@@ -52,6 +55,7 @@ export const AuthGuard = ({ children }: { children: React.ReactNode }) => {
       } catch (error) {
         console.error("Auth check error:", error);
         await supabase.auth.signOut();
+        localStorage.clear(); // Clear all local storage
         navigate("/signin");
       }
     };
@@ -62,9 +66,13 @@ export const AuthGuard = ({ children }: { children: React.ReactNode }) => {
     // Set up auth state change listener
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
       console.log("Auth state changed:", event);
+      
       if (event === 'SIGNED_OUT' || !session) {
         console.log("No session in auth state change, redirecting to signin");
+        localStorage.clear(); // Clear all local storage
         navigate("/signin");
+      } else if (event === 'TOKEN_REFRESHED') {
+        console.log("Token refreshed successfully");
       }
     });
 
