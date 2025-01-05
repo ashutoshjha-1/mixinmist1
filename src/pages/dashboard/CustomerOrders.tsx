@@ -10,6 +10,7 @@ import {
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/components/ui/use-toast";
+import { DashboardSidebar } from "@/components/dashboard/DashboardSidebar";
 
 interface OrderItem {
   product_id: string;
@@ -86,8 +87,9 @@ const CustomerOrders = () => {
   };
 
   return (
-    <div className="ml-64 min-h-screen bg-background">
-      <div className="p-8">
+    <div className="min-h-screen bg-gray-50">
+      <DashboardSidebar />
+      <div className="ml-64 p-8">
         <div className="flex items-center justify-between mb-8">
           <h1 className="text-2xl font-semibold tracking-tight">Customer Orders</h1>
         </div>
