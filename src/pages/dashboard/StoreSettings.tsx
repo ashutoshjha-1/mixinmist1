@@ -9,8 +9,7 @@ import { DashboardHeader } from "@/components/dashboard/DashboardHeader";
 import { HeroSection } from "@/components/dashboard/store-settings/HeroSection";
 import { FooterSection } from "@/components/dashboard/store-settings/FooterSection";
 import { HeaderSection } from "@/components/dashboard/store-settings/HeaderSection";
-import { MenuItem } from "@/integrations/supabase/types/menu";
-import { FooterLink } from "@/integrations/supabase/types/footer";
+import { RoleBasedSettings } from "@/components/dashboard/store-settings/RoleBasedSettings";
 
 export default function StoreSettings() {
   const { toast } = useToast();
@@ -182,13 +181,15 @@ export default function StoreSettings() {
                 {isEditing ? "Cancel" : "Edit Settings"}
               </Button>
               <Button
-                onClick={() => navigate(`/store/${settings.store_name}`)}
+                onClick={() => navigate(`/store/${settings?.store_name}`)}
                 variant="outline"
               >
                 Preview Store
               </Button>
             </div>
           </div>
+
+          <RoleBasedSettings />
 
           {isEditing ? (
             <form onSubmit={handleSubmit} className="space-y-6">
