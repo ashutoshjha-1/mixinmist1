@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Link, useParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { useCart } from "@/contexts/CartContext";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { CheckoutForm } from "./CheckoutForm";
 
 interface Product {
@@ -78,25 +78,8 @@ export const StoreProducts = ({ products }: StoreProductsProps) => {
       </div>
 
       <Dialog open={showCheckout} onOpenChange={setShowCheckout}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Checkout</DialogTitle>
-          </DialogHeader>
-          <div className="mt-4">
-            <div className="mb-6">
-              <h3 className="font-semibold mb-2">Cart Items</h3>
-              {items.map((item) => (
-                <div
-                  key={item.id}
-                  className="flex justify-between items-center py-2"
-                >
-                  <span>{item.name}</span>
-                  <span>${(item.price * item.quantity).toFixed(2)}</span>
-                </div>
-              ))}
-            </div>
-            <CheckoutForm onSuccess={() => setShowCheckout(false)} />
-          </div>
+        <DialogContent className="sm:max-w-[600px]">
+          <CheckoutForm onSuccess={() => setShowCheckout(false)} />
         </DialogContent>
       </Dialog>
     </div>

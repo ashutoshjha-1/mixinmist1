@@ -5,7 +5,7 @@ import { useCart } from "@/contexts/CartContext";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useParams } from "react-router-dom";
-import { DialogTitle } from "@/components/ui/dialog";
+import { DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { CartItemRow } from "./checkout/CartItemRow";
 import { CustomerForm } from "./checkout/CustomerForm";
 
@@ -100,7 +100,9 @@ export function CheckoutForm({ onSuccess }: { onSuccess: () => void }) {
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-      <DialogTitle className="text-xl font-semibold">Checkout</DialogTitle>
+      <DialogHeader>
+        <DialogTitle>Checkout</DialogTitle>
+      </DialogHeader>
       
       {/* Cart Items Section */}
       <div className="space-y-4">
