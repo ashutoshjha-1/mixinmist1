@@ -43,22 +43,33 @@ const CustomerOrders = () => {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) return;
 
+      // First fetch orders
       const { data: ordersData, error: ordersError } = await supabase
         .from("orders")
-        .select(`
-          *,
-          order_items (
-            product_id,
-            quantity,
-            price
-          )
-        `)
+        .select("*")
         .eq('store_id', user.id)
         .order("created_at", { ascending: false });
 
       if (ordersError) throw ordersError;
 
-      setOrders(ordersData || []);
+      // Then fetch order items for each order
+      const ordersWithItems = await Promise.all(
+        (ordersData || []).map(async (order) => {
+          const { data: items, error: itemsError } = await supabase
+            .from("order_items")
+            .select("*")
+            .eq('order_id', order.id);
+
+          if (itemsError) {
+            console.error("Error fetching items for order", order.id, itemsError);
+            return { ...order, order_items: [] };
+          }
+
+          return { ...order, order_items: items || [] };
+        })
+      );
+
+      setOrders(ordersWithItems);
     } catch (error: any) {
       toast({
         variant: "destructive",
@@ -70,21 +81,33 @@ const CustomerOrders = () => {
 
   const fetchAllUserOrders = async () => {
     try {
+      // First fetch all orders
       const { data: ordersData, error: ordersError } = await supabase
         .from("orders")
-        .select(`
-          *,
-          order_items (
-            product_id,
-            quantity,
-            price
-          )
-        `)
+        .select("*")
         .order("created_at", { ascending: false });
 
       if (ordersError) throw ordersError;
 
-      const uniqueStoreIds = [...new Set(ordersData?.map(order => order.store_id) || [])];
+      // Fetch order items for each order
+      const ordersWithItems = await Promise.all(
+        (ordersData || []).map(async (order) => {
+          const { data: items, error: itemsError } = await supabase
+            .from("order_items")
+            .select("*")
+            .eq('order_id', order.id);
+
+          if (itemsError) {
+            console.error("Error fetching items for order", order.id, itemsError);
+            return { ...order, order_items: [] };
+          }
+
+          return { ...order, order_items: items || [] };
+        })
+      );
+
+      // Fetch store names
+      const uniqueStoreIds = [...new Set(ordersWithItems.map(order => order.store_id))];
       const { data: profilesData, error: profilesError } = await supabase
         .from("profiles")
         .select("id, store_name")
@@ -96,13 +119,13 @@ const CustomerOrders = () => {
         profilesData?.map(profile => [profile.id, profile.store_name])
       );
 
-      const ordersWithStoreName = ordersData?.map(order => ({
+      const ordersWithStoreNames = ordersWithItems.map(order => ({
         ...order,
         store_name: storeNameMap.get(order.store_id) || "Unknown Store"
-      })) || [];
+      }));
 
-      console.log("All user orders with items:", ordersWithStoreName);
-      setAllUserOrders(ordersWithStoreName);
+      console.log("All user orders with items:", ordersWithStoreNames);
+      setAllUserOrders(ordersWithStoreNames);
     } catch (error: any) {
       toast({
         variant: "destructive",
