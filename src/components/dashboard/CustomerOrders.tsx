@@ -43,32 +43,24 @@ const CustomerOrders = () => {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) return;
 
-      // First fetch orders
+      // Fetch orders with order items in a single query
       const { data: ordersData, error: ordersError } = await supabase
         .from("orders")
-        .select("*")
+        .select(`
+          *,
+          order_items (*)
+        `)
         .eq('store_id', user.id)
         .order("created_at", { ascending: false });
 
       if (ordersError) throw ordersError;
 
-      // Then fetch order items for each order
-      const ordersWithItems = await Promise.all(
-        (ordersData || []).map(async (order) => {
-          const { data: items, error: itemsError } = await supabase
-            .from("order_items")
-            .select("*")
-            .eq('order_id', order.id);
+      const ordersWithItems = ordersData?.map(order => ({
+        ...order,
+        order_items: order.order_items || []
+      })) || [];
 
-          if (itemsError) {
-            console.error("Error fetching items for order", order.id, itemsError);
-            return { ...order, order_items: [] };
-          }
-
-          return { ...order, order_items: items || [] };
-        })
-      );
-
+      console.log("Fetched orders with items:", ordersWithItems);
       setOrders(ordersWithItems);
     } catch (error: any) {
       toast({
@@ -81,48 +73,23 @@ const CustomerOrders = () => {
 
   const fetchAllUserOrders = async () => {
     try {
-      // First fetch all orders
+      // Fetch all orders with order items and store names in a single query
       const { data: ordersData, error: ordersError } = await supabase
         .from("orders")
-        .select("*")
+        .select(`
+          *,
+          order_items (*),
+          profiles!orders_store_id_fkey (store_name)
+        `)
         .order("created_at", { ascending: false });
 
       if (ordersError) throw ordersError;
 
-      // Fetch order items for each order
-      const ordersWithItems = await Promise.all(
-        (ordersData || []).map(async (order) => {
-          const { data: items, error: itemsError } = await supabase
-            .from("order_items")
-            .select("*")
-            .eq('order_id', order.id);
-
-          if (itemsError) {
-            console.error("Error fetching items for order", order.id, itemsError);
-            return { ...order, order_items: [] };
-          }
-
-          return { ...order, order_items: items || [] };
-        })
-      );
-
-      // Fetch store names
-      const uniqueStoreIds = [...new Set(ordersWithItems.map(order => order.store_id))];
-      const { data: profilesData, error: profilesError } = await supabase
-        .from("profiles")
-        .select("id, store_name")
-        .in("id", uniqueStoreIds);
-
-      if (profilesError) throw profilesError;
-
-      const storeNameMap = new Map(
-        profilesData?.map(profile => [profile.id, profile.store_name])
-      );
-
-      const ordersWithStoreNames = ordersWithItems.map(order => ({
+      const ordersWithStoreNames = ordersData?.map(order => ({
         ...order,
-        store_name: storeNameMap.get(order.store_id) || "Unknown Store"
-      }));
+        order_items: order.order_items || [],
+        store_name: order.profiles?.store_name || "Unknown Store"
+      })) || [];
 
       console.log("All user orders with items:", ordersWithStoreNames);
       setAllUserOrders(ordersWithStoreNames);

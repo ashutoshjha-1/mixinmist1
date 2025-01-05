@@ -32,21 +32,22 @@ export function OrdersTableRow({
   getStatusColor, 
   formatDate 
 }: OrdersTableRowProps) {
-  // Ensure order_items is an array and calculate total items
   const totalItems = React.useMemo(() => {
     if (!Array.isArray(order.order_items)) {
-      console.log(`Order ${order.id} has invalid order_items:`, order.order_items);
+      console.error(`Order ${order.id} has invalid order_items:`, order.order_items);
       return 0;
     }
 
     return order.order_items.reduce((sum, item) => {
       if (!item || typeof item.quantity !== 'number') {
-        console.log(`Invalid item in order ${order.id}:`, item);
+        console.error(`Invalid item in order ${order.id}:`, item);
         return sum;
       }
       return sum + item.quantity;
     }, 0);
   }, [order.id, order.order_items]);
+
+  console.log(`Order ${order.id} items:`, order.order_items, `Total items:`, totalItems);
 
   return (
     <TableRow key={order.id} className="hover:bg-muted/50">
