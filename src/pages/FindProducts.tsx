@@ -21,6 +21,13 @@ const FindProducts = () => {
   const { data: products, isLoading: isProductsLoading, refetch } = useQuery({
     queryKey: ["products"],
     queryFn: async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      
+      if (!session) {
+        navigate("/signin");
+        return [];
+      }
+
       const { data, error } = await supabase
         .from("products")
         .select("*")
@@ -110,7 +117,7 @@ const FindProducts = () => {
     return <div className="text-center py-12">Loading...</div>;
   }
 
-  console.log("Is admin:", isAdmin); // Add this line for debugging
+  console.log("Is admin:", isAdmin);
 
   return (
     <div className="min-h-screen bg-gray-50">

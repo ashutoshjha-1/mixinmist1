@@ -10,10 +10,6 @@ export const AuthGuard = ({ children }: { children: React.ReactNode }) => {
   useEffect(() => {
     const checkAuth = async () => {
       try {
-        // First, clear any potentially corrupted session state
-        localStorage.removeItem('sb-zevuqoiqmlkudholotmp-auth-token');
-        
-        // Get a fresh session
         const { data: { session }, error: sessionError } = await supabase.auth.getSession();
         
         if (sessionError) {
@@ -28,32 +24,9 @@ export const AuthGuard = ({ children }: { children: React.ReactNode }) => {
           return;
         }
 
-        // Verify the user exists and session is valid
-        const { data: { user }, error: userError } = await supabase.auth.getUser();
-        
-        if (userError) {
-          console.error("User verification error:", userError);
-          await supabase.auth.signOut();
-          toast({
-            title: "Session Expired",
-            description: "Please sign in again",
-            variant: "destructive",
-          });
-          navigate("/signin");
-          return;
-        }
-
-        if (!user) {
-          console.error("No user found");
-          await supabase.auth.signOut();
-          navigate("/signin");
-          return;
-        }
-
-        console.log("Auth check successful, user:", user.id);
+        console.log("Session found:", session.user.id);
       } catch (error) {
         console.error("Auth check error:", error);
-        await supabase.auth.signOut();
         navigate("/signin");
       }
     };
@@ -67,12 +40,7 @@ export const AuthGuard = ({ children }: { children: React.ReactNode }) => {
       
       if (event === 'SIGNED_OUT' || !session) {
         console.log("No session in auth state change, redirecting to signin");
-        localStorage.removeItem('sb-zevuqoiqmlkudholotmp-auth-token');
         navigate("/signin");
-      } else if (event === 'TOKEN_REFRESHED') {
-        console.log("Token refreshed successfully");
-        // Re-run auth check when token is refreshed
-        checkAuth();
       }
     });
 
