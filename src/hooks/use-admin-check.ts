@@ -6,16 +6,15 @@ export const useAdminCheck = () => {
     queryKey: ["isAdmin"],
     queryFn: async () => {
       try {
-        // First check if we have a valid session
-        const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+        const { data: { user }, error: userError } = await supabase.auth.getUser();
         
-        if (sessionError || !session) {
-          console.error('No valid session found:', sessionError);
+        if (userError || !user) {
+          console.error('No valid user found:', userError);
           return false;
         }
 
         const { data, error } = await supabase.rpc('is_admin', {
-          user_id: session.user.id
+          user_id: user.id
         });
 
         if (error) {
@@ -31,6 +30,6 @@ export const useAdminCheck = () => {
       }
     },
     staleTime: 1000 * 60 * 5, // Cache for 5 minutes
-    retry: false, // Don't retry on failure
+    retry: 1, // Only retry once
   });
 };

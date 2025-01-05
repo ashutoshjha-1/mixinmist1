@@ -21,9 +21,10 @@ const FindProducts = () => {
   const { data: products, isLoading: isProductsLoading, refetch } = useQuery({
     queryKey: ["products"],
     queryFn: async () => {
-      const { data: { session } } = await supabase.auth.getSession();
+      const { data: { user }, error: userError } = await supabase.auth.getUser();
       
-      if (!session) {
+      if (userError || !user) {
+        console.error("User error:", userError);
         navigate("/signin");
         return [];
       }

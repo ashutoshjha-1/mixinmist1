@@ -14,6 +14,7 @@ export const AuthGuard = ({ children }: { children: React.ReactNode }) => {
         
         if (sessionError) {
           console.error("Session error:", sessionError);
+          await supabase.auth.signOut();
           navigate("/signin");
           return;
         }
@@ -24,9 +25,20 @@ export const AuthGuard = ({ children }: { children: React.ReactNode }) => {
           return;
         }
 
-        console.log("Session found:", session.user.id);
+        // Verify the session is valid
+        const { data: { user }, error: userError } = await supabase.auth.getUser();
+        
+        if (userError || !user) {
+          console.error("User verification error:", userError);
+          await supabase.auth.signOut();
+          navigate("/signin");
+          return;
+        }
+
+        console.log("Auth check successful, user:", user.id);
       } catch (error) {
         console.error("Auth check error:", error);
+        await supabase.auth.signOut();
         navigate("/signin");
       }
     };
