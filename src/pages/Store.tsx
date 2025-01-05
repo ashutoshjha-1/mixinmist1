@@ -47,7 +47,7 @@ export default function Store() {
   const { username } = useParams<{ username: string }>();
 
   const { data: storeData, isLoading, error } = useQuery({
-    queryKey: ["store", username],
+    queryKey: ["store", username?.toLowerCase()],
     queryFn: async () => {
       if (!username) throw new Error("Store username is required");
 
