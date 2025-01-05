@@ -12,14 +12,14 @@ export const RoleBasedSettings = () => {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error("Not authenticated");
 
-      const { data: roleData, error } = await supabase
-        .from("user_roles")
-        .select("role")
-        .eq("user_id", user.id)
-        .single();
+      // Use the get_user_role function instead of direct query
+      const { data, error } = await supabase
+        .rpc('get_user_role', {
+          user_id: user.id
+        });
 
       if (error) throw error;
-      return roleData?.role;
+      return data;
     },
   });
 
