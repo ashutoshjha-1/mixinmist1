@@ -47,7 +47,7 @@ const CustomerOrders = () => {
         .from("orders")
         .select(`
           *,
-          order_items!order_items_order_id_fkey (
+          order_items (
             product_id,
             quantity,
             price
@@ -74,7 +74,7 @@ const CustomerOrders = () => {
         .from("orders")
         .select(`
           *,
-          order_items!order_items_order_id_fkey (
+          order_items (
             product_id,
             quantity,
             price

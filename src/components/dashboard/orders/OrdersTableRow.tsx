@@ -32,7 +32,9 @@ export function OrdersTableRow({
   getStatusColor, 
   formatDate 
 }: OrdersTableRowProps) {
-  const totalItems = order.order_items?.reduce((sum, item) => sum + item.quantity, 0) || 0;
+  const totalItems = Array.isArray(order.order_items) 
+    ? order.order_items.reduce((sum, item) => sum + item.quantity, 0) 
+    : 0;
 
   return (
     <TableRow key={order.id} className="hover:bg-muted/50">
