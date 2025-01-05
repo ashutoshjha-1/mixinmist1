@@ -35,7 +35,7 @@ export default function Store() {
   // Ensure menu items and footer links are properly typed
   const menuItems = (settings.menu_items || []) as MenuItem[];
   const footerLinks = (settings.footer_links || []) as FooterLink[];
-  const bottomMenuItems = (settings.bottom_menu_items || []) as FooterLink[];
+  const bottomMenuItems = (settings.bottom_menu_items || []) as MenuItem[];
 
   return (
     <CartProvider>
