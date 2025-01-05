@@ -17,35 +17,24 @@ export const useAdminCheck = () => {
 
         // First check if user has a role
         const { data: hasRole, error: roleCheckError } = await supabase
-          .rpc('user_has_role', {
-            user_id: user.id
-          });
+          .from('user_roles')
+          .select('role')
+          .eq('user_id', user.id)
+          .single();
 
         if (roleCheckError) {
           console.error('Error checking if user has role:', roleCheckError);
           return false;
         }
 
-        console.log('Has role check result:', hasRole);
+        console.log('User role check result:', hasRole);
 
         if (!hasRole) {
           console.log('User has no role assigned');
           return false;
         }
 
-        // Then check if user is admin
-        const { data: isAdmin, error: adminCheckError } = await supabase
-          .rpc('is_admin', {
-            user_id: user.id
-          });
-
-        if (adminCheckError) {
-          console.error('Error checking admin status:', adminCheckError);
-          return false;
-        }
-
-        console.log('Admin check result:', isAdmin);
-        return !!isAdmin;
+        return hasRole.role === 'admin';
       } catch (error) {
         console.error('Error in admin check:', error);
         return false;
