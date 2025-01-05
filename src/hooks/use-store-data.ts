@@ -108,10 +108,21 @@ export const useStoreData = (username: string | undefined) => {
         image_url: up.products.image_url,
       }));
 
-      // Ensure menu items and footer links are properly typed
-      const menuItems = (settings.menu_items || []) as MenuItem[];
-      const footerLinks = (settings.footer_links || []) as FooterLink[];
-      const bottomMenuItems = (settings.bottom_menu_items || []) as MenuItem[];
+      // Parse and type-check menu items and footer links
+      const menuItems = (settings.menu_items || []).map((item: any) => ({
+        label: String(item.label || ''),
+        url: String(item.url || '')
+      })) as MenuItem[];
+
+      const footerLinks = (settings.footer_links || []).map((link: any) => ({
+        label: String(link.label || ''),
+        url: String(link.url || '')
+      })) as FooterLink[];
+
+      const bottomMenuItems = (settings.bottom_menu_items || []).map((item: any) => ({
+        label: String(item.label || ''),
+        url: String(item.url || '')
+      })) as MenuItem[];
 
       return {
         profile,
@@ -122,7 +133,7 @@ export const useStoreData = (username: string | undefined) => {
           bottom_menu_items: bottomMenuItems,
         },
         products,
-      };
+      } as StoreData;
     },
     enabled: !!username,
   });
