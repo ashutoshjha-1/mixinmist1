@@ -10,15 +10,12 @@ export const AuthGuard = ({ children }: { children: React.ReactNode }) => {
   useEffect(() => {
     const checkAuth = async () => {
       try {
-        const { data: { session }, error } = await supabase.auth.getSession();
+        // First check if there's a valid session
+        const { data: { session }, error: sessionError } = await supabase.auth.getSession();
         
-        if (error) {
-          console.error("Auth error:", error);
-          toast({
-            title: "Authentication Error",
-            description: "Please sign in again",
-            variant: "destructive",
-          });
+        if (sessionError) {
+          console.error("Session error:", sessionError);
+          await supabase.auth.signOut();
           navigate("/signin");
           return;
         }
@@ -29,29 +26,49 @@ export const AuthGuard = ({ children }: { children: React.ReactNode }) => {
           return;
         }
 
-        // Verify the session is still valid
+        // Verify the session is still valid by getting the user
         const { data: { user }, error: userError } = await supabase.auth.getUser();
-        if (userError || !user) {
+        
+        if (userError) {
           console.error("User verification error:", userError);
+          await supabase.auth.signOut();
+          toast({
+            title: "Session Expired",
+            description: "Please sign in again",
+            variant: "destructive",
+          });
+          navigate("/signin");
+          return;
+        }
+
+        if (!user) {
+          console.error("No user found");
           await supabase.auth.signOut();
           navigate("/signin");
           return;
         }
       } catch (error) {
         console.error("Auth check error:", error);
+        await supabase.auth.signOut();
         navigate("/signin");
       }
     };
 
+    // Initial auth check
     checkAuth();
 
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+    // Set up auth state change listener
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
+      console.log("Auth state changed:", event);
       if (!session) {
         navigate("/signin");
       }
     });
 
-    return () => subscription.unsubscribe();
+    // Cleanup subscription on unmount
+    return () => {
+      subscription.unsubscribe();
+    };
   }, [navigate, toast]);
 
   return <>{children}</>;
