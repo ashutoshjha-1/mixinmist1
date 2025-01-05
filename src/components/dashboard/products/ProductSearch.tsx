@@ -38,11 +38,13 @@ export const ProductSearch = ({
           </Button>
         )}
       </div>
-      <Button 
-        className="w-32 bg-[#8B5CF6] hover:bg-[#7C3AED] text-white"
-      >
-        ADD PRODUCTS
-      </Button>
+      {isAdmin && (
+        <Button 
+          className="w-32 bg-[#8B5CF6] hover:bg-[#7C3AED] text-white"
+        >
+          ADD PRODUCTS
+        </Button>
+      )}
     </div>
   );
 };
