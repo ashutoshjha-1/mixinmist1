@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { useCart } from "@/contexts/CartContext";
 import { useToast } from "@/hooks/use-toast";
 import { StoreHeader } from "@/components/store/StoreHeader";
+import { MenuItem } from "@/integrations/supabase/types/menu";
 
 export default function ProductPage() {
   const { storeName, productId } = useParams();
@@ -29,7 +30,18 @@ export default function ProductPage() {
         .eq("user_id", profile.id)
         .single();
 
-      return settings;
+      // Parse and validate menu_items
+      const menuItems = Array.isArray(settings.menu_items) 
+        ? settings.menu_items.map((item: any) => ({
+            label: String(item.label || ''),
+            url: String(item.url || '')
+          }))
+        : [];
+
+      return {
+        ...settings,
+        menu_items: menuItems
+      };
     },
   });
 
