@@ -36,28 +36,30 @@ export const ProductCard = ({
             alt={product.name}
             className="w-full h-full object-cover"
           />
-          {isAdmin && onEdit && (
-            <Button
-              variant="secondary"
-              size="icon"
-              className="absolute top-2 right-2"
-              onClick={() => onEdit(product)}
-            >
-              <Pencil className="h-4 w-4" />
-            </Button>
-          )}
         </div>
         <div className="p-4">
           <h3 className="font-semibold mb-1">{product.name}</h3>
           <p className="text-sm text-gray-500 mb-4">${product.price.toFixed(2)}</p>
-          <Button
-            variant={isAdded ? "secondary" : "default"}
-            className="w-full"
-            onClick={() => setIsDialogOpen(true)}
-            disabled={isAdded}
-          >
-            {isAdded ? "Added to Store" : "Add to Store"}
-          </Button>
+          <div className="space-y-2">
+            <Button
+              variant={isAdded ? "secondary" : "default"}
+              className="w-full"
+              onClick={() => setIsDialogOpen(true)}
+              disabled={isAdded}
+            >
+              {isAdded ? "Added to Store" : "Add to Store"}
+            </Button>
+            {isAdmin && onEdit && (
+              <Button
+                variant="outline"
+                className="w-full flex items-center justify-center gap-2"
+                onClick={() => onEdit(product)}
+              >
+                <Pencil className="h-4 w-4" />
+                Edit
+              </Button>
+            )}
+          </div>
         </div>
       </CardContent>
       <AddProductDialog
