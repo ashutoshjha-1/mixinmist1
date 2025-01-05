@@ -46,12 +46,12 @@ export const useStoreData = (username: string | undefined) => {
 
       console.log("Fetching store data for username:", username);
 
-      // First get the profile
+      // First get the profile using case-insensitive search
       const { data: profile, error: profileError } = await supabase
         .from("profiles")
         .select("*")
         .ilike("username", username)
-        .single();
+        .maybeSingle();
 
       if (profileError) {
         console.error("Profile fetch error:", profileError);
@@ -70,7 +70,7 @@ export const useStoreData = (username: string | undefined) => {
         .from("store_settings")
         .select("*")
         .eq("user_id", profile.id)
-        .single();
+        .maybeSingle();
 
       if (settingsError) {
         console.error("Settings fetch error:", settingsError);
