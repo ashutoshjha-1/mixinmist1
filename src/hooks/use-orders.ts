@@ -33,7 +33,14 @@ export const useOrders = (userId: string | undefined, isAdmin: boolean | undefin
       }
 
       console.log("Fetched orders data:", ordersData);
-      setOrders(ordersData || []);
+      
+      // Ensure order_items is always an array
+      const processedOrders = ordersData?.map(order => ({
+        ...order,
+        order_items: Array.isArray(order.order_items) ? order.order_items : []
+      })) || [];
+      
+      setOrders(processedOrders);
     } catch (error: any) {
       console.error("Error in fetchOrders:", error);
       toast({
@@ -80,13 +87,15 @@ export const useOrders = (userId: string | undefined, isAdmin: boolean | undefin
         profilesData?.map(profile => [profile.id, profile.store_name]) || []
       );
 
-      const ordersWithStoreNames = ordersData?.map(order => ({
+      // Process orders to ensure order_items is always an array
+      const processedOrders = ordersData?.map(order => ({
         ...order,
-        store_name: storeNameMap.get(order.store_id) || "Unknown Store"
+        store_name: storeNameMap.get(order.store_id) || "Unknown Store",
+        order_items: Array.isArray(order.order_items) ? order.order_items : []
       })) || [];
 
-      console.log("Processed all orders with store names:", ordersWithStoreNames);
-      setAllUserOrders(ordersWithStoreNames);
+      console.log("Processed all orders with store names:", processedOrders);
+      setAllUserOrders(processedOrders);
     } catch (error: any) {
       console.error("Error in fetchAllUserOrders:", error);
       toast({
