@@ -1,22 +1,22 @@
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 
-export const useStoreProduct = (storeName: string | undefined, productId: string | undefined) => {
+export const useStoreProduct = (store: string | undefined, productId: string | undefined) => {
   return useQuery({
-    queryKey: ["store-product", storeName, productId],
+    queryKey: ["store-product", store, productId],
     queryFn: async () => {
-      if (!storeName || !productId) {
-        console.error("Store name and product ID are required", { storeName, productId });
+      if (!store || !productId) {
+        console.error("Store name and product ID are required", { store, productId });
         throw new Error("Store name and product ID are required");
       }
       
-      console.log("Fetching product data:", { storeName, productId });
+      console.log("Fetching product data:", { store, productId });
       
       // First get the profile using username (case-insensitive search)
       const { data: profile, error: profileError } = await supabase
         .from("profiles")
         .select("id")
-        .ilike("username", storeName)
+        .ilike("username", store)
         .maybeSingle();
 
       if (profileError) {
@@ -25,7 +25,7 @@ export const useStoreProduct = (storeName: string | undefined, productId: string
       }
 
       if (!profile) {
-        console.error("Store not found for username:", storeName);
+        console.error("Store not found for username:", store);
         throw new Error("Store not found");
       }
 
@@ -56,7 +56,7 @@ export const useStoreProduct = (storeName: string | undefined, productId: string
       }
 
       if (!userProduct || !userProduct.products) {
-        console.error("Product not found for store:", storeName, "product:", productId);
+        console.error("Product not found for store:", store, "product:", productId);
         throw new Error("Product not found");
       }
 
@@ -73,6 +73,6 @@ export const useStoreProduct = (storeName: string | undefined, productId: string
 
       return transformedProduct;
     },
-    enabled: !!storeName && !!productId,
+    enabled: !!store && !!productId,
   });
 };
