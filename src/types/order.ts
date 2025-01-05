@@ -15,6 +15,7 @@ export interface Order {
   total_amount: number;
   status: string;
   created_at: string;
+  updated_at: string;
   order_items: OrderItem[];
   store_id: string;
   store_name?: string;
