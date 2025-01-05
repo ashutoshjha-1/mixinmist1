@@ -3,7 +3,7 @@ import { FooterLink } from "@/integrations/supabase/types/footer";
 
 interface StoreFooterProps {
   themeColor: string;
-  footerText: string;
+  footerText: string | null;
   footerLinks: FooterLink[];
 }
 
@@ -11,9 +11,9 @@ export const StoreFooter = ({ themeColor, footerText, footerLinks }: StoreFooter
   return (
     <footer className="py-12 px-4" style={{ backgroundColor: themeColor }}>
       <div className="max-w-7xl mx-auto text-white">
-        <p className="text-center mb-4">{footerText}</p>
+        <p className="text-center mb-4">{footerText || '© 2024 All rights reserved'}</p>
         <div className="flex justify-center space-x-4">
-          {footerLinks.map((link, index) => (
+          {footerLinks?.map((link, index) => (
             <a
               key={index}
               href={link.url}
