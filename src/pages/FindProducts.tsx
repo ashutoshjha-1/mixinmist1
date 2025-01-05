@@ -5,30 +5,18 @@ import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useQuery } from "@tanstack/react-query";
-import { AdminProductDialog } from "@/components/store/AdminProductDialog";
 import { ProductGrid } from "@/components/dashboard/products/ProductGrid";
 import { ProductSearch } from "@/components/dashboard/products/ProductSearch";
+import { ProductManagement } from "@/components/dashboard/products/ProductManagement";
+import { useAdminCheck } from "@/hooks/use-admin-check";
 
 const FindProducts = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [addedProducts, setAddedProducts] = useState<Set<string>>(new Set());
   const [isAdminDialogOpen, setIsAdminDialogOpen] = useState(false);
-  const [editingProduct, setEditingProduct] = useState<any>(null);
   const navigate = useNavigate();
   const { toast } = useToast();
-
-  const { data: isAdmin } = useQuery({
-    queryKey: ["isAdmin"],
-    queryFn: async () => {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) return false;
-      
-      const { data } = await supabase.rpc('is_admin', {
-        user_id: user.id
-      });
-      return !!data;
-    }
-  });
+  const { data: isAdmin } = useAdminCheck();
 
   const { data: products, isLoading, refetch } = useQuery({
     queryKey: ["products"],
@@ -112,60 +100,6 @@ const FindProducts = () => {
     }
   };
 
-  const handleEditProduct = (product: any) => {
-    setEditingProduct(product);
-    setIsAdminDialogOpen(true);
-  };
-
-  const handleSaveProduct = async (productData: any) => {
-    try {
-      if (editingProduct) {
-        const { error } = await supabase
-          .from("products")
-          .update({
-            name: productData.name,
-            price: productData.price,
-            description: productData.description,
-            image_url: productData.image_url,
-          })
-          .eq("id", editingProduct.id);
-
-        if (error) throw error;
-
-        toast({
-          title: "Success",
-          description: "Product updated successfully",
-        });
-      } else {
-        const { error } = await supabase
-          .from("products")
-          .insert([{
-            name: productData.name,
-            price: productData.price,
-            description: productData.description,
-            image_url: productData.image_url,
-          }]);
-
-        if (error) throw error;
-
-        toast({
-          title: "Success",
-          description: "Product added successfully",
-        });
-      }
-
-      setIsAdminDialogOpen(false);
-      setEditingProduct(null);
-      refetch();
-    } catch (error: any) {
-      toast({
-        variant: "destructive",
-        title: "Error",
-        description: error.message,
-      });
-    }
-  };
-
   const filteredProducts = products?.filter((product) =>
     product.name.toLowerCase().includes(searchQuery.toLowerCase())
   );
@@ -182,10 +116,7 @@ const FindProducts = () => {
             searchQuery={searchQuery}
             onSearchChange={setSearchQuery}
             isAdmin={isAdmin}
-            onAddNewProduct={() => {
-              setEditingProduct(null);
-              setIsAdminDialogOpen(true);
-            }}
+            onAddNewProduct={() => setIsAdminDialogOpen(true)}
           />
         </div>
 
@@ -197,19 +128,10 @@ const FindProducts = () => {
             isAdmin={isAdmin}
             addedProducts={addedProducts}
             onAddToStore={handleAddToStore}
-            onEdit={handleEditProduct}
           />
         )}
 
-        <AdminProductDialog
-          isOpen={isAdminDialogOpen}
-          onClose={() => {
-            setIsAdminDialogOpen(false);
-            setEditingProduct(null);
-          }}
-          onSave={handleSaveProduct}
-          product={editingProduct}
-        />
+        <ProductManagement />
       </div>
     </div>
   );

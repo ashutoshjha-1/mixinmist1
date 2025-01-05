@@ -32,7 +32,6 @@ export const ProductSearch = ({
             Add New Product
           </Button>
         )}
-        <Button variant="default">ADD MY LOGO TO PRODUCTS</Button>
       </div>
     </div>
   );
