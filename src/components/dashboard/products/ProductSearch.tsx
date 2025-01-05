@@ -12,7 +12,7 @@ interface ProductSearchProps {
 export const ProductSearch = ({ 
   searchQuery, 
   onSearchChange,
-  isAdmin,
+  isAdmin = false,
   onAddNewProduct
 }: ProductSearchProps) => {
   return (
