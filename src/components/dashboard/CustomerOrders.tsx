@@ -76,8 +76,21 @@ const CustomerOrders = () => {
       const { data: ordersData, error: ordersError } = await supabase
         .from("orders")
         .select(`
-          *,
-          order_items (*)
+          id,
+          customer_name,
+          customer_email,
+          customer_address,
+          total_amount,
+          status,
+          created_at,
+          store_id,
+          order_items!order_items_order_id_fkey (
+            id,
+            product_id,
+            quantity,
+            price,
+            created_at
+          )
         `)
         .eq('store_id', userId)
         .order('created_at', { ascending: false });
@@ -88,14 +101,7 @@ const CustomerOrders = () => {
       }
 
       console.log("Fetched orders data:", ordersData);
-
-      const ordersWithItems = ordersData?.map(order => ({
-        ...order,
-        order_items: order.order_items || []
-      })) || [];
-
-      console.log("Processed orders with items:", ordersWithItems);
-      setOrders(ordersWithItems);
+      setOrders(ordersData || []);
     } catch (error: any) {
       console.error("Error in fetchOrders:", error);
       toast({
@@ -109,17 +115,24 @@ const CustomerOrders = () => {
   const fetchAllUserOrders = async () => {
     try {
       console.log("Fetching all user orders as admin");
-      const { data: { user } } = await supabase.auth.getUser();
-      
-      if (!user) {
-        throw new Error("No authenticated user found");
-      }
-
       const { data: ordersData, error: ordersError } = await supabase
         .from("orders")
         .select(`
-          *,
-          order_items (*)
+          id,
+          customer_name,
+          customer_email,
+          customer_address,
+          total_amount,
+          status,
+          created_at,
+          store_id,
+          order_items!order_items_order_id_fkey (
+            id,
+            product_id,
+            quantity,
+            price,
+            created_at
+          )
         `)
         .order('created_at', { ascending: false });
 
@@ -139,15 +152,12 @@ const CustomerOrders = () => {
         throw profilesError;
       }
 
-      console.log("Fetched profiles data:", profilesData);
-
       const storeNameMap = new Map(
         profilesData?.map(profile => [profile.id, profile.store_name]) || []
       );
 
       const ordersWithStoreNames = ordersData?.map(order => ({
         ...order,
-        order_items: order.order_items || [],
         store_name: storeNameMap.get(order.store_id) || "Unknown Store"
       })) || [];
 
