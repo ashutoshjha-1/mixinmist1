@@ -10,9 +10,34 @@ const Dashboard = () => {
 
   const handleSignOut = async () => {
     try {
+      // First, clear any potentially corrupted session state
+      localStorage.removeItem('sb-zevuqoiqmlkudholotmp-auth-token');
+      
+      // Clear all local storage data related to Supabase
+      Object.keys(localStorage).forEach(key => {
+        if (key.startsWith('sb-')) {
+          localStorage.removeItem(key);
+        }
+      });
+
+      // Sign out from Supabase
       const { error } = await supabase.auth.signOut();
       if (error) throw error;
+
+      // Clear cookies by setting their expiration to the past
+      document.cookie.split(";").forEach((cookie) => {
+        document.cookie = cookie
+          .replace(/^ +/, "")
+          .replace(/=.*/, `=;expires=${new Date(0).toUTCString()};path=/`);
+      });
+
+      // Navigate to home page
       navigate("/");
+      
+      toast({
+        title: "Signed out successfully",
+        description: "All session data has been cleared",
+      });
     } catch (error: any) {
       toast({
         variant: "destructive",
