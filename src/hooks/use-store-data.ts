@@ -110,21 +110,21 @@ export const useStoreData = (username: string | undefined) => {
 
       // Parse and type-check menu items and footer links
       const menuItems = Array.isArray(settings.menu_items) 
-        ? settings.menu_items.map((item: any) => ({
+        ? (settings.menu_items as any[]).map((item) => ({
             label: String(item?.label || ''),
             url: String(item?.url || '')
           }))
         : [];
 
       const footerLinks = Array.isArray(settings.footer_links)
-        ? settings.footer_links.map((link: any) => ({
+        ? (settings.footer_links as any[]).map((link) => ({
             label: String(link?.label || ''),
             url: String(link?.url || '')
           }))
         : [];
 
       const bottomMenuItems = Array.isArray(settings.bottom_menu_items)
-        ? settings.bottom_menu_items.map((item: any) => ({
+        ? (settings.bottom_menu_items as any[]).map((item) => ({
             label: String(item?.label || ''),
             url: String(item?.url || '')
           }))
