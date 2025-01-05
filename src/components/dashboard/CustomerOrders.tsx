@@ -5,28 +5,7 @@ import { DashboardSidebar } from "@/components/dashboard/DashboardSidebar";
 import { useAdminCheck } from "@/hooks/use-admin-check";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { OrdersTable } from "@/components/dashboard/orders/OrdersTable";
-
-interface OrderItem {
-  id: string;
-  order_id: string;
-  product_id: string;
-  quantity: number;
-  price: number;
-  created_at: string;
-}
-
-interface Order {
-  id: string;
-  customer_name: string;
-  customer_email: string;
-  customer_address: string;
-  total_amount: number;
-  status: string;
-  created_at: string;
-  order_items: OrderItem[];
-  store_id: string;
-  store_name?: string;
-}
+import { Order } from "@/types/order";
 
 const CustomerOrders = () => {
   const [orders, setOrders] = useState<Order[]>([]);

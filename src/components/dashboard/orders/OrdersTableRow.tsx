@@ -1,26 +1,7 @@
 import React from "react";
 import { TableCell, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
-
-interface OrderItem {
-  id: string;
-  order_id: string;
-  product_id: string;
-  quantity: number;
-  price: number;
-  created_at: string;
-}
-
-interface Order {
-  id: string;
-  customer_name: string;
-  customer_email: string;
-  total_amount: number;
-  status: string;
-  created_at: string;
-  order_items: OrderItem[];
-  store_name?: string;
-}
+import { Order } from "@/types/order";
 
 interface OrdersTableRowProps {
   order: Order;

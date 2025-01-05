@@ -2,29 +2,12 @@ import React from "react";
 import {
   Table,
   TableBody,
-  TableCell,
   TableHead,
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
 import { OrdersTableRow } from "./OrdersTableRow";
-
-interface OrderItem {
-  product_id: string;
-  quantity: number;
-  price: number;
-}
-
-interface Order {
-  id: string;
-  customer_name: string;
-  customer_email: string;
-  total_amount: number;
-  status: string;
-  created_at: string;
-  order_items: OrderItem[];
-  store_name?: string;
-}
+import { Order } from "@/types/order";
 
 interface OrdersTableProps {
   orders: Order[];
