@@ -5,7 +5,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { SignUpForm } from "@/components/auth/SignUpForm";
 import { validateSignupForm } from "@/utils/validation";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { AuthError } from "@supabase/supabase-js";
+import { AuthError, AuthApiError } from "@supabase/supabase-js";
 
 const SignUp = () => {
   const navigate = useNavigate();
@@ -30,7 +30,7 @@ const SignUp = () => {
       // Validate form data
       validateSignupForm(email, password, fullName, storeName, username);
 
-      // Prepare metadata
+      // Prepare metadata - ensure all required fields are present
       const metadata = {
         full_name: fullName,
         phone,
@@ -38,7 +38,8 @@ const SignUp = () => {
         username,
       };
 
-      // Attempt signup with proper error handling
+      console.log("Attempting signup with metadata:", metadata);
+
       const { data, error: signUpError } = await supabase.auth.signUp({
         email,
         password,
@@ -49,11 +50,17 @@ const SignUp = () => {
       });
 
       if (signUpError) {
-        if (signUpError instanceof AuthError) {
-          if (signUpError.message.includes("Database error")) {
-            setError("Username may already be taken. Please try a different username.");
-          } else {
-            setError(signUpError.message);
+        console.error("Signup error:", signUpError);
+        if (signUpError instanceof AuthApiError) {
+          switch (signUpError.message) {
+            case "Database error saving new user":
+              setError("Username may already be taken. Please try a different username.");
+              break;
+            case "User already registered":
+              setError("An account with this email already exists. Please sign in instead.");
+              break;
+            default:
+              setError(signUpError.message);
           }
         } else {
           setError("An unexpected error occurred. Please try again.");
@@ -62,6 +69,7 @@ const SignUp = () => {
       }
 
       if (data?.user) {
+        console.log("Signup successful:", data.user);
         toast({
           title: "Success!",
           description: "Please check your email to verify your account.",
