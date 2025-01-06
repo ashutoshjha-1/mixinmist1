@@ -47,11 +47,12 @@ const SampleOrders = () => {
         return [];
       }
 
+      // Changed from 'orders' to 'sample_orders' table
       const { data, error } = await supabase
-        .from("orders")
+        .from("sample_orders")
         .select(`
           *,
-          order_items (
+          order_items:sample_order_items (
             id,
             order_id,
             product_id,
@@ -70,7 +71,27 @@ const SampleOrders = () => {
         throw error;
       }
 
-      return data || [];
+      // Fetch store names for the orders
+      const storeIds = [...new Set(data?.map(order => order.store_id) || [])];
+      const { data: profilesData, error: profilesError } = await supabase
+        .from("profiles")
+        .select("id, store_name")
+        .in('id', storeIds);
+
+      if (profilesError) {
+        console.error("Error fetching profiles:", profilesError);
+        throw profilesError;
+      }
+
+      const storeNameMap = new Map(profilesData?.map(profile => [profile.id, profile.store_name]));
+
+      const processedOrders = data?.map(order => ({
+        ...order,
+        store_name: storeNameMap.get(order.store_id) || "Unknown Store",
+        order_items: Array.isArray(order.order_items) ? order.order_items : []
+      })) || [];
+
+      return processedOrders;
     },
   });
 
