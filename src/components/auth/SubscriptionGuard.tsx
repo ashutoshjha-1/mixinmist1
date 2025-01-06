@@ -4,12 +4,14 @@ import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import { useAdminCheck } from "@/hooks/use-admin-check";
 
 export const SubscriptionGuard = ({ children }: { children: React.ReactNode }) => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const [isSubscribed, setIsSubscribed] = useState<boolean | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const { data: isAdmin = false } = useAdminCheck();
 
   useEffect(() => {
     checkSubscription();
@@ -20,6 +22,13 @@ export const SubscriptionGuard = ({ children }: { children: React.ReactNode }) =
       const { data: { session } } = await supabase.auth.getSession();
       if (!session) {
         navigate("/signin");
+        return;
+      }
+
+      // If user is admin, skip subscription check
+      if (isAdmin) {
+        setIsSubscribed(true);
+        setIsLoading(false);
         return;
       }
 
@@ -59,7 +68,7 @@ export const SubscriptionGuard = ({ children }: { children: React.ReactNode }) =
     return <div className="flex items-center justify-center min-h-screen">Loading...</div>;
   }
 
-  if (!isSubscribed) {
+  if (!isSubscribed && !isAdmin) {
     return (
       <div className="flex items-center justify-center min-h-screen bg-gray-50">
         <Card className="p-6 max-w-md w-full space-y-4">
