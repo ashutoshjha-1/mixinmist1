@@ -5,6 +5,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { SignUpForm } from "@/components/auth/SignUpForm";
 import { validateSignupForm } from "@/utils/validation";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import { AuthError } from "@supabase/supabase-js";
 
 const SignUp = () => {
   const navigate = useNavigate();
@@ -17,15 +18,15 @@ const SignUp = () => {
     setLoading(true);
     setError(null);
 
-    const formData = new FormData(e.currentTarget);
-    const email = (formData.get("email") as string).trim().toLowerCase();
-    const password = formData.get("password") as string;
-    const fullName = (formData.get("fullName") as string).trim();
-    const phone = (formData.get("phone") as string)?.trim() || null;
-    const storeName = (formData.get("storeName") as string).trim();
-    const username = (formData.get("username") as string).toLowerCase().trim();
-
     try {
+      const formData = new FormData(e.currentTarget);
+      const email = (formData.get("email") as string).trim().toLowerCase();
+      const password = formData.get("password") as string;
+      const fullName = (formData.get("fullName") as string).trim();
+      const phone = (formData.get("phone") as string)?.trim() || null;
+      const storeName = (formData.get("storeName") as string).trim();
+      const username = (formData.get("username") as string).toLowerCase().trim();
+
       // Validate form data
       validateSignupForm(email, password, fullName, storeName, username);
 
@@ -37,9 +38,7 @@ const SignUp = () => {
         username,
       };
 
-      console.log("Starting signup process with metadata:", metadata);
-
-      // Attempt signup
+      // Attempt signup with proper error handling
       const { data, error: signUpError } = await supabase.auth.signUp({
         email,
         password,
@@ -49,27 +48,24 @@ const SignUp = () => {
         },
       });
 
-      console.log("Signup response:", { data, error: signUpError });
-
       if (signUpError) {
-        console.error("Signup error:", signUpError);
-        
-        if (signUpError.message.includes("Database error")) {
-          setError("Username may already be taken or there was an error creating your profile. Please try a different username.");
+        if (signUpError instanceof AuthError) {
+          if (signUpError.message.includes("Database error")) {
+            setError("Username may already be taken. Please try a different username.");
+          } else {
+            setError(signUpError.message);
+          }
         } else {
-          setError(signUpError.message);
+          setError("An unexpected error occurred. Please try again.");
         }
         return;
       }
 
       if (data?.user) {
-        console.log("Signup successful. User data:", data.user);
-        
         toast({
           title: "Success!",
           description: "Please check your email to verify your account.",
         });
-        
         navigate("/signin");
       } else {
         throw new Error("No user data returned from signup");
