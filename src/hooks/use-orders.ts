@@ -38,6 +38,10 @@ export const useOrders = (userId: string | undefined, isAdmin: boolean | undefin
             products (
               is_sample
             )
+          ),
+          profiles!orders_store_id_fkey (
+            store_name,
+            username
           )
         `)
         .eq('store_id', userId)
@@ -52,7 +56,8 @@ export const useOrders = (userId: string | undefined, isAdmin: boolean | undefin
       
       const processedOrders = ordersData?.map(order => ({
         ...order,
-        store_name: profileData?.store_name || "Unknown Store",
+        store_name: order.profiles?.store_name || "Unknown Store",
+        username: order.profiles?.username,
         order_items: Array.isArray(order.order_items) ? order.order_items : []
       })) || [];
       
@@ -71,7 +76,6 @@ export const useOrders = (userId: string | undefined, isAdmin: boolean | undefin
   const fetchAllUserOrders = async () => {
     try {
       console.log("Fetching all user orders as admin");
-      // First, fetch all orders with their order items
       const { data: ordersData, error: ordersError } = await supabase
         .from("orders")
         .select(`
@@ -86,6 +90,10 @@ export const useOrders = (userId: string | undefined, isAdmin: boolean | undefin
             products (
               is_sample
             )
+          ),
+          profiles!orders_store_id_fkey (
+            store_name,
+            username
           )
         `)
         .order('created_at', { ascending: false });
@@ -95,20 +103,6 @@ export const useOrders = (userId: string | undefined, isAdmin: boolean | undefin
         throw ordersError;
       }
 
-      // Then, fetch store names from profiles
-      const { data: profilesData, error: profilesError } = await supabase
-        .from("profiles")
-        .select("id, store_name");
-
-      if (profilesError) {
-        console.error("Error fetching profiles:", profilesError);
-        throw profilesError;
-      }
-
-      const storeNameMap = new Map(
-        profilesData?.map(profile => [profile.id, profile.store_name]) || []
-      );
-
       // Filter out orders that contain sample products
       const nonSampleOrders = ordersData?.filter(order => 
         !order.order_items.some(item => item.products?.is_sample)
@@ -117,7 +111,8 @@ export const useOrders = (userId: string | undefined, isAdmin: boolean | undefin
       // Process orders and ensure order_items is always an array
       const processedOrders = nonSampleOrders.map(order => ({
         ...order,
-        store_name: storeNameMap.get(order.store_id) || "Unknown Store",
+        store_name: order.profiles?.store_name || "Unknown Store",
+        username: order.profiles?.username,
         order_items: Array.isArray(order.order_items) ? order.order_items : []
       }));
 
