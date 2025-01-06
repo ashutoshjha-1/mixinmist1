@@ -4,18 +4,21 @@ import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { SignUpForm } from "@/components/auth/SignUpForm";
 import { validateSignupForm } from "@/utils/validation";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 
 const SignUp = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setLoading(true);
+    setError(null);
 
     const formData = new FormData(e.currentTarget);
-    const email = (formData.get("email") as string).trim();
+    const email = (formData.get("email") as string).trim().toLowerCase();
     const password = formData.get("password") as string;
     const fullName = (formData.get("fullName") as string).trim();
     const phone = (formData.get("phone") as string)?.trim() || null;
@@ -37,19 +40,26 @@ const SignUp = () => {
       console.log("Starting signup process with metadata:", metadata);
 
       // Attempt signup
-      const { data, error } = await supabase.auth.signUp({
+      const { data, error: signUpError } = await supabase.auth.signUp({
         email,
         password,
         options: {
           data: metadata,
+          emailRedirectTo: `${window.location.origin}/signin`,
         },
       });
 
-      console.log("Signup response:", { data, error });
+      console.log("Signup response:", { data, error: signUpError });
 
-      if (error) {
-        console.error("Signup error:", error);
-        throw error;
+      if (signUpError) {
+        console.error("Signup error:", signUpError);
+        
+        if (signUpError.message.includes("Database error")) {
+          setError("Username may already be taken or there was an error creating your profile. Please try a different username.");
+        } else {
+          setError(signUpError.message);
+        }
+        return;
       }
 
       if (data?.user) {
@@ -66,26 +76,7 @@ const SignUp = () => {
       }
     } catch (error: any) {
       console.error("Error in signup process:", error);
-      
-      let errorMessage = "An unexpected error occurred during signup";
-      
-      if (error.message.includes("Database error")) {
-        errorMessage = "Username may already be taken. Please try a different username.";
-      } else if (error.message.includes("User already registered")) {
-        errorMessage = "This email is already registered. Please sign in instead.";
-      } else if (error.message.includes("Username")) {
-        errorMessage = error.message;
-      } else if (error.message.includes("valid email")) {
-        errorMessage = "Please enter a valid email address.";
-      } else if (error.message.includes("required fields")) {
-        errorMessage = error.message;
-      }
-
-      toast({
-        variant: "destructive",
-        title: "Error",
-        description: errorMessage,
-      });
+      setError(error.message);
     } finally {
       setLoading(false);
     }
@@ -99,6 +90,13 @@ const SignUp = () => {
             Create your account
           </h2>
         </div>
+        
+        {error && (
+          <Alert variant="destructive">
+            <AlertDescription>{error}</AlertDescription>
+          </Alert>
+        )}
+
         <SignUpForm 
           onSubmit={handleSubmit}
           loading={loading}
