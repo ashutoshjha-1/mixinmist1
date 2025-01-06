@@ -18,6 +18,31 @@ interface Product {
   is_sample?: boolean;
 }
 
+interface OrderWithProfile {
+  id: string;
+  store_id: string;
+  customer_name: string;
+  customer_email: string;
+  customer_address: string;
+  total_amount: number;
+  status: string;
+  created_at: string;
+  updated_at: string;
+  order_items: {
+    id: string;
+    product_id: string;
+    quantity: number;
+    price: number;
+    created_at: string;
+    products: {
+      is_sample: boolean;
+    };
+  }[];
+  profiles: {
+    username: string;
+  } | null;
+}
+
 const SampleOrders = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
@@ -57,7 +82,6 @@ const SampleOrders = () => {
           *,
           order_items (
             id,
-            order_id,
             product_id,
             quantity,
             price,
@@ -70,7 +94,7 @@ const SampleOrders = () => {
             username
           )
         `)
-        .order('created_at', { ascending: false });
+        .order('created_at', { ascending: false }) as { data: OrderWithProfile[] | null, error: any };
 
       if (error) {
         console.error("Error fetching sample orders:", error);
