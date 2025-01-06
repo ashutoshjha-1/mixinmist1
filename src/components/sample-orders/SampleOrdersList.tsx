@@ -32,8 +32,8 @@ export const SampleOrdersList = ({ orders, isLoading }: SampleOrdersListProps) =
   return (
     <OrdersTable 
       orders={sampleOrders} 
-      showStoreName={false}
-      showUsername={true}
+      showStoreName={true}
+      showUsername={false}
     />
   );
 };
