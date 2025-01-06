@@ -1,6 +1,5 @@
 import React from 'react';
 import { OrdersTable } from "@/components/dashboard/orders/OrdersTable";
-import { Order } from "@/types/order";
 import { useAdminCheck } from "@/hooks/use-admin-check";
 import { useSampleOrders } from "@/hooks/use-sample-orders";
 import { useAuth } from "@/hooks/use-auth";

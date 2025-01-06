@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Order } from "@/types/order";
-import { useToast } from "@/components/ui/use-toast";
+import { useToast } from "@/hooks/use-toast";
 
 export const useOrders = (userId: string | undefined, isAdmin: boolean | undefined) => {
   const [orders, setOrders] = useState<Order[]>([]);
@@ -27,7 +27,7 @@ export const useOrders = (userId: string | undefined, isAdmin: boolean | undefin
               is_sample
             )
           ),
-          store:profiles!store_id(
+          store:profiles!store_id (
             store_name,
             username
           )
@@ -79,7 +79,7 @@ export const useOrders = (userId: string | undefined, isAdmin: boolean | undefin
               is_sample
             )
           ),
-          store:profiles!store_id(
+          store:profiles!store_id (
             store_name,
             username
           )
