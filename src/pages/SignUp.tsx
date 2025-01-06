@@ -32,6 +32,15 @@ const SignUp = () => {
         throw new Error("Username must be at least 3 characters and can only contain letters, numbers, underscores, and hyphens");
       }
 
+      // Log the signup attempt for debugging
+      console.log("Attempting signup with data:", {
+        email,
+        fullName,
+        phone: phone || null,
+        storeName,
+        username,
+      });
+
       const { data, error } = await supabase.auth.signUp({
         email,
         password,
@@ -42,7 +51,6 @@ const SignUp = () => {
             store_name: storeName,
             username: username,
           },
-          emailRedirectTo: window.location.origin + '/signin'
         },
       });
 
@@ -67,7 +75,7 @@ const SignUp = () => {
       let errorMessage = "An unexpected error occurred during signup";
       
       if (error.message.includes("Database error")) {
-        errorMessage = "Username already taken. Please try a different username.";
+        errorMessage = "There was an issue creating your account. Please try again with a different username.";
       } else if (error.message.includes("User already registered")) {
         errorMessage = "This email is already registered. Please sign in instead.";
       } else if (error.message.includes("Username")) {
