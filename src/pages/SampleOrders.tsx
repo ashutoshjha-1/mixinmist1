@@ -4,19 +4,10 @@ import { DashboardSidebar } from "@/components/dashboard/DashboardSidebar";
 import { DashboardHeader } from "@/components/dashboard/DashboardHeader";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
-import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { OrdersTable } from "@/components/dashboard/orders/OrdersTable";
 import { useAdminCheck } from "@/hooks/use-admin-check";
-
-interface Product {
-  id: string;
-  name: string;
-  price: number;
-  image_url: string;
-  description?: string;
-  is_sample?: boolean;
-}
+import { SampleProductsGrid } from "@/components/sample-orders/SampleProductsGrid";
+import { SampleOrdersList } from "@/components/sample-orders/SampleOrdersList";
 
 interface OrderWithProfile {
   id: string;
@@ -30,6 +21,7 @@ interface OrderWithProfile {
   updated_at: string;
   order_items: {
     id: string;
+    order_id: string;
     product_id: string;
     quantity: number;
     price: number;
@@ -73,15 +65,22 @@ const SampleOrders = () => {
   const { data: sampleOrders, isLoading: ordersLoading } = useQuery({
     queryKey: ["sample-orders"],
     queryFn: async () => {
-      if (!isAdmin) return [];
+      const { data: { user }, error: userError } = await supabase.auth.getUser();
+      
+      if (userError || !user) {
+        console.error("User error:", userError);
+        navigate("/signin");
+        return [];
+      }
 
-      // First, get orders with their items and join with profiles to get usernames
+      // Only fetch orders if user is a store owner
       const { data, error } = await supabase
         .from("orders")
         .select(`
           *,
           order_items (
             id,
+            order_id,
             product_id,
             quantity,
             price,
@@ -94,7 +93,8 @@ const SampleOrders = () => {
             username
           )
         `)
-        .order('created_at', { ascending: false }) as { data: OrderWithProfile[] | null, error: any };
+        .eq('store_id', user.id)
+        .order('created_at', { ascending: false });
 
       if (error) {
         console.error("Error fetching sample orders:", error);
@@ -115,7 +115,6 @@ const SampleOrders = () => {
 
       return sampleOrders;
     },
-    enabled: isAdmin === true,
   });
 
   const handleSignOut = async () => {
@@ -132,14 +131,6 @@ const SampleOrders = () => {
     }
   };
 
-  const handleBuyNow = (product: Product) => {
-    navigate(`/store/sample/product/${product.id}`);
-  };
-
-  if (productsLoading) {
-    return <div className="text-center py-12">Loading...</div>;
-  }
-
   return (
     <div className="min-h-screen bg-gray-50">
       <DashboardSidebar />
@@ -151,54 +142,20 @@ const SampleOrders = () => {
             <h1 className="text-2xl font-semibold">SAMPLE ORDERS</h1>
             <TabsList>
               <TabsTrigger value="sample-products">Sample Products</TabsTrigger>
-              {isAdmin && (
-                <TabsTrigger value="sample-orders">Sample Orders</TabsTrigger>
-              )}
+              <TabsTrigger value="sample-orders">My Sample Orders</TabsTrigger>
             </TabsList>
           </div>
 
           <TabsContent value="sample-products">
-            <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-6">
-              {products?.map((product) => (
-                <div key={product.id} className="bg-white rounded-lg shadow-md overflow-hidden">
-                  <div className="aspect-square relative">
-                    <img
-                      src={product.image_url}
-                      alt={product.name}
-                      className="w-full h-full object-cover"
-                    />
-                  </div>
-                  <div className="p-4">
-                    <h3 className="font-semibold text-lg mb-2">{product.name}</h3>
-                    <p className="text-gray-600 mb-4">${product.price.toFixed(2)}</p>
-                    {product.description && (
-                      <p className="text-sm text-gray-500 mb-4">{product.description}</p>
-                    )}
-                    <Button 
-                      className="w-full"
-                      onClick={() => handleBuyNow(product)}
-                    >
-                      Buy Now
-                    </Button>
-                  </div>
-                </div>
-              ))}
-            </div>
+            <SampleProductsGrid products={products || []} />
           </TabsContent>
 
-          {isAdmin && (
-            <TabsContent value="sample-orders">
-              {ordersLoading ? (
-                <div className="text-center py-12">Loading orders...</div>
-              ) : (
-                <OrdersTable 
-                  orders={sampleOrders || []} 
-                  showStoreName={false}
-                  showUsername={true}
-                />
-              )}
-            </TabsContent>
-          )}
+          <TabsContent value="sample-orders">
+            <SampleOrdersList 
+              orders={sampleOrders || []} 
+              isLoading={ordersLoading}
+            />
+          </TabsContent>
         </Tabs>
       </div>
     </div>
