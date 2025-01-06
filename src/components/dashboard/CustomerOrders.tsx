@@ -49,6 +49,8 @@ const CustomerOrders = () => {
 
   const { orders, allUserOrders } = useOrders(userId, isAdmin);
 
+  console.log("CustomerOrders rendered with isAdmin:", isAdmin); // Added for debugging
+
   return (
     <div className="min-h-screen bg-gray-50">
       <DashboardSidebar />
