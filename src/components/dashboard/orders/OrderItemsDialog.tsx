@@ -2,6 +2,7 @@ import React from "react";
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
@@ -28,11 +29,16 @@ export function OrderItemsDialog({
   items,
   orderId,
 }: OrderItemsDialogProps) {
+  console.log("Items in dialog:", items); // Debug log
+
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="sm:max-w-[600px]">
         <DialogHeader>
           <DialogTitle>Order Items - {orderId}</DialogTitle>
+          <DialogDescription>
+            Details of items in this order
+          </DialogDescription>
         </DialogHeader>
         <Table>
           <TableHeader>
@@ -44,14 +50,22 @@ export function OrderItemsDialog({
             </TableRow>
           </TableHeader>
           <TableBody>
-            {items.map((item) => (
-              <TableRow key={item.id}>
-                <TableCell className="font-mono">{item.id}</TableCell>
-                <TableCell className="font-mono">{item.product_id}</TableCell>
-                <TableCell>{item.quantity}</TableCell>
-                <TableCell className="text-right">${item.price.toFixed(2)}</TableCell>
+            {Array.isArray(items) && items.length > 0 ? (
+              items.map((item) => (
+                <TableRow key={item.id}>
+                  <TableCell className="font-mono">{item.id}</TableCell>
+                  <TableCell className="font-mono">{item.product_id}</TableCell>
+                  <TableCell>{item.quantity}</TableCell>
+                  <TableCell className="text-right">${item.price.toFixed(2)}</TableCell>
+                </TableRow>
+              ))
+            ) : (
+              <TableRow>
+                <TableCell colSpan={4} className="text-center text-muted-foreground">
+                  No items found
+                </TableCell>
               </TableRow>
-            ))}
+            )}
           </TableBody>
         </Table>
       </DialogContent>

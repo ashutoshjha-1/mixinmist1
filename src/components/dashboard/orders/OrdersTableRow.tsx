@@ -35,6 +35,10 @@ export function OrdersTableRow({
     }, 0);
   }, [order.id, order.order_items]);
 
+  // Debug logs
+  console.log("Order items for order", order.id, ":", order.order_items);
+  console.log("Total items calculated:", totalItems);
+
   return (
     <>
       <TableRow key={order.id} className="hover:bg-muted/50">
