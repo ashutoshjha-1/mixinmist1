@@ -55,7 +55,6 @@ export function OrdersTable({ orders, showStoreName = false }: OrdersTableProps)
             {showStoreName && (
               <TableHead className="font-medium">Store</TableHead>
             )}
-            <TableHead className="font-medium">Customer</TableHead>
             <TableHead className="font-medium">Date</TableHead>
             <TableHead className="font-medium">Amount</TableHead>
             <TableHead className="font-medium">Status</TableHead>

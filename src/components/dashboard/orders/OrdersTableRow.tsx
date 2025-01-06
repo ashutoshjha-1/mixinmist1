@@ -111,16 +111,6 @@ export function OrdersTableRow({
         {showStoreName && (
           <TableCell>{order.store_name}</TableCell>
         )}
-        <TableCell>
-          <div className="space-y-1">
-            <p className="font-medium leading-none">
-              {order.customer_name}
-            </p>
-            <p className="text-sm text-muted-foreground">
-              {order.customer_email}
-            </p>
-          </div>
-        </TableCell>
         <TableCell className="text-muted-foreground">
           {formatDate(order.created_at)}
         </TableCell>
