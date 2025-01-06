@@ -2,88 +2,75 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
-import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
 import { useAdminCheck } from "@/hooks/use-admin-check";
 
-export const SubscriptionGuard = ({ children }: { children: React.ReactNode }) => {
+interface SubscriptionGuardProps {
+  children: React.ReactNode;
+}
+
+export const SubscriptionGuard = ({ children }: SubscriptionGuardProps) => {
   const navigate = useNavigate();
   const { toast } = useToast();
-  const [isSubscribed, setIsSubscribed] = useState<boolean | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
-  const { data: isAdmin = false } = useAdminCheck();
+  const [loading, setLoading] = useState(true);
+  const { data: isAdmin } = useAdminCheck();
 
   useEffect(() => {
+    const checkSubscription = async () => {
+      try {
+        // If user is admin, bypass subscription check
+        if (isAdmin) {
+          setLoading(false);
+          return;
+        }
+
+        const { data: { user }, error: userError } = await supabase.auth.getUser();
+        
+        if (userError) {
+          console.error("Auth error:", userError);
+          throw userError;
+        }
+
+        if (!user) {
+          console.error("No authenticated user found");
+          navigate("/signin");
+          return;
+        }
+
+        console.log("Checking subscription for user:", user.email);
+        
+        const { data, error } = await supabase.functions.invoke('check-subscription', {
+          body: { email: user.email },
+        });
+
+        if (error) {
+          console.error("Subscription check error:", error);
+          throw error;
+        }
+
+        console.log("Subscription check response:", data);
+
+        if (!data?.hasActiveSubscription) {
+          navigate("/pricing");
+          return;
+        }
+
+        setLoading(false);
+      } catch (error: any) {
+        console.error("Subscription guard error:", error);
+        toast({
+          variant: "destructive",
+          title: "Error checking subscription",
+          description: error.message || "Please try again later",
+        });
+        navigate("/pricing");
+      }
+    };
+
     checkSubscription();
-  }, []);
+  }, [navigate, toast, isAdmin]);
 
-  const checkSubscription = async () => {
-    try {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (!session) {
-        navigate("/signin");
-        return;
-      }
-
-      // If user is admin, skip subscription check
-      if (isAdmin) {
-        setIsSubscribed(true);
-        setIsLoading(false);
-        return;
-      }
-
-      const { data, error } = await supabase.functions.invoke('check-subscription');
-      if (error) throw error;
-
-      setIsSubscribed(data.subscribed);
-      setIsLoading(false);
-    } catch (error: any) {
-      console.error("Subscription check error:", error);
-      toast({
-        variant: "destructive",
-        title: "Error",
-        description: "Failed to verify subscription status",
-      });
-    }
-  };
-
-  const handleSubscribe = async () => {
-    try {
-      const { data, error } = await supabase.functions.invoke('create-checkout');
-      if (error) throw error;
-
-      if (data.url) {
-        window.location.href = data.url;
-      }
-    } catch (error: any) {
-      toast({
-        variant: "destructive",
-        title: "Error",
-        description: error.message || "Failed to start subscription process",
-      });
-    }
-  };
-
-  if (isLoading) {
-    return <div className="flex items-center justify-center min-h-screen">Loading...</div>;
-  }
-
-  if (!isSubscribed && !isAdmin) {
-    return (
-      <div className="flex items-center justify-center min-h-screen bg-gray-50">
-        <Card className="p-6 max-w-md w-full space-y-4">
-          <h2 className="text-2xl font-bold text-center">Subscription Required</h2>
-          <p className="text-gray-600 text-center">
-            You need an active subscription to access this feature.
-          </p>
-          <div className="flex justify-center">
-            <Button onClick={handleSubscribe} className="w-full">
-              Subscribe Now
-            </Button>
-          </div>
-        </Card>
-      </div>
-    );
+  if (loading && !isAdmin) {
+    return <div>Loading...</div>;
   }
 
   return <>{children}</>;
