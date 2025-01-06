@@ -27,7 +27,7 @@ export const useOrders = (userId: string | undefined, isAdmin: boolean | undefin
               is_sample
             )
           ),
-          profiles:store_id (
+          profiles (
             store_name,
             username
           )
@@ -79,7 +79,7 @@ export const useOrders = (userId: string | undefined, isAdmin: boolean | undefin
               is_sample
             )
           ),
-          profiles:store_id (
+          profiles (
             store_name,
             username
           )
