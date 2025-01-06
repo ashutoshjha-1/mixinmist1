@@ -24,9 +24,7 @@ export interface Order {
   store_name?: string;
   username?: string;
   store?: {
-    profiles?: {
-      store_name: string;
-      username: string;
-    };
+    store_name: string;
+    username: string;
   };
 }
