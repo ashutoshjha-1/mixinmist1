@@ -1,8 +1,8 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Button } from "@/components/ui/button";
-import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import { SampleCheckoutDialog } from "./SampleCheckoutDialog";
 
 interface Product {
   id: string;
@@ -17,8 +17,13 @@ interface SampleProductsGridProps {
 }
 
 export const SampleProductsGrid = ({ products }: SampleProductsGridProps) => {
-  const navigate = useNavigate();
   const { toast } = useToast();
+  const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
+  const [dialogOpen, setDialogOpen] = useState(false);
+  const [prefillData, setPrefillData] = useState<{
+    customerName: string;
+    customerEmail: string;
+  } | null>(null);
 
   const handleBuyNow = async (product: Product) => {
     try {
@@ -50,23 +55,12 @@ export const SampleProductsGrid = ({ products }: SampleProductsGridProps) => {
         return;
       }
 
-      // Navigate directly to checkout with prefilled data
-      navigate('/checkout', {
-        state: {
-          items: [{
-            id: product.id,
-            name: product.name,
-            price: product.price,
-            quantity: 1,
-            image_url: product.image_url
-          }],
-          prefillData: {
-            customerName: profile.full_name,
-            customerEmail: user.email,
-            customerAddress: '', // This would need to be added to the profiles table if you want to prefill it
-          }
-        }
+      setSelectedProduct(product);
+      setPrefillData({
+        customerName: profile.full_name,
+        customerEmail: user.email,
       });
+      setDialogOpen(true);
     } catch (error) {
       console.error("Error handling buy now:", error);
       toast({
@@ -78,31 +72,42 @@ export const SampleProductsGrid = ({ products }: SampleProductsGridProps) => {
   };
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-6">
-      {products?.map((product) => (
-        <div key={product.id} className="bg-white rounded-lg shadow-md overflow-hidden">
-          <div className="aspect-square relative">
-            <img
-              src={product.image_url}
-              alt={product.name}
-              className="w-full h-full object-cover"
-            />
+    <>
+      <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-6">
+        {products?.map((product) => (
+          <div key={product.id} className="bg-white rounded-lg shadow-md overflow-hidden">
+            <div className="aspect-square relative">
+              <img
+                src={product.image_url}
+                alt={product.name}
+                className="w-full h-full object-cover"
+              />
+            </div>
+            <div className="p-4">
+              <h3 className="font-semibold text-lg mb-2">{product.name}</h3>
+              <p className="text-gray-600 mb-4">${product.price.toFixed(2)}</p>
+              {product.description && (
+                <p className="text-sm text-gray-500 mb-4">{product.description}</p>
+              )}
+              <Button 
+                className="w-full"
+                onClick={() => handleBuyNow(product)}
+              >
+                Buy Now
+              </Button>
+            </div>
           </div>
-          <div className="p-4">
-            <h3 className="font-semibold text-lg mb-2">{product.name}</h3>
-            <p className="text-gray-600 mb-4">${product.price.toFixed(2)}</p>
-            {product.description && (
-              <p className="text-sm text-gray-500 mb-4">{product.description}</p>
-            )}
-            <Button 
-              className="w-full"
-              onClick={() => handleBuyNow(product)}
-            >
-              Buy Now
-            </Button>
-          </div>
-        </div>
-      ))}
-    </div>
+        ))}
+      </div>
+
+      {selectedProduct && prefillData && (
+        <SampleCheckoutDialog
+          open={dialogOpen}
+          onOpenChange={setDialogOpen}
+          product={selectedProduct}
+          prefillData={prefillData}
+        />
+      )}
+    </>
   );
 };
