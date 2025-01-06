@@ -34,23 +34,26 @@ const SignUp = () => {
         throw new Error("Username must be at least 3 characters and can only contain letters, numbers, underscores, and hyphens");
       }
 
-      // Prepare user metadata
-      const metadata = {
+      // Clean and prepare metadata
+      const cleanedMetadata = {
         full_name: fullName.trim(),
         phone: phone ? phone.trim() : null,
         store_name: storeName.trim(),
         username: username,
       };
 
-      console.log("Attempting signup with metadata:", metadata);
+      console.log("Starting signup process with metadata:", cleanedMetadata);
 
+      // Attempt signup with cleaned data
       const { data, error } = await supabase.auth.signUp({
         email: email.trim(),
         password,
         options: {
-          data: metadata,
+          data: cleanedMetadata,
         },
       });
+
+      console.log("Signup response:", { data, error });
 
       if (error) {
         console.error("Signup error:", error);
