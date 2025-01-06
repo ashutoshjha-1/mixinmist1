@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { useToast } from "@/components/ui/use-toast";
+import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 
 const SignUp = () => {
@@ -24,7 +24,15 @@ const SignUp = () => {
     const username = formData.get("username") as string;
 
     try {
-      const { error } = await supabase.auth.signUp({
+      console.log("Attempting signup with data:", {
+        email,
+        fullName,
+        phone,
+        storeName,
+        username,
+      });
+
+      const { data, error } = await supabase.auth.signUp({
         email,
         password,
         options: {
@@ -32,12 +40,17 @@ const SignUp = () => {
             full_name: fullName,
             phone,
             store_name: storeName,
-            username,
+            username: username.toLowerCase(),
           },
         },
       });
 
-      if (error) throw error;
+      if (error) {
+        console.error("Signup error:", error);
+        throw error;
+      }
+
+      console.log("Signup successful:", data);
 
       toast({
         title: "Success!",
@@ -46,10 +59,11 @@ const SignUp = () => {
       
       navigate("/signin");
     } catch (error: any) {
+      console.error("Error in signup process:", error);
       toast({
         variant: "destructive",
         title: "Error",
-        description: error.message,
+        description: error.message || "An error occurred during signup",
       });
     } finally {
       setLoading(false);
@@ -94,6 +108,7 @@ const SignUp = () => {
                 type="password"
                 required
                 placeholder="••••••••"
+                minLength={6}
               />
             </div>
             <div>
@@ -124,6 +139,8 @@ const SignUp = () => {
                 type="text"
                 required
                 placeholder="johndoe"
+                pattern="^[a-zA-Z0-9_-]+$"
+                title="Username can only contain letters, numbers, underscores, and hyphens"
               />
             </div>
           </div>
