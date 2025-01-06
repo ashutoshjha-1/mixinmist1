@@ -30,14 +30,24 @@ serve(async (req) => {
 
     const stripeSecretKey = Deno.env.get('STRIPE_SECRET_KEY')
     if (!stripeSecretKey) {
-      throw new Error('Stripe secret key not found in environment variables')
+      console.error('Stripe secret key not found in environment variables')
+      return new Response(
+        JSON.stringify({ 
+          error: 'Stripe configuration error. Please contact support.',
+          details: 'Missing Stripe secret key'
+        }),
+        {
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          status: 500,
+        }
+      )
     }
+
+    console.log('Checking subscription for email:', email)
 
     const stripe = new Stripe(stripeSecretKey, {
       apiVersion: '2023-10-16',
     })
-
-    console.log('Checking subscription for email:', email)
 
     const customers = await stripe.customers.list({
       email: email,
