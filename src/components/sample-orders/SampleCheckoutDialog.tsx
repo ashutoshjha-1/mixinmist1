@@ -1,18 +1,10 @@
-import React from "react";
+import React from 'react';
+import { useForm } from "react-hook-form";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import {
-  AlertDialog,
-  AlertDialogContent,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogCancel,
-} from "@/components/ui/alert-dialog";
-import { useForm } from "react-hook-form";
+import { useToast } from "@/components/ui/use-toast";
 import { supabase } from "@/integrations/supabase/client";
-import { useToast } from "@/hooks/use-toast";
 
 interface SampleCheckoutDialogProps {
   open: boolean;
@@ -21,7 +13,6 @@ interface SampleCheckoutDialogProps {
     id: string;
     name: string;
     price: number;
-    image_url: string;
   };
   prefillData: {
     customerName: string;
@@ -30,7 +21,7 @@ interface SampleCheckoutDialogProps {
   };
 }
 
-interface CheckoutFormData {
+interface FormData {
   customerName: string;
   customerEmail: string;
   customerAddress: string;
@@ -47,52 +38,63 @@ export function SampleCheckoutDialog({
   const {
     register,
     handleSubmit,
-    formState: { errors, isSubmitting },
-  } = useForm<CheckoutFormData>({
-    defaultValues: prefillData,
+    formState: { errors },
+    reset,
+  } = useForm<FormData>({
+    defaultValues: {
+      customerName: prefillData.customerName,
+      customerEmail: prefillData.customerEmail,
+      storeName: prefillData.storeName,
+      customerAddress: "",
+    },
   });
 
-  const onSubmit = async (data: CheckoutFormData) => {
+  const onSubmit = async (data: FormData) => {
     try {
-      const { data: { user } } = await supabase.auth.getUser();
-      
-      if (!user) {
-        throw new Error("User not authenticated");
-      }
+      const { data: { user }, error: userError } = await supabase.auth.getUser();
+      if (userError || !user) throw new Error("User not authenticated");
 
-      const { data: order, error: orderError } = await supabase
+      // Create the order
+      const { data: orderData, error: orderError } = await supabase
         .from("orders")
-        .insert({
-          store_id: user.id,
-          customer_name: data.customerName,
-          customer_email: data.customerEmail,
-          customer_address: data.customerAddress,
-          total_amount: product.price,
-        })
+        .insert([
+          {
+            store_id: user.id,
+            customer_name: data.customerName,
+            customer_email: data.customerEmail,
+            customer_address: data.customerAddress,
+            total_amount: product.price,
+            status: "PAID",
+          },
+        ])
         .select()
         .single();
 
       if (orderError) throw orderError;
 
-      const { error: itemsError } = await supabase
+      // Create the order item
+      const { error: orderItemError } = await supabase
         .from("order_items")
-        .insert({
-          order_id: order.id,
-          product_id: product.id,
-          quantity: 1,
-          price: product.price,
-        });
+        .insert([
+          {
+            order_id: orderData.id,
+            product_id: product.id,
+            quantity: 1,
+            price: product.price,
+          },
+        ]);
 
-      if (itemsError) throw itemsError;
+      if (orderItemError) throw orderItemError;
 
       toast({
-        title: "Sample order placed successfully!",
-        description: "Thank you for your order.",
+        title: "Order placed successfully!",
+        description: "Your sample order has been placed.",
       });
 
       onOpenChange(false);
+      reset();
     } catch (error: any) {
-      console.error("Checkout error:", error);
+      console.error("Error placing order:", error);
       toast({
         variant: "destructive",
         title: "Error placing order",
@@ -102,27 +104,13 @@ export function SampleCheckoutDialog({
   };
 
   return (
-    <AlertDialog open={open} onOpenChange={onOpenChange}>
-      <AlertDialogContent className="sm:max-w-[425px]">
-        <AlertDialogHeader>
-          <AlertDialogTitle>Sample Order Checkout</AlertDialogTitle>
-          <AlertDialogDescription>
-            Please confirm your details to place this sample order.
-          </AlertDialogDescription>
-        </AlertDialogHeader>
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 py-4">
-          <div className="flex items-center space-x-4 mb-4">
-            <img
-              src={product.image_url}
-              alt={product.name}
-              className="w-16 h-16 object-cover rounded"
-            />
-            <div>
-              <h4 className="font-medium">{product.name}</h4>
-              <p className="text-sm text-gray-500">${product.price.toFixed(2)}</p>
-            </div>
-          </div>
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>Sample Order Checkout</DialogTitle>
+        </DialogHeader>
 
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
           <div className="space-y-4">
             <div>
               <Input
@@ -139,6 +127,7 @@ export function SampleCheckoutDialog({
               <Input
                 {...register("customerName", { required: "Name is required" })}
                 placeholder="Your Name"
+                readOnly
               />
               {errors.customerName && (
                 <p className="text-sm text-red-500 mt-1">{errors.customerName.message}</p>
@@ -154,8 +143,9 @@ export function SampleCheckoutDialog({
                     message: "Invalid email address",
                   },
                 })}
+                placeholder="Email Address"
                 type="email"
-                placeholder="Your Email"
+                readOnly
               />
               {errors.customerEmail && (
                 <p className="text-sm text-red-500 mt-1">{errors.customerEmail.message}</p>
@@ -173,14 +163,22 @@ export function SampleCheckoutDialog({
             </div>
           </div>
 
-          <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <Button type="submit" disabled={isSubmitting}>
-              {isSubmitting ? "Processing..." : "Place Order"}
-            </Button>
-          </AlertDialogFooter>
+          <div className="space-y-4">
+            <div className="flex justify-between text-sm">
+              <span>Product:</span>
+              <span>{product.name}</span>
+            </div>
+            <div className="flex justify-between text-sm">
+              <span>Price:</span>
+              <span>${product.price}</span>
+            </div>
+          </div>
+
+          <Button type="submit" className="w-full">
+            Place Order
+          </Button>
         </form>
-      </AlertDialogContent>
-    </AlertDialog>
+      </DialogContent>
+    </Dialog>
   );
 }
