@@ -125,47 +125,47 @@ const FindProducts = () => {
     return <div className="text-center py-12">Loading...</div>;
   }
 
-  console.log("Is admin:", isAdmin);
-
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-50 flex">
       <DashboardSidebar />
-      <div className="ml-64 p-8">
-        <DashboardHeader onSignOut={handleSignOut} />
+      <div className="flex-1 transition-all duration-300 ease-in-out">
+        <div className="p-8">
+          <DashboardHeader onSignOut={handleSignOut} />
 
-        <div className="mb-8">
-          <h1 className="text-2xl font-semibold mb-4">FIND PRODUCTS - ALL</h1>
-          <ProductSearch
-            searchQuery={searchQuery}
-            onSearchChange={setSearchQuery}
+          <div className="mb-8">
+            <h1 className="text-2xl font-semibold mb-4">FIND PRODUCTS - ALL</h1>
+            <ProductSearch
+              searchQuery={searchQuery}
+              onSearchChange={setSearchQuery}
+              isAdmin={isAdmin}
+              onAddNewProduct={() => {
+                setEditingProduct(null);
+                setIsAdminDialogOpen(true);
+              }}
+            />
+          </div>
+
+          <ProductGrid
+            products={filteredProducts}
             isAdmin={isAdmin}
-            onAddNewProduct={() => {
-              setEditingProduct(null);
-              setIsAdminDialogOpen(true);
-            }}
+            addedProducts={addedProducts}
+            onAddToStore={handleAddToStore}
+            onEdit={handleEditProduct}
           />
+
+          {isAdmin && (
+            <ProductManagement 
+              isAdminDialogOpen={isAdminDialogOpen}
+              setIsAdminDialogOpen={setIsAdminDialogOpen}
+              onSuccess={() => {
+                refetch();
+                setIsAdminDialogOpen(false);
+                setEditingProduct(null);
+              }}
+              editingProduct={editingProduct}
+            />
+          )}
         </div>
-
-        <ProductGrid
-          products={filteredProducts}
-          isAdmin={isAdmin}
-          addedProducts={addedProducts}
-          onAddToStore={handleAddToStore}
-          onEdit={handleEditProduct}
-        />
-
-        {isAdmin && (
-          <ProductManagement 
-            isAdminDialogOpen={isAdminDialogOpen}
-            setIsAdminDialogOpen={setIsAdminDialogOpen}
-            onSuccess={() => {
-              refetch();
-              setIsAdminDialogOpen(false);
-              setEditingProduct(null);
-            }}
-            editingProduct={editingProduct}
-          />
-        )}
       </div>
     </div>
   );
