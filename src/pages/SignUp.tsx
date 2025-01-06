@@ -32,14 +32,6 @@ const SignUp = () => {
         throw new Error("Username must be at least 3 characters and can only contain letters, numbers, underscores, and hyphens");
       }
 
-      console.log("Starting signup process with data:", {
-        email,
-        fullName,
-        phone,
-        storeName,
-        username,
-      });
-
       const { data, error } = await supabase.auth.signUp({
         email,
         password,
@@ -48,8 +40,9 @@ const SignUp = () => {
             full_name: fullName,
             phone: phone || null,
             store_name: storeName,
-            username,
+            username: username,
           },
+          emailRedirectTo: window.location.origin + '/signin'
         },
       });
 
@@ -67,8 +60,6 @@ const SignUp = () => {
         });
         
         navigate("/signin");
-      } else {
-        throw new Error("No user data returned from signup");
       }
     } catch (error: any) {
       console.error("Error in signup process:", error);
