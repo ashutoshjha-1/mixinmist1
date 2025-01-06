@@ -21,8 +21,22 @@ export const ProductManagement = ({
   const handleSaveProduct = async (productData: any) => {
     try {
       if (editingProduct) {
-        // If the product is marked as sample, create a new sample product
-        if (productData.is_sample && !editingProduct.is_sample) {
+        // If unchecking sample checkbox, delete the sample product
+        if (!productData.is_sample && editingProduct.is_sample) {
+          const { error: deleteError } = await supabase
+            .from("products")
+            .delete()
+            .eq("id", editingProduct.id);
+
+          if (deleteError) throw deleteError;
+
+          toast({
+            title: "Success",
+            description: "Sample product removed successfully",
+          });
+        }
+        // If checking sample checkbox, create a new sample product
+        else if (productData.is_sample && !editingProduct.is_sample) {
           // Create a new sample product as a copy
           const { error: insertError } = await supabase
             .from("products")
