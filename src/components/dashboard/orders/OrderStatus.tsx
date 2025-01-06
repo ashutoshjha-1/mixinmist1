@@ -23,14 +23,34 @@ export function OrderStatus({ orderId, initialStatus, isAdmin, getStatusColor }:
 
   const handleStatusChange = async (newStatus: string) => {
     try {
-      console.log("Updating order status:", { orderId, newStatus, isAdmin });
+      console.log("Attempting to update order status:", { 
+        orderId, 
+        currentStatus: status,
+        newStatus, 
+        isAdmin 
+      });
+
+      if (!isAdmin) {
+        console.error("Non-admin user attempted to update order status");
+        toast({
+          variant: "destructive",
+          title: "Permission Denied",
+          description: "Only administrators can update order status",
+        });
+        return;
+      }
+
       const { error } = await supabase
         .from('orders')
         .update({ status: newStatus })
         .eq('id', orderId);
 
-      if (error) throw error;
+      if (error) {
+        console.error('Error updating status:', error);
+        throw error;
+      }
 
+      console.log("Status updated successfully:", newStatus);
       setStatus(newStatus);
       toast({
         title: "Status Updated",
@@ -41,11 +61,12 @@ export function OrderStatus({ orderId, initialStatus, isAdmin, getStatusColor }:
       toast({
         variant: "destructive",
         title: "Error",
-        description: "Failed to update order status",
+        description: "Failed to update order status. Please try again.",
       });
     }
   };
 
+  // Only show dropdown for admin users
   if (isAdmin) {
     return (
       <Select
@@ -65,6 +86,7 @@ export function OrderStatus({ orderId, initialStatus, isAdmin, getStatusColor }:
     );
   }
 
+  // Show badge for non-admin users
   return (
     <Badge
       variant="secondary"

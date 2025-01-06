@@ -16,6 +16,8 @@ interface OrdersTableProps {
 }
 
 export function OrdersTable({ orders, showStoreName = false, isAdmin = false }: OrdersTableProps) {
+  console.log("OrdersTable rendered with isAdmin:", isAdmin);
+
   const getStatusColor = (status: string) => {
     switch (status.toLowerCase()) {
       case "pending":
