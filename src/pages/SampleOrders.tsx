@@ -9,29 +9,6 @@ import { useAdminCheck } from "@/hooks/use-admin-check";
 import { SampleProductsGrid } from "@/components/sample-orders/SampleProductsGrid";
 import { SampleOrdersList } from "@/components/sample-orders/SampleOrdersList";
 
-interface OrderWithProfile {
-  id: string;
-  store_id: string;
-  customer_name: string;
-  customer_email: string;
-  customer_address: string;
-  total_amount: number;
-  status: string;
-  created_at: string;
-  updated_at: string;
-  order_items: {
-    id: string;
-    order_id: string;
-    product_id: string;
-    quantity: number;
-    price: number;
-    created_at: string;
-    products: {
-      is_sample: boolean;
-    };
-  }[];
-}
-
 const SampleOrders = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
@@ -86,7 +63,6 @@ const SampleOrders = () => {
             )
           )
         `)
-        .eq('store_id', user.id)
         .order('created_at', { ascending: false });
 
       if (error) {
@@ -94,12 +70,7 @@ const SampleOrders = () => {
         throw error;
       }
 
-      // Filter orders that contain sample products
-      const sampleOrders = data?.filter(order => 
-        order.order_items.some(item => item.products?.is_sample)
-      ) || [];
-
-      return sampleOrders;
+      return data || [];
     },
   });
 
@@ -128,7 +99,9 @@ const SampleOrders = () => {
             <h1 className="text-2xl font-semibold">SAMPLE ORDERS</h1>
             <TabsList>
               <TabsTrigger value="sample-products">Sample Products</TabsTrigger>
-              <TabsTrigger value="sample-orders">My Sample Orders</TabsTrigger>
+              {isAdmin && (
+                <TabsTrigger value="sample-orders">My Sample Orders</TabsTrigger>
+              )}
             </TabsList>
           </div>
 
@@ -136,12 +109,14 @@ const SampleOrders = () => {
             <SampleProductsGrid products={products || []} />
           </TabsContent>
 
-          <TabsContent value="sample-orders">
-            <SampleOrdersList 
-              orders={sampleOrders || []} 
-              isLoading={ordersLoading}
-            />
-          </TabsContent>
+          {isAdmin && (
+            <TabsContent value="sample-orders">
+              <SampleOrdersList 
+                orders={sampleOrders || []} 
+                isLoading={ordersLoading}
+              />
+            </TabsContent>
+          )}
         </Tabs>
       </div>
     </div>
