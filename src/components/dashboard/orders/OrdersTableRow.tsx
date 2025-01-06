@@ -12,6 +12,8 @@ import { useToast } from "@/components/ui/use-toast";
 import { Button } from "@/components/ui/button";
 import { Order } from "@/types/order";
 import { OrderItemsDialog } from "./OrderItemsDialog";
+import { Badge } from "@/components/ui/badge";
+import { useAdminCheck } from "@/hooks/use-admin-check";
 
 interface OrdersTableRowProps {
   order: Order;
@@ -31,6 +33,7 @@ export function OrdersTableRow({
   const [showItems, setShowItems] = useState(false);
   const [status, setStatus] = useState(order.status);
   const { toast } = useToast();
+  const { data: isAdmin } = useAdminCheck();
 
   const totalItems = React.useMemo(() => {
     if (!order.order_items || !Array.isArray(order.order_items)) {
@@ -72,6 +75,33 @@ export function OrdersTableRow({
     }
   };
 
+  const StatusComponent = () => {
+    if (isAdmin) {
+      return (
+        <Select
+          value={status}
+          onValueChange={handleStatusChange}
+        >
+          <SelectTrigger className={`w-[130px] ${getStatusColor(status)}`}>
+            <SelectValue>{status}</SelectValue>
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="PAID">PAID</SelectItem>
+            <SelectItem value="PROCESSING">PROCESSING</SelectItem>
+            <SelectItem value="DELIVERED">DELIVERED</SelectItem>
+            <SelectItem value="RETURNED">RETURNED</SelectItem>
+          </SelectContent>
+        </Select>
+      );
+    }
+
+    return (
+      <Badge className={getStatusColor(status)}>
+        {status}
+      </Badge>
+    );
+  };
+
   return (
     <>
       <TableRow key={order.id} className="hover:bg-muted/50">
@@ -98,20 +128,7 @@ export function OrdersTableRow({
           ${order.total_amount.toFixed(2)}
         </TableCell>
         <TableCell>
-          <Select
-            value={status}
-            onValueChange={handleStatusChange}
-          >
-            <SelectTrigger className={`w-[130px] ${getStatusColor(status)}`}>
-              <SelectValue>{status}</SelectValue>
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="PAID">PAID</SelectItem>
-              <SelectItem value="PROCESSING">PROCESSING</SelectItem>
-              <SelectItem value="DELIVERED">DELIVERED</SelectItem>
-              <SelectItem value="RETURNED">RETURNED</SelectItem>
-            </SelectContent>
-          </Select>
+          <StatusComponent />
         </TableCell>
         <TableCell className="text-right">
           <Button
