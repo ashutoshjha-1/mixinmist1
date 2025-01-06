@@ -52,6 +52,7 @@ export function OrdersTableRow({
 
   const handleStatusChange = async (newStatus: string) => {
     try {
+      console.log("Updating status to:", newStatus);
       const { error } = await supabase
         .from('orders')
         .update({ status: newStatus })
@@ -106,13 +107,13 @@ export function OrdersTableRow({
               onValueChange={handleStatusChange}
             >
               <SelectTrigger className={`w-[130px] ${getStatusColor(status)}`}>
-                <SelectValue>{status.toUpperCase()}</SelectValue>
+                <SelectValue>{status}</SelectValue>
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="pending">PENDING</SelectItem>
-                <SelectItem value="processing">PROCESSING</SelectItem>
-                <SelectItem value="completed">COMPLETED</SelectItem>
-                <SelectItem value="cancelled">CANCELLED</SelectItem>
+                <SelectItem value="PAID">PAID</SelectItem>
+                <SelectItem value="PROCESSING">PROCESSING</SelectItem>
+                <SelectItem value="DELIVERED">DELIVERED</SelectItem>
+                <SelectItem value="RETURNED">RETURNED</SelectItem>
               </SelectContent>
             </Select>
           ) : (
@@ -120,7 +121,7 @@ export function OrdersTableRow({
               variant="secondary"
               className={`${getStatusColor(status)}`}
             >
-              {status.toUpperCase()}
+              {status}
             </Badge>
           )}
         </TableCell>

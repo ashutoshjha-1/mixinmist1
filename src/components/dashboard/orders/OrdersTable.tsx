@@ -17,14 +17,14 @@ interface OrdersTableProps {
 
 export function OrdersTable({ orders, showStoreName = false, isAdmin = false }: OrdersTableProps) {
   const getStatusColor = (status: string) => {
-    switch (status.toLowerCase()) {
-      case "pending":
+    switch (status.toUpperCase()) {
+      case "PAID":
         return "bg-primary-100 text-primary-800 hover:bg-primary-200";
-      case "processing":
+      case "PROCESSING":
         return "bg-yellow-100 text-yellow-800 hover:bg-yellow-200";
-      case "completed":
+      case "DELIVERED":
         return "bg-green-100 text-green-800 hover:bg-green-200";
-      case "cancelled":
+      case "RETURNED":
         return "bg-red-100 text-red-800 hover:bg-red-200";
       default:
         return "bg-gray-100 text-gray-800 hover:bg-gray-200";
