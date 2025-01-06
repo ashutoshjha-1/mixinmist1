@@ -16,11 +16,11 @@ const SignUp = () => {
     setLoading(true);
 
     const formData = new FormData(e.currentTarget);
-    const email = formData.get("email") as string;
+    const email = (formData.get("email") as string).trim();
     const password = formData.get("password") as string;
-    const fullName = formData.get("fullName") as string;
-    const phone = formData.get("phone") as string;
-    const storeName = formData.get("storeName") as string;
+    const fullName = (formData.get("fullName") as string).trim();
+    const phone = (formData.get("phone") as string)?.trim() || null;
+    const storeName = (formData.get("storeName") as string).trim();
     const username = (formData.get("username") as string).toLowerCase().trim();
 
     try {
@@ -30,26 +30,28 @@ const SignUp = () => {
       }
 
       // Username format validation
-      if (!/^[a-zA-Z0-9_-]{3,}$/.test(username)) {
-        throw new Error("Username must be at least 3 characters and can only contain letters, numbers, underscores, and hyphens");
+      if (!/^[a-z0-9_-]{3,}$/.test(username)) {
+        throw new Error(
+          "Username must be at least 3 characters and can only contain letters, numbers, underscores, and hyphens"
+        );
       }
 
       // Clean and prepare metadata
-      const cleanedMetadata = {
-        full_name: fullName.trim(),
-        phone: phone ? phone.trim() : null,
-        store_name: storeName.trim(),
-        username: username,
+      const metadata = {
+        full_name: fullName,
+        phone,
+        store_name: storeName,
+        username,
       };
 
-      console.log("Starting signup process with metadata:", cleanedMetadata);
+      console.log("Starting signup process with metadata:", metadata);
 
-      // Attempt signup with cleaned data
+      // Attempt signup
       const { data, error } = await supabase.auth.signUp({
-        email: email.trim(),
+        email,
         password,
         options: {
-          data: cleanedMetadata,
+          data: metadata,
         },
       });
 
@@ -69,6 +71,8 @@ const SignUp = () => {
         });
         
         navigate("/signin");
+      } else {
+        throw new Error("No user data returned from signup");
       }
     } catch (error: any) {
       console.error("Error in signup process:", error);
