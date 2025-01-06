@@ -27,7 +27,7 @@ export const useOrders = (userId: string | undefined, isAdmin: boolean | undefin
               is_sample
             )
           ),
-          store:profiles!store_id (
+          store:profiles (
             store_name,
             username
           )
@@ -44,8 +44,6 @@ export const useOrders = (userId: string | undefined, isAdmin: boolean | undefin
       
       const processedOrders = ordersData?.map(order => ({
         ...order,
-        store_name: order.store?.store_name || "Unknown Store",
-        username: order.store?.username,
         order_items: Array.isArray(order.order_items) ? order.order_items : []
       })) || [];
       
@@ -79,7 +77,7 @@ export const useOrders = (userId: string | undefined, isAdmin: boolean | undefin
               is_sample
             )
           ),
-          store:profiles!store_id (
+          store:profiles (
             store_name,
             username
           )
@@ -93,8 +91,6 @@ export const useOrders = (userId: string | undefined, isAdmin: boolean | undefin
 
       const processedOrders = ordersData?.map(order => ({
         ...order,
-        store_name: order.store?.store_name || "Unknown Store",
-        username: order.store?.username,
         order_items: Array.isArray(order.order_items) ? order.order_items : []
       })) || [];
 
