@@ -50,9 +50,16 @@ export const SampleProductsGrid = ({ products }: SampleProductsGridProps) => {
         return;
       }
 
-      // Navigate to checkout with prefilled data
-      navigate(`/store/sample/product/${product.id}`, {
+      // Navigate directly to checkout with prefilled data
+      navigate('/checkout', {
         state: {
+          items: [{
+            id: product.id,
+            name: product.name,
+            price: product.price,
+            quantity: 1,
+            image_url: product.image_url
+          }],
           prefillData: {
             customerName: profile.full_name,
             customerEmail: user.email,
