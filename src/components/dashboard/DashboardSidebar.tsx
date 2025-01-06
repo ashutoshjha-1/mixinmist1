@@ -23,13 +23,13 @@ export const DashboardSidebar = () => {
   return (
     <div 
       className={cn(
-        "fixed left-0 top-0 h-screen bg-white border-r border-gray-200 transition-all duration-300 ease-in-out z-50",
+        "fixed left-0 top-0 h-screen bg-white border-r border-gray-200 transition-all duration-300 ease-in-out z-40",
         isCollapsed ? "w-20" : "w-64"
       )}
     >
       <button
         onClick={toggleSidebar}
-        className="absolute -right-3 top-4 bg-white border border-gray-200 rounded-full p-1.5 hover:bg-gray-50 z-50"
+        className="absolute -right-3 top-4 bg-white border border-gray-200 rounded-full p-1.5 hover:bg-gray-50"
       >
         {isCollapsed ? (
           <Menu className="h-4 w-4 text-gray-600" />

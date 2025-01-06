@@ -128,7 +128,7 @@ const FindProducts = () => {
   return (
     <div className="min-h-screen bg-gray-50 flex">
       <DashboardSidebar />
-      <div className="flex-1 transition-all duration-300 ease-in-out">
+      <div className="flex-1 pl-[80px] lg:pl-64 transition-all duration-300 ease-in-out">
         <div className="p-8">
           <DashboardHeader onSignOut={handleSignOut} />
 
