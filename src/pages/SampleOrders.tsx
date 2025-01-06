@@ -19,7 +19,7 @@ const SampleOrders = () => {
   const { toast } = useToast();
 
   const { data: products, isLoading } = useQuery({
-    queryKey: ["products"],
+    queryKey: ["sample-products"],
     queryFn: async () => {
       const { data: { user }, error: userError } = await supabase.auth.getUser();
       
@@ -32,6 +32,7 @@ const SampleOrders = () => {
       const { data, error } = await supabase
         .from("products")
         .select("*")
+        .eq('is_sample', true)
         .order("created_at", { ascending: false });
 
       if (error) throw error;
@@ -54,7 +55,6 @@ const SampleOrders = () => {
   };
 
   const handleBuyNow = (product: Product) => {
-    // Navigate to the store page with the product
     navigate(`/store/sample/product/${product.id}`);
   };
 

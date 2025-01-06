@@ -28,6 +28,7 @@ export const ProductManagement = ({
             price: productData.price,
             description: productData.description,
             image_url: productData.image_url,
+            is_sample: productData.is_sample,
           })
           .eq("id", editingProduct.id);
 
@@ -45,6 +46,7 @@ export const ProductManagement = ({
             price: productData.price,
             description: productData.description,
             image_url: productData.image_url,
+            is_sample: productData.is_sample,
           }]);
 
         if (error) throw error;

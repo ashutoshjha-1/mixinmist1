@@ -10,6 +10,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import { Checkbox } from "@/components/ui/checkbox";
 import { useToast } from "@/hooks/use-toast";
 
 interface AdminProductDialogProps {
@@ -20,6 +21,7 @@ interface AdminProductDialogProps {
     price: number;
     description: string;
     image_url: string;
+    is_sample?: boolean;
   }) => void;
   product?: {
     id: string;
@@ -27,6 +29,7 @@ interface AdminProductDialogProps {
     price: number;
     description?: string;
     image_url: string;
+    is_sample?: boolean;
   } | null;
 }
 
@@ -40,6 +43,7 @@ export const AdminProductDialog = ({
   const [price, setPrice] = React.useState(product?.price?.toString() || "");
   const [description, setDescription] = React.useState(product?.description || "");
   const [imageUrl, setImageUrl] = React.useState(product?.image_url || "");
+  const [isSample, setIsSample] = React.useState(product?.is_sample || false);
   const { toast } = useToast();
 
   React.useEffect(() => {
@@ -48,11 +52,13 @@ export const AdminProductDialog = ({
       setPrice(product.price.toString());
       setDescription(product.description || "");
       setImageUrl(product.image_url);
+      setIsSample(product.is_sample || false);
     } else {
       setName("");
       setPrice("");
       setDescription("");
       setImageUrl("");
+      setIsSample(false);
     }
   }, [product]);
 
@@ -81,6 +87,7 @@ export const AdminProductDialog = ({
       price: parsedPrice,
       description,
       image_url: imageUrl,
+      is_sample: isSample,
     });
   };
 
@@ -141,6 +148,19 @@ export const AdminProductDialog = ({
                 onChange={(e) => setImageUrl(e.target.value)}
                 placeholder="Enter image URL"
               />
+            </div>
+            <div className="flex items-center space-x-2">
+              <Checkbox
+                id="isSample"
+                checked={isSample}
+                onCheckedChange={(checked) => setIsSample(checked as boolean)}
+              />
+              <label
+                htmlFor="isSample"
+                className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+              >
+                Add as a Sample Product
+              </label>
             </div>
           </div>
         </div>
