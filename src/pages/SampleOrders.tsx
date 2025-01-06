@@ -50,6 +50,7 @@ const SampleOrders = () => {
     queryFn: async () => {
       if (!isAdmin) return [];
 
+      // First, get orders with their items and join with profiles to get usernames
       const { data, error } = await supabase
         .from("orders")
         .select(`
@@ -64,6 +65,9 @@ const SampleOrders = () => {
             products (
               is_sample
             )
+          ),
+          profiles:store_id (
+            username
           )
         `)
         .order('created_at', { ascending: false });
@@ -73,14 +77,15 @@ const SampleOrders = () => {
         throw error;
       }
 
-      // Filter orders that contain sample products
+      // Filter orders that contain sample products and format the data
       const sampleOrders = data?.filter(order => 
         order.order_items.some(item => item.products?.is_sample)
       ).map(order => ({
         ...order,
+        username: order.profiles?.username || 'Unknown User',
         order_items: order.order_items.map(item => ({
           ...item,
-          order_id: order.id // Ensure order_id is set for each item
+          order_id: order.id
         }))
       })) || [];
 
@@ -162,7 +167,11 @@ const SampleOrders = () => {
               {ordersLoading ? (
                 <div className="text-center py-12">Loading orders...</div>
               ) : (
-                <OrdersTable orders={sampleOrders || []} showStoreName />
+                <OrdersTable 
+                  orders={sampleOrders || []} 
+                  showStoreName={false}
+                  showUsername={true}
+                />
               )}
             </TabsContent>
           )}

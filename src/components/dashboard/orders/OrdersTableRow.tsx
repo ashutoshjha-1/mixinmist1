@@ -18,6 +18,7 @@ import { useAdminCheck } from "@/hooks/use-admin-check";
 interface OrdersTableRowProps {
   order: Order;
   showStoreName?: boolean;
+  showUsername?: boolean;
   getStatusColor: (status: string) => string;
   formatDate: (date: string) => string;
   formatOrderId: (orderId: string, storeName?: string) => string;
@@ -25,7 +26,8 @@ interface OrdersTableRowProps {
 
 export function OrdersTableRow({ 
   order, 
-  showStoreName, 
+  showStoreName,
+  showUsername,
   getStatusColor, 
   formatDate,
   formatOrderId,
@@ -105,9 +107,16 @@ export function OrdersTableRow({
   return (
     <>
       <TableRow key={order.id} className="hover:bg-muted/50">
-        <TableCell className="font-mono text-sm">
-          {formatOrderId(order.id, order.store_name)}
-        </TableCell>
+        {!showUsername && (
+          <TableCell className="font-mono text-sm">
+            {formatOrderId(order.id, order.store_name)}
+          </TableCell>
+        )}
+        {showUsername && (
+          <TableCell className="font-mono text-sm">
+            {order.username || 'Unknown User'}
+          </TableCell>
+        )}
         {showStoreName && (
           <TableCell>{order.store_name}</TableCell>
         )}
