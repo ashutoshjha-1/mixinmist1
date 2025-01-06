@@ -12,10 +12,9 @@ import { Order } from "@/types/order";
 interface OrdersTableProps {
   orders: Order[];
   showStoreName?: boolean;
-  isAdmin?: boolean;
 }
 
-export function OrdersTable({ orders, showStoreName = false, isAdmin = false }: OrdersTableProps) {
+export function OrdersTable({ orders, showStoreName = false }: OrdersTableProps) {
   const getStatusColor = (status: string) => {
     switch (status.toUpperCase()) {
       case "PAID":
@@ -72,7 +71,6 @@ export function OrdersTable({ orders, showStoreName = false, isAdmin = false }: 
               getStatusColor={getStatusColor}
               formatDate={formatDate}
               formatOrderId={formatOrderId}
-              isAdmin={isAdmin}
             />
           ))}
         </TableBody>

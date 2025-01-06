@@ -1,9 +1,5 @@
 import React, { useState } from "react";
 import { TableCell, TableRow } from "@/components/ui/table";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { Order } from "@/types/order";
-import { OrderItemsDialog } from "./OrderItemsDialog";
 import {
   Select,
   SelectContent,
@@ -13,6 +9,9 @@ import {
 } from "@/components/ui/select";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/components/ui/use-toast";
+import { Button } from "@/components/ui/button";
+import { Order } from "@/types/order";
+import { OrderItemsDialog } from "./OrderItemsDialog";
 
 interface OrdersTableRowProps {
   order: Order;
@@ -20,7 +19,6 @@ interface OrdersTableRowProps {
   getStatusColor: (status: string) => string;
   formatDate: (date: string) => string;
   formatOrderId: (orderId: string, storeName?: string) => string;
-  isAdmin?: boolean;
 }
 
 export function OrdersTableRow({ 
@@ -29,7 +27,6 @@ export function OrdersTableRow({
   getStatusColor, 
   formatDate,
   formatOrderId,
-  isAdmin = false
 }: OrdersTableRowProps) {
   const [showItems, setShowItems] = useState(false);
   const [status, setStatus] = useState(order.status);
@@ -101,29 +98,20 @@ export function OrdersTableRow({
           ${order.total_amount.toFixed(2)}
         </TableCell>
         <TableCell>
-          {isAdmin ? (
-            <Select
-              value={status}
-              onValueChange={handleStatusChange}
-            >
-              <SelectTrigger className={`w-[130px] ${getStatusColor(status)}`}>
-                <SelectValue>{status}</SelectValue>
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="PAID">PAID</SelectItem>
-                <SelectItem value="PROCESSING">PROCESSING</SelectItem>
-                <SelectItem value="DELIVERED">DELIVERED</SelectItem>
-                <SelectItem value="RETURNED">RETURNED</SelectItem>
-              </SelectContent>
-            </Select>
-          ) : (
-            <Badge
-              variant="secondary"
-              className={`${getStatusColor(status)}`}
-            >
-              {status}
-            </Badge>
-          )}
+          <Select
+            value={status}
+            onValueChange={handleStatusChange}
+          >
+            <SelectTrigger className={`w-[130px] ${getStatusColor(status)}`}>
+              <SelectValue>{status}</SelectValue>
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="PAID">PAID</SelectItem>
+              <SelectItem value="PROCESSING">PROCESSING</SelectItem>
+              <SelectItem value="DELIVERED">DELIVERED</SelectItem>
+              <SelectItem value="RETURNED">RETURNED</SelectItem>
+            </SelectContent>
+          </Select>
         </TableCell>
         <TableCell className="text-right">
           <Button
