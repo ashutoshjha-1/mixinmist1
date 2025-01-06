@@ -27,9 +27,11 @@ export const useOrders = (userId: string | undefined, isAdmin: boolean | undefin
               is_sample
             )
           ),
-          profiles (
-            store_name,
-            username
+          store:store_id (
+            profiles (
+              store_name,
+              username
+            )
           )
         `)
         .eq('store_id', userId)
@@ -44,8 +46,8 @@ export const useOrders = (userId: string | undefined, isAdmin: boolean | undefin
       
       const processedOrders = ordersData?.map(order => ({
         ...order,
-        store_name: order.profiles?.store_name || "Unknown Store",
-        username: order.profiles?.username,
+        store_name: order.store?.profiles?.store_name || "Unknown Store",
+        username: order.store?.profiles?.username,
         order_items: Array.isArray(order.order_items) ? order.order_items : []
       })) || [];
       
@@ -79,9 +81,11 @@ export const useOrders = (userId: string | undefined, isAdmin: boolean | undefin
               is_sample
             )
           ),
-          profiles (
-            store_name,
-            username
+          store:store_id (
+            profiles (
+              store_name,
+              username
+            )
           )
         `)
         .order('created_at', { ascending: false });
@@ -99,8 +103,8 @@ export const useOrders = (userId: string | undefined, isAdmin: boolean | undefin
       // Process orders and ensure order_items is always an array
       const processedOrders = nonSampleOrders.map(order => ({
         ...order,
-        store_name: order.profiles?.store_name || "Unknown Store",
-        username: order.profiles?.username,
+        store_name: order.store?.profiles?.store_name || "Unknown Store",
+        username: order.store?.profiles?.username,
         order_items: Array.isArray(order.order_items) ? order.order_items : []
       }));
 
