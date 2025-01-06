@@ -26,9 +26,6 @@ export const useOrders = (userId: string | undefined, isAdmin: boolean | undefin
             products (
               is_sample
             )
-          ),
-          store:profiles (
-            store_name
           )
         `)
         .eq('store_id', userId)
@@ -39,14 +36,25 @@ export const useOrders = (userId: string | undefined, isAdmin: boolean | undefin
         throw ordersError;
       }
 
-      const processedOrders = ordersData?.map(order => {
-        const storeData = order.store as { store_name?: string } | null;
-        return {
-          ...order,
-          store_name: storeData?.store_name,
-          order_items: Array.isArray(order.order_items) ? order.order_items : []
-        };
-      }) || [];
+      // Fetch store names for the orders
+      const storeIds = [...new Set(ordersData?.map(order => order.store_id) || [])];
+      const { data: profilesData, error: profilesError } = await supabase
+        .from("profiles")
+        .select("id, store_name")
+        .in('id', storeIds);
+
+      if (profilesError) {
+        console.error("Error fetching profiles:", profilesError);
+        throw profilesError;
+      }
+
+      const storeNameMap = new Map(profilesData?.map(profile => [profile.id, profile.store_name]));
+      
+      const processedOrders = ordersData?.map(order => ({
+        ...order,
+        store_name: storeNameMap.get(order.store_id) || "Unknown Store",
+        order_items: Array.isArray(order.order_items) ? order.order_items : []
+      })) || [];
       
       setOrders(processedOrders);
     } catch (error: any) {
@@ -76,9 +84,6 @@ export const useOrders = (userId: string | undefined, isAdmin: boolean | undefin
             products (
               is_sample
             )
-          ),
-          store:profiles (
-            store_name
           )
         `)
         .order('created_at', { ascending: false });
@@ -88,14 +93,25 @@ export const useOrders = (userId: string | undefined, isAdmin: boolean | undefin
         throw ordersError;
       }
 
-      const processedOrders = ordersData?.map(order => {
-        const storeData = order.store as { store_name?: string } | null;
-        return {
-          ...order,
-          store_name: storeData?.store_name,
-          order_items: Array.isArray(order.order_items) ? order.order_items : []
-        };
-      }) || [];
+      // Fetch store names for all orders
+      const storeIds = [...new Set(ordersData?.map(order => order.store_id) || [])];
+      const { data: profilesData, error: profilesError } = await supabase
+        .from("profiles")
+        .select("id, store_name")
+        .in('id', storeIds);
+
+      if (profilesError) {
+        console.error("Error fetching profiles:", profilesError);
+        throw profilesError;
+      }
+
+      const storeNameMap = new Map(profilesData?.map(profile => [profile.id, profile.store_name]));
+
+      const processedOrders = ordersData?.map(order => ({
+        ...order,
+        store_name: storeNameMap.get(order.store_id) || "Unknown Store",
+        order_items: Array.isArray(order.order_items) ? order.order_items : []
+      })) || [];
 
       setAllUserOrders(processedOrders);
     } catch (error: any) {
