@@ -21,10 +21,15 @@ const SignUp = () => {
     const fullName = formData.get("fullName") as string;
     const phone = formData.get("phone") as string;
     const storeName = formData.get("storeName") as string;
-    const username = formData.get("username") as string;
+    const username = (formData.get("username") as string).toLowerCase();
 
     try {
-      console.log("Attempting signup with data:", {
+      // Validate username format
+      if (!/^[a-zA-Z0-9_-]+$/.test(username)) {
+        throw new Error("Username can only contain letters, numbers, underscores, and hyphens");
+      }
+
+      console.log("Starting signup process with data:", {
         email,
         fullName,
         phone,
@@ -38,9 +43,9 @@ const SignUp = () => {
         options: {
           data: {
             full_name: fullName,
-            phone,
+            phone: phone || null, // Handle empty phone numbers
             store_name: storeName,
-            username: username.toLowerCase(),
+            username,
           },
         },
       });
@@ -50,20 +55,35 @@ const SignUp = () => {
         throw error;
       }
 
-      console.log("Signup successful:", data);
-
-      toast({
-        title: "Success!",
-        description: "Please check your email to verify your account.",
-      });
-      
-      navigate("/signin");
+      if (data?.user) {
+        console.log("Signup successful. User data:", data.user);
+        
+        toast({
+          title: "Success!",
+          description: "Please check your email to verify your account.",
+        });
+        
+        navigate("/signin");
+      } else {
+        throw new Error("No user data returned from signup");
+      }
     } catch (error: any) {
       console.error("Error in signup process:", error);
+      
+      let errorMessage = "An unexpected error occurred during signup";
+      
+      if (error.message.includes("Database error")) {
+        errorMessage = "Error creating user profile. Please try again with a different username.";
+      } else if (error.message.includes("User already registered")) {
+        errorMessage = "This email is already registered. Please sign in instead.";
+      } else if (error.message.includes("Username")) {
+        errorMessage = error.message;
+      }
+
       toast({
         variant: "destructive",
         title: "Error",
-        description: error.message || "An error occurred during signup",
+        description: errorMessage,
       });
     } finally {
       setLoading(false);
@@ -117,7 +137,6 @@ const SignUp = () => {
                 id="phone"
                 name="phone"
                 type="tel"
-                required
                 placeholder="+1234567890"
               />
             </div>
