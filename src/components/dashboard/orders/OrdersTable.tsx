@@ -38,6 +38,12 @@ export function OrdersTable({ orders, showStoreName = false }: OrdersTableProps)
     });
   };
 
+  const formatOrderId = (rawOrderId: string, storeName: string = "STORE") => {
+    const numericPart = rawOrderId.slice(-6);
+    const storePrefix = storeName.toUpperCase().replace(/\s+/g, '');
+    return `${storePrefix}-${numericPart}`;
+  };
+
   return (
     <div className="rounded-lg border bg-card">
       <Table>
@@ -62,6 +68,7 @@ export function OrdersTable({ orders, showStoreName = false }: OrdersTableProps)
               showStoreName={showStoreName}
               getStatusColor={getStatusColor}
               formatDate={formatDate}
+              formatOrderId={formatOrderId}
             />
           ))}
         </TableBody>

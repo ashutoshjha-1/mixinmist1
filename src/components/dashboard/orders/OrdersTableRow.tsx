@@ -10,13 +10,15 @@ interface OrdersTableRowProps {
   showStoreName?: boolean;
   getStatusColor: (status: string) => string;
   formatDate: (date: string) => string;
+  formatOrderId: (orderId: string, storeName?: string) => string;
 }
 
 export function OrdersTableRow({ 
   order, 
   showStoreName, 
   getStatusColor, 
-  formatDate 
+  formatDate,
+  formatOrderId
 }: OrdersTableRowProps) {
   const [showItems, setShowItems] = useState(false);
 
@@ -38,7 +40,9 @@ export function OrdersTableRow({
   return (
     <>
       <TableRow key={order.id} className="hover:bg-muted/50">
-        <TableCell className="font-mono text-sm">{order.id}</TableCell>
+        <TableCell className="font-mono text-sm">
+          {formatOrderId(order.id, order.store_name)}
+        </TableCell>
         {showStoreName && (
           <TableCell>{order.store_name}</TableCell>
         )}
