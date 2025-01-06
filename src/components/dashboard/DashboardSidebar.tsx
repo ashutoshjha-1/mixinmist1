@@ -7,7 +7,8 @@ import {
   User,
   Search,
   PackageSearch,
-  Menu
+  Menu,
+  ChevronLeft
 } from "lucide-react";
 import {
   Sidebar,
@@ -61,42 +62,48 @@ const menuItems = [
 export const DashboardSidebar = () => {
   return (
     <SidebarProvider defaultOpen>
-      <div className="flex min-h-screen w-full">
-        <Sidebar>
-          <SidebarHeader className="flex items-center justify-between p-4">
-            <SidebarTrigger>
-              <Menu className="h-6 w-6" />
-            </SidebarTrigger>
-          </SidebarHeader>
-          <SidebarContent>
-            <SidebarMenu>
-              {menuItems.map((item) => (
-                <SidebarMenuItem key={item.path}>
-                  <SidebarMenuButton
-                    asChild
-                    tooltip={item.label}
-                    className="w-full"
+      <Sidebar className="border-r border-gray-200">
+        <SidebarHeader className="flex items-center justify-between p-4 border-b border-gray-200">
+          <div className="flex items-center space-x-2">
+            <img 
+              src="/lovable-uploads/d188b2cd-a055-4de0-9783-ce4db92f72a1.png" 
+              alt="Logo" 
+              className="h-8 w-8"
+            />
+            <span className="font-semibold text-lg">Dashboard</span>
+          </div>
+          <SidebarTrigger className="ml-auto">
+            <ChevronLeft className="h-5 w-5" />
+          </SidebarTrigger>
+        </SidebarHeader>
+        <SidebarContent>
+          <SidebarMenu>
+            {menuItems.map((item) => (
+              <SidebarMenuItem key={item.path}>
+                <SidebarMenuButton
+                  asChild
+                  tooltip={item.label}
+                  className="w-full"
+                >
+                  <NavLink
+                    to={item.path}
+                    className={({ isActive }) =>
+                      `flex items-center space-x-2 p-2 rounded-lg transition-colors ${
+                        isActive
+                          ? "bg-primary text-primary-foreground"
+                          : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
+                      }`
+                    }
                   >
-                    <NavLink
-                      to={item.path}
-                      className={({ isActive }) =>
-                        `flex items-center space-x-2 p-2 rounded-lg transition-colors ${
-                          isActive
-                            ? "bg-primary text-primary-foreground"
-                            : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
-                        }`
-                      }
-                    >
-                      <item.icon className="h-5 w-5" />
-                      <span>{item.label}</span>
-                    </NavLink>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              ))}
-            </SidebarMenu>
-          </SidebarContent>
-        </Sidebar>
-      </div>
+                    <item.icon className="h-5 w-5 shrink-0" />
+                    <span className="truncate">{item.label}</span>
+                  </NavLink>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+            ))}
+          </SidebarMenu>
+        </SidebarContent>
+      </Sidebar>
     </SidebarProvider>
   );
 };
