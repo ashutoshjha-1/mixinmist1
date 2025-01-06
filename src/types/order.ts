@@ -5,6 +5,9 @@ export interface OrderItem {
   quantity: number;
   price: number;
   created_at: string;
+  products?: {
+    is_sample?: boolean;
+  };
 }
 
 export interface Order {

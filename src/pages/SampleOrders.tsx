@@ -56,6 +56,7 @@ const SampleOrders = () => {
           *,
           order_items (
             id,
+            order_id,
             product_id,
             quantity,
             price,
@@ -75,7 +76,13 @@ const SampleOrders = () => {
       // Filter orders that contain sample products
       const sampleOrders = data?.filter(order => 
         order.order_items.some(item => item.products?.is_sample)
-      ) || [];
+      ).map(order => ({
+        ...order,
+        order_items: order.order_items.map(item => ({
+          ...item,
+          order_id: order.id // Ensure order_id is set for each item
+        }))
+      })) || [];
 
       return sampleOrders;
     },
@@ -155,7 +162,7 @@ const SampleOrders = () => {
               {ordersLoading ? (
                 <div className="text-center py-12">Loading orders...</div>
               ) : (
-                <OrdersTable orders={sampleOrders || []} />
+                <OrdersTable orders={sampleOrders || []} showStoreName />
               )}
             </TabsContent>
           )}
