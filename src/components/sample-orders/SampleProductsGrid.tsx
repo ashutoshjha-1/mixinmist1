@@ -23,6 +23,7 @@ export const SampleProductsGrid = ({ products }: SampleProductsGridProps) => {
   const [prefillData, setPrefillData] = useState<{
     customerName: string;
     customerEmail: string;
+    storeName: string;
   } | null>(null);
 
   const handleBuyNow = async (product: Product) => {
@@ -59,6 +60,7 @@ export const SampleProductsGrid = ({ products }: SampleProductsGridProps) => {
       setPrefillData({
         customerName: profile.full_name,
         customerEmail: user.email,
+        storeName: profile.store_name,
       });
       setDialogOpen(true);
     } catch (error) {

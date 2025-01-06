@@ -26,6 +26,7 @@ interface SampleCheckoutDialogProps {
   prefillData: {
     customerName: string;
     customerEmail: string;
+    storeName: string;
   };
 }
 
@@ -33,6 +34,7 @@ interface CheckoutFormData {
   customerName: string;
   customerEmail: string;
   customerAddress: string;
+  storeName: string;
 }
 
 export function SampleCheckoutDialog({
@@ -122,6 +124,17 @@ export function SampleCheckoutDialog({
           </div>
 
           <div className="space-y-4">
+            <div>
+              <Input
+                {...register("storeName", { required: "Store name is required" })}
+                placeholder="Store Name"
+                readOnly
+              />
+              {errors.storeName && (
+                <p className="text-sm text-red-500 mt-1">{errors.storeName.message}</p>
+              )}
+            </div>
+
             <div>
               <Input
                 {...register("customerName", { required: "Name is required" })}
