@@ -1,6 +1,8 @@
 import React from 'react';
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
+import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/hooks/use-toast";
 
 interface Product {
   id: string;
@@ -16,9 +18,56 @@ interface SampleProductsGridProps {
 
 export const SampleProductsGrid = ({ products }: SampleProductsGridProps) => {
   const navigate = useNavigate();
+  const { toast } = useToast();
 
-  const handleBuyNow = (product: Product) => {
-    navigate(`/store/sample/product/${product.id}`);
+  const handleBuyNow = async (product: Product) => {
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      
+      if (!user) {
+        toast({
+          variant: "destructive",
+          title: "Authentication required",
+          description: "Please sign in to place a sample order.",
+        });
+        return;
+      }
+
+      // Get user profile information
+      const { data: profile, error: profileError } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('id', user.id)
+        .single();
+
+      if (profileError) {
+        console.error("Profile fetch error:", profileError);
+        toast({
+          variant: "destructive",
+          title: "Error",
+          description: "Could not fetch your profile information.",
+        });
+        return;
+      }
+
+      // Navigate to checkout with prefilled data
+      navigate(`/store/sample/product/${product.id}`, {
+        state: {
+          prefillData: {
+            customerName: profile.full_name,
+            customerEmail: user.email,
+            customerAddress: '', // This would need to be added to the profiles table if you want to prefill it
+          }
+        }
+      });
+    } catch (error) {
+      console.error("Error handling buy now:", error);
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "An error occurred while processing your request.",
+      });
+    }
   };
 
   return (

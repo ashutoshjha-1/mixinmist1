@@ -14,7 +14,16 @@ interface CheckoutFormData {
   customerAddress: string;
 }
 
-export function CheckoutForm({ onSuccess }: { onSuccess: () => void }) {
+interface CheckoutFormProps {
+  onSuccess: () => void;
+  prefillData?: {
+    customerName?: string;
+    customerEmail?: string;
+    customerAddress?: string;
+  };
+}
+
+export function CheckoutForm({ onSuccess, prefillData }: CheckoutFormProps) {
   const { username } = useParams<{ username: string }>();
   const { items, total, clearCart, updateQuantity } = useCart();
   const { toast } = useToast();
@@ -22,7 +31,9 @@ export function CheckoutForm({ onSuccess }: { onSuccess: () => void }) {
     register,
     handleSubmit,
     formState: { errors, isSubmitting },
-  } = useForm<CheckoutFormData>();
+  } = useForm<CheckoutFormData>({
+    defaultValues: prefillData,
+  });
 
   const onSubmit = async (data: CheckoutFormData) => {
     try {
