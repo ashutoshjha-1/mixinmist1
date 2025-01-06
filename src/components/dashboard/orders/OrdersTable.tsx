@@ -12,13 +12,16 @@ import { Order } from "@/types/order";
 interface OrdersTableProps {
   orders: Order[];
   showStoreName?: boolean;
+  isAdmin?: boolean;
 }
 
-export function OrdersTable({ orders, showStoreName = false }: OrdersTableProps) {
+export function OrdersTable({ orders, showStoreName = false, isAdmin = false }: OrdersTableProps) {
   const getStatusColor = (status: string) => {
     switch (status.toLowerCase()) {
       case "pending":
         return "bg-primary-100 text-primary-800 hover:bg-primary-200";
+      case "processing":
+        return "bg-yellow-100 text-yellow-800 hover:bg-yellow-200";
       case "completed":
         return "bg-green-100 text-green-800 hover:bg-green-200";
       case "cancelled":
@@ -69,6 +72,7 @@ export function OrdersTable({ orders, showStoreName = false }: OrdersTableProps)
               getStatusColor={getStatusColor}
               formatDate={formatDate}
               formatOrderId={formatOrderId}
+              isAdmin={isAdmin}
             />
           ))}
         </TableBody>

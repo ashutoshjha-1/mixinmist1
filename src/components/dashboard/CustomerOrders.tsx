@@ -70,7 +70,11 @@ const CustomerOrders = () => {
 
           {isAdmin && (
             <TabsContent value="all-orders">
-              <OrdersTable orders={allUserOrders} showStoreName={true} />
+              <OrdersTable 
+                orders={allUserOrders} 
+                showStoreName={true} 
+                isAdmin={true}
+              />
             </TabsContent>
           )}
         </Tabs>
