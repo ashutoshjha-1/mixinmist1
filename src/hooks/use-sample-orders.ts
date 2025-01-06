@@ -26,7 +26,7 @@ export const useSampleOrders = (userId: string | undefined, isAdmin: boolean | u
               is_sample
             )
           ),
-          store:profiles (
+          store:profiles!inner(
             store_name,
             username
           )
