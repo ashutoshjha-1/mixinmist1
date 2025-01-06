@@ -39,11 +39,14 @@ export const useOrders = (userId: string | undefined, isAdmin: boolean | undefin
         throw ordersError;
       }
 
-      const processedOrders = ordersData?.map(order => ({
-        ...order,
-        store_name: order.store?.store_name,
-        order_items: Array.isArray(order.order_items) ? order.order_items : []
-      })) || [];
+      const processedOrders = ordersData?.map(order => {
+        const storeData = order.store as { store_name?: string } | null;
+        return {
+          ...order,
+          store_name: storeData?.store_name,
+          order_items: Array.isArray(order.order_items) ? order.order_items : []
+        };
+      }) || [];
       
       setOrders(processedOrders);
     } catch (error: any) {
@@ -85,11 +88,14 @@ export const useOrders = (userId: string | undefined, isAdmin: boolean | undefin
         throw ordersError;
       }
 
-      const processedOrders = ordersData?.map(order => ({
-        ...order,
-        store_name: order.store?.store_name,
-        order_items: Array.isArray(order.order_items) ? order.order_items : []
-      })) || [];
+      const processedOrders = ordersData?.map(order => {
+        const storeData = order.store as { store_name?: string } | null;
+        return {
+          ...order,
+          store_name: storeData?.store_name,
+          order_items: Array.isArray(order.order_items) ? order.order_items : []
+        };
+      }) || [];
 
       setAllUserOrders(processedOrders);
     } catch (error: any) {
