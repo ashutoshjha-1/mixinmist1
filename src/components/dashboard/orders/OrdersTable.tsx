@@ -58,7 +58,7 @@ export function OrdersTable({
           <TableRow className="bg-muted/50">
             <TableHead className="w-[200px] font-medium">Order ID</TableHead>
             {showStoreName && (
-              <TableHead className="font-medium">Store</TableHead>
+              <TableHead className="font-medium">Store Name</TableHead>
             )}
             <TableHead className="font-medium">Date</TableHead>
             <TableHead className="font-medium">Amount</TableHead>
