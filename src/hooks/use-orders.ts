@@ -54,6 +54,7 @@ export const useOrders = (userId: string | undefined, isAdmin: boolean | undefin
   const fetchAllUserOrders = async () => {
     try {
       console.log("Fetching all user orders as admin");
+      // First, fetch all orders with their order items
       const { data: ordersData, error: ordersError } = await supabase
         .from("orders")
         .select(`
@@ -74,6 +75,7 @@ export const useOrders = (userId: string | undefined, isAdmin: boolean | undefin
         throw ordersError;
       }
 
+      // Then, fetch store names from profiles
       const { data: profilesData, error: profilesError } = await supabase
         .from("profiles")
         .select("id, store_name");
@@ -87,6 +89,7 @@ export const useOrders = (userId: string | undefined, isAdmin: boolean | undefin
         profilesData?.map(profile => [profile.id, profile.store_name]) || []
       );
 
+      // Process orders and ensure order_items is always an array
       const processedOrders = ordersData?.map(order => ({
         ...order,
         store_name: storeNameMap.get(order.store_id) || "Unknown Store",
