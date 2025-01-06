@@ -7,8 +7,6 @@ import {
   User,
   Search,
   PackageSearch,
-  Menu,
-  ChevronLeft
 } from "lucide-react";
 import {
   Sidebar,
@@ -62,7 +60,7 @@ const menuItems = [
 export const DashboardSidebar = () => {
   return (
     <SidebarProvider defaultOpen>
-      <Sidebar className="border-r border-gray-200">
+      <Sidebar className="border-r border-gray-200 bg-white">
         <SidebarHeader className="flex items-center justify-between p-4 border-b border-gray-200">
           <div className="flex items-center space-x-2">
             <img 
@@ -72,9 +70,7 @@ export const DashboardSidebar = () => {
             />
             <span className="font-semibold text-lg">Dashboard</span>
           </div>
-          <SidebarTrigger className="ml-auto">
-            <ChevronLeft className="h-5 w-5" />
-          </SidebarTrigger>
+          <SidebarTrigger className="ml-auto" />
         </SidebarHeader>
         <SidebarContent>
           <SidebarMenu>
