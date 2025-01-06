@@ -24,6 +24,7 @@ interface OrderItemsDialogProps {
   orderId: string;
   customerName: string;
   customerAddress: string;
+  storeName?: string;
 }
 
 interface ProductInfo {
@@ -38,6 +39,7 @@ export function OrderItemsDialog({
   orderId,
   customerName,
   customerAddress,
+  storeName = "STORE",
 }: OrderItemsDialogProps) {
   const [products, setProducts] = useState<Record<string, ProductInfo>>({});
 
@@ -68,11 +70,20 @@ export function OrderItemsDialog({
     fetchProducts();
   }, [items]);
 
+  // Format the order ID to be more SEO friendly
+  const formatOrderId = (rawOrderId: string) => {
+    // Take the last 6 characters of the UUID as the numeric part
+    const numericPart = rawOrderId.slice(-6);
+    // Convert store name to uppercase and remove spaces
+    const storePrefix = storeName.toUpperCase().replace(/\s+/g, '');
+    return `${storePrefix}-${numericPart}`;
+  };
+
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-[600px]">
+      <DialogContent className="max-w-3xl">
         <DialogHeader>
-          <DialogTitle>Order Items - {orderId}</DialogTitle>
+          <DialogTitle>Order #{formatOrderId(orderId)}</DialogTitle>
           <DialogDescription>
             <div className="mt-2 space-y-1">
               <p><span className="font-medium">Customer:</span> {customerName}</p>

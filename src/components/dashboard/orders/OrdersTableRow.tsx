@@ -85,6 +85,7 @@ export function OrdersTableRow({
         orderId={order.id}
         customerName={order.customer_name}
         customerAddress={order.customer_address}
+        storeName={order.store_name}
       />
     </>
   );
