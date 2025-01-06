@@ -54,9 +54,9 @@ export function SampleCheckoutDialog({
       const { data: { user }, error: userError } = await supabase.auth.getUser();
       if (userError || !user) throw new Error("User not authenticated");
 
-      // Create the order
+      // Create the sample order
       const { data: orderData, error: orderError } = await supabase
-        .from("orders")
+        .from("sample_orders")
         .insert([
           {
             store_id: user.id,
@@ -72,9 +72,9 @@ export function SampleCheckoutDialog({
 
       if (orderError) throw orderError;
 
-      // Create the order item
+      // Create the sample order item
       const { error: orderItemError } = await supabase
-        .from("order_items")
+        .from("sample_order_items")
         .insert([
           {
             order_id: orderData.id,
@@ -87,17 +87,17 @@ export function SampleCheckoutDialog({
       if (orderItemError) throw orderItemError;
 
       toast({
-        title: "Order placed successfully!",
+        title: "Sample order placed successfully!",
         description: "Your sample order has been placed.",
       });
 
       onOpenChange(false);
       reset();
     } catch (error: any) {
-      console.error("Error placing order:", error);
+      console.error("Error placing sample order:", error);
       toast({
         variant: "destructive",
-        title: "Error placing order",
+        title: "Error placing sample order",
         description: error.message,
       });
     }

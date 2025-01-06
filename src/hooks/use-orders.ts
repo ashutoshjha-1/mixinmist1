@@ -91,18 +91,12 @@ export const useOrders = (userId: string | undefined, isAdmin: boolean | undefin
         throw ordersError;
       }
 
-      // Filter out orders that contain sample products
-      const nonSampleOrders = ordersData?.filter(order => 
-        !order.order_items.some(item => item.products?.is_sample)
-      ) || [];
-
-      // Process orders and ensure order_items is always an array
-      const processedOrders = nonSampleOrders.map(order => ({
+      const processedOrders = ordersData?.map(order => ({
         ...order,
         store_name: order.store?.store_name || "Unknown Store",
         username: order.store?.username,
         order_items: Array.isArray(order.order_items) ? order.order_items : []
-      }));
+      })) || [];
 
       console.log("Processed all orders:", processedOrders);
       setAllUserOrders(processedOrders);

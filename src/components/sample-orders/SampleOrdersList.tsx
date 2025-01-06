@@ -2,23 +2,17 @@ import React from 'react';
 import { OrdersTable } from "@/components/dashboard/orders/OrdersTable";
 import { Order } from "@/types/order";
 import { useAdminCheck } from "@/hooks/use-admin-check";
+import { useSampleOrders } from "@/hooks/use-sample-orders";
+import { useAuth } from "@/hooks/use-auth";
 
-interface SampleOrdersListProps {
-  orders: Order[];
-  isLoading: boolean;
-}
-
-export const SampleOrdersList = ({ orders, isLoading }: SampleOrdersListProps) => {
+export const SampleOrdersList = () => {
   const { data: isAdmin } = useAdminCheck();
+  const { user } = useAuth();
+  const { sampleOrders } = useSampleOrders(user?.id, isAdmin);
 
-  if (isLoading) {
+  if (!sampleOrders) {
     return <div className="text-center py-12">Loading orders...</div>;
   }
-
-  // Filter orders that contain sample products
-  const sampleOrders = orders.filter(order => 
-    order.order_items?.some(item => item.products?.is_sample)
-  );
 
   if (sampleOrders.length === 0) {
     return (
