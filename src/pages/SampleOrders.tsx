@@ -30,9 +30,6 @@ interface OrderWithProfile {
       is_sample: boolean;
     };
   }[];
-  store_profile: {
-    username: string;
-  } | null;
 }
 
 const SampleOrders = () => {
@@ -88,9 +85,6 @@ const SampleOrders = () => {
             products (
               is_sample
             )
-          ),
-          store_profile:profiles!orders_store_id_fkey (
-            username
           )
         `)
         .eq('store_id', user.id)
@@ -101,17 +95,10 @@ const SampleOrders = () => {
         throw error;
       }
 
-      // Filter orders that contain sample products and format the data
+      // Filter orders that contain sample products
       const sampleOrders = data?.filter(order => 
         order.order_items.some(item => item.products?.is_sample)
-      ).map(order => ({
-        ...order,
-        username: order.store_profile?.username || 'Unknown User',
-        order_items: order.order_items.map(item => ({
-          ...item,
-          order_id: order.id
-        }))
-      })) || [];
+      ) || [];
 
       return sampleOrders;
     },
