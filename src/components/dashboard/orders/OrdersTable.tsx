@@ -47,7 +47,7 @@ export function OrdersTable({
 
   const formatOrderId = (rawOrderId: string, storeName: string = "STORE") => {
     const numericPart = rawOrderId.slice(-6);
-    const storePrefix = storeName.toUpperCase().replace(/\s+/g, '');
+    const storePrefix = storeName.slice(0, 5).toUpperCase().replace(/\s+/g, '');
     return `${storePrefix}-${numericPart}`;
   };
 
@@ -56,12 +56,7 @@ export function OrdersTable({
       <Table>
         <TableHeader>
           <TableRow className="bg-muted/50">
-            {!showUsername && (
-              <TableHead className="w-[200px] font-medium">Order ID</TableHead>
-            )}
-            {showUsername && (
-              <TableHead className="w-[200px] font-medium">Username</TableHead>
-            )}
+            <TableHead className="w-[200px] font-medium">Order ID</TableHead>
             {showStoreName && (
               <TableHead className="font-medium">Store</TableHead>
             )}

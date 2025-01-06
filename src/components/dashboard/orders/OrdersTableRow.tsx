@@ -107,18 +107,11 @@ export function OrdersTableRow({
   return (
     <>
       <TableRow key={order.id} className="hover:bg-muted/50">
-        {!showUsername && (
-          <TableCell className="font-mono text-sm">
-            {formatOrderId(order.id, order.store_name)}
-          </TableCell>
-        )}
-        {showUsername && (
-          <TableCell className="font-mono text-sm">
-            {order.username || 'Unknown User'}
-          </TableCell>
-        )}
+        <TableCell className="font-mono text-sm">
+          {formatOrderId(order.id, order.store_name)}
+        </TableCell>
         {showStoreName && (
-          <TableCell>{order.store_name}</TableCell>
+          <TableCell>{order.store_name || "Unknown Store"}</TableCell>
         )}
         <TableCell className="text-muted-foreground">
           {formatDate(order.created_at)}
