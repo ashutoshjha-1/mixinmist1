@@ -86,6 +86,7 @@ export function OrderItemsDialog({
           <DialogTitle>Order #{formatOrderId(orderId)}</DialogTitle>
           <DialogDescription>
             <div className="mt-2 space-y-1">
+              <p><span className="font-medium">Store Name:</span> {storeName}</p>
               <p><span className="font-medium">Customer:</span> {customerName}</p>
               <p><span className="font-medium">Shipping Address:</span> {customerAddress}</p>
             </div>
