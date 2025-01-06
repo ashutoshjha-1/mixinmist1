@@ -50,7 +50,7 @@ const Dashboard = () => {
   return (
     <div className="min-h-screen bg-gray-50">
       <DashboardSidebar />
-      <div className="ml-64 p-8">
+      <div className="lg:ml-64 p-8 transition-[margin] duration-200 ease-linear peer-data-[state=collapsed]:lg:ml-16">
         <DashboardHeader onSignOut={handleSignOut} />
         <div className="text-center mt-20">
           <h1 className="text-3xl font-bold mb-4">Welcome to Your Dashboard</h1>
