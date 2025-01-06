@@ -21,12 +21,15 @@ const SignUp = () => {
     const fullName = formData.get("fullName") as string;
     const phone = formData.get("phone") as string;
     const storeName = formData.get("storeName") as string;
-    const username = (formData.get("username") as string).toLowerCase();
+    const username = (formData.get("username") as string).toLowerCase().trim();
 
     try {
       // Validate username format
-      if (!/^[a-zA-Z0-9_-]+$/.test(username)) {
-        throw new Error("Username can only contain letters, numbers, underscores, and hyphens");
+      if (!username) {
+        throw new Error("Username is required");
+      }
+      if (!/^[a-zA-Z0-9_-]{3,}$/.test(username)) {
+        throw new Error("Username must be at least 3 characters and can only contain letters, numbers, underscores, and hyphens");
       }
 
       console.log("Starting signup process with data:", {
@@ -43,7 +46,7 @@ const SignUp = () => {
         options: {
           data: {
             full_name: fullName,
-            phone: phone || null, // Handle empty phone numbers
+            phone: phone || null,
             store_name: storeName,
             username,
           },
@@ -73,11 +76,13 @@ const SignUp = () => {
       let errorMessage = "An unexpected error occurred during signup";
       
       if (error.message.includes("Database error")) {
-        errorMessage = "Error creating user profile. Please try again with a different username.";
+        errorMessage = "Username already taken. Please try a different username.";
       } else if (error.message.includes("User already registered")) {
         errorMessage = "This email is already registered. Please sign in instead.";
       } else if (error.message.includes("Username")) {
         errorMessage = error.message;
+      } else if (error.message.includes("valid email")) {
+        errorMessage = "Please enter a valid email address.";
       }
 
       toast({
@@ -158,8 +163,8 @@ const SignUp = () => {
                 type="text"
                 required
                 placeholder="johndoe"
-                pattern="^[a-zA-Z0-9_-]+$"
-                title="Username can only contain letters, numbers, underscores, and hyphens"
+                pattern="^[a-zA-Z0-9_-]{3,}$"
+                title="Username must be at least 3 characters and can only contain letters, numbers, underscores, and hyphens"
               />
             </div>
           </div>
