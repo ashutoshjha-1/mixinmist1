@@ -27,9 +27,8 @@ export const useOrders = (userId: string | undefined, isAdmin: boolean | undefin
               is_sample
             )
           ),
-          store:profiles!inner(
-            store_name,
-            username
+          store:profiles (
+            store_name
           )
         `)
         .eq('store_id', userId)
@@ -40,14 +39,12 @@ export const useOrders = (userId: string | undefined, isAdmin: boolean | undefin
         throw ordersError;
       }
 
-      console.log("Fetched orders data:", ordersData);
-      
       const processedOrders = ordersData?.map(order => ({
         ...order,
+        store_name: order.store?.store_name,
         order_items: Array.isArray(order.order_items) ? order.order_items : []
       })) || [];
       
-      console.log("Processed orders:", processedOrders);
       setOrders(processedOrders);
     } catch (error: any) {
       console.error("Error in fetchOrders:", error);
@@ -77,9 +74,8 @@ export const useOrders = (userId: string | undefined, isAdmin: boolean | undefin
               is_sample
             )
           ),
-          store:profiles!inner(
-            store_name,
-            username
+          store:profiles (
+            store_name
           )
         `)
         .order('created_at', { ascending: false });
@@ -91,10 +87,10 @@ export const useOrders = (userId: string | undefined, isAdmin: boolean | undefin
 
       const processedOrders = ordersData?.map(order => ({
         ...order,
+        store_name: order.store?.store_name,
         order_items: Array.isArray(order.order_items) ? order.order_items : []
       })) || [];
 
-      console.log("Processed all orders:", processedOrders);
       setAllUserOrders(processedOrders);
     } catch (error: any) {
       console.error("Error in fetchAllUserOrders:", error);

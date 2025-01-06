@@ -26,9 +26,8 @@ export const useSampleOrders = (userId: string | undefined, isAdmin: boolean | u
               is_sample
             )
           ),
-          store:profiles!inner(
-            store_name,
-            username
+          store:profiles (
+            store_name
           )
         `)
         .eq('store_id', userId)
@@ -39,14 +38,12 @@ export const useSampleOrders = (userId: string | undefined, isAdmin: boolean | u
         throw ordersError;
       }
 
-      console.log("Fetched sample orders data:", ordersData);
-      
       const processedOrders = ordersData?.map(order => ({
         ...order,
+        store_name: order.store?.store_name,
         order_items: Array.isArray(order.order_items) ? order.order_items : []
       })) || [];
       
-      console.log("Processed sample orders:", processedOrders);
       setSampleOrders(processedOrders);
     } catch (error: any) {
       console.error("Error in fetchSampleOrders:", error);

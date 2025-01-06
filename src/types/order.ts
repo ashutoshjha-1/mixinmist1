@@ -21,8 +21,5 @@ export interface Order {
   updated_at: string;
   order_items: OrderItem[];
   store_id: string;
-  store?: {
-    store_name: string;
-    username: string;
-  };
+  store_name?: string;
 }
