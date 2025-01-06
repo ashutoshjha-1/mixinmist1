@@ -24,33 +24,31 @@ const SignUp = () => {
     const username = (formData.get("username") as string).toLowerCase().trim();
 
     try {
-      // Validate username format
-      if (!username) {
-        throw new Error("Username is required");
+      // Basic validation
+      if (!email || !password || !fullName || !storeName || !username) {
+        throw new Error("All required fields must be filled");
       }
+
+      // Username format validation
       if (!/^[a-zA-Z0-9_-]{3,}$/.test(username)) {
         throw new Error("Username must be at least 3 characters and can only contain letters, numbers, underscores, and hyphens");
       }
 
-      // Log the signup attempt for debugging
-      console.log("Attempting signup with data:", {
-        email,
-        fullName,
-        phone: phone || null,
-        storeName,
-        username,
-      });
+      // Prepare user metadata
+      const metadata = {
+        full_name: fullName.trim(),
+        phone: phone ? phone.trim() : null,
+        store_name: storeName.trim(),
+        username: username,
+      };
+
+      console.log("Attempting signup with metadata:", metadata);
 
       const { data, error } = await supabase.auth.signUp({
-        email,
+        email: email.trim(),
         password,
         options: {
-          data: {
-            full_name: fullName,
-            phone: phone || null,
-            store_name: storeName,
-            username: username,
-          },
+          data: metadata,
         },
       });
 
@@ -75,13 +73,15 @@ const SignUp = () => {
       let errorMessage = "An unexpected error occurred during signup";
       
       if (error.message.includes("Database error")) {
-        errorMessage = "There was an issue creating your account. Please try again with a different username.";
+        errorMessage = "Username may already be taken. Please try a different username.";
       } else if (error.message.includes("User already registered")) {
         errorMessage = "This email is already registered. Please sign in instead.";
       } else if (error.message.includes("Username")) {
         errorMessage = error.message;
       } else if (error.message.includes("valid email")) {
         errorMessage = "Please enter a valid email address.";
+      } else if (error.message.includes("required fields")) {
+        errorMessage = error.message;
       }
 
       toast({
