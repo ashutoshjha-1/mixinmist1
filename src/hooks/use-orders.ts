@@ -11,6 +11,19 @@ export const useOrders = (userId: string | undefined, isAdmin: boolean | undefin
   const fetchOrders = async (userId: string) => {
     try {
       console.log("Fetching orders for user:", userId);
+      
+      // First get the store name for this user
+      const { data: profileData, error: profileError } = await supabase
+        .from("profiles")
+        .select("store_name")
+        .eq('id', userId)
+        .single();
+
+      if (profileError) {
+        console.error("Error fetching profile:", profileError);
+        throw profileError;
+      }
+
       const { data: ordersData, error: ordersError } = await supabase
         .from("orders")
         .select(`
@@ -39,6 +52,7 @@ export const useOrders = (userId: string | undefined, isAdmin: boolean | undefin
       
       const processedOrders = ordersData?.map(order => ({
         ...order,
+        store_name: profileData?.store_name || "Unknown Store",
         order_items: Array.isArray(order.order_items) ? order.order_items : []
       })) || [];
       
