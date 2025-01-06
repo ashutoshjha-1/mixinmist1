@@ -21,7 +21,10 @@ export const useOrders = (userId: string | undefined, isAdmin: boolean | undefin
             product_id,
             quantity,
             price,
-            created_at
+            created_at,
+            products (
+              is_sample
+            )
           )
         `)
         .eq('store_id', userId)
@@ -65,7 +68,10 @@ export const useOrders = (userId: string | undefined, isAdmin: boolean | undefin
             product_id,
             quantity,
             price,
-            created_at
+            created_at,
+            products (
+              is_sample
+            )
           )
         `)
         .order('created_at', { ascending: false });
@@ -89,12 +95,17 @@ export const useOrders = (userId: string | undefined, isAdmin: boolean | undefin
         profilesData?.map(profile => [profile.id, profile.store_name]) || []
       );
 
+      // Filter out orders that contain sample products
+      const nonSampleOrders = ordersData?.filter(order => 
+        !order.order_items.some(item => item.products?.is_sample)
+      ) || [];
+
       // Process orders and ensure order_items is always an array
-      const processedOrders = ordersData?.map(order => ({
+      const processedOrders = nonSampleOrders.map(order => ({
         ...order,
         store_name: storeNameMap.get(order.store_id) || "Unknown Store",
         order_items: Array.isArray(order.order_items) ? order.order_items : []
-      })) || [];
+      }));
 
       console.log("Processed all orders:", processedOrders);
       setAllUserOrders(processedOrders);

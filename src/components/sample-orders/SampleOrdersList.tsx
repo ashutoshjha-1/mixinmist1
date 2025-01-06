@@ -20,11 +20,10 @@ export const SampleOrdersList = ({ orders, isLoading }: SampleOrdersListProps) =
     order.order_items?.some(item => item.products?.is_sample)
   );
 
-  // Only show orders to admin users
-  if (!isAdmin) {
+  if (sampleOrders.length === 0) {
     return (
       <div className="text-center py-12">
-        Only administrators can view sample orders.
+        No sample orders found.
       </div>
     );
   }
