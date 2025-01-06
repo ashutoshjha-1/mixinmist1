@@ -70,7 +70,6 @@ const SampleOrders = () => {
         return [];
       }
 
-      // Only fetch orders if user is a store owner
       const { data, error } = await supabase
         .from("orders")
         .select(`
