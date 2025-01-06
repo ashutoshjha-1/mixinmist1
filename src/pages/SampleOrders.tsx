@@ -30,7 +30,7 @@ interface OrderWithProfile {
       is_sample: boolean;
     };
   }[];
-  profiles: {
+  store_profile: {
     username: string;
   } | null;
 }
@@ -89,7 +89,7 @@ const SampleOrders = () => {
               is_sample
             )
           ),
-          profiles:store_id (
+          store_profile:profiles!orders_store_id_fkey (
             username
           )
         `)
@@ -106,7 +106,7 @@ const SampleOrders = () => {
         order.order_items.some(item => item.products?.is_sample)
       ).map(order => ({
         ...order,
-        username: order.profiles?.username || 'Unknown User',
+        username: order.store_profile?.username || 'Unknown User',
         order_items: order.order_items.map(item => ({
           ...item,
           order_id: order.id
