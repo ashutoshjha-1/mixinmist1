@@ -12,6 +12,7 @@ export const useOrders = (userId: string | undefined, isAdmin: boolean | undefin
     try {
       console.log("Fetching orders for user:", userId);
       
+      // Modified query to exclude sample orders by joining with products table
       const { data: ordersData, error: ordersError } = await supabase
         .from("orders")
         .select(`
@@ -36,8 +37,13 @@ export const useOrders = (userId: string | undefined, isAdmin: boolean | undefin
         throw ordersError;
       }
 
+      // Filter out orders that contain only sample products
+      const regularOrders = ordersData?.filter(order => {
+        return order.order_items.some(item => !item.products?.is_sample);
+      }) || [];
+
       // Fetch store names for the orders
-      const storeIds = [...new Set(ordersData?.map(order => order.store_id) || [])];
+      const storeIds = [...new Set(regularOrders?.map(order => order.store_id) || [])];
       const { data: profilesData, error: profilesError } = await supabase
         .from("profiles")
         .select("id, store_name")
@@ -50,7 +56,7 @@ export const useOrders = (userId: string | undefined, isAdmin: boolean | undefin
 
       const storeNameMap = new Map(profilesData?.map(profile => [profile.id, profile.store_name]));
       
-      const processedOrders = ordersData?.map(order => ({
+      const processedOrders = regularOrders?.map(order => ({
         ...order,
         store_name: storeNameMap.get(order.store_id) || "Unknown Store",
         order_items: Array.isArray(order.order_items) ? order.order_items : []
@@ -93,8 +99,13 @@ export const useOrders = (userId: string | undefined, isAdmin: boolean | undefin
         throw ordersError;
       }
 
+      // Filter out orders that contain only sample products
+      const regularOrders = ordersData?.filter(order => {
+        return order.order_items.some(item => !item.products?.is_sample);
+      }) || [];
+
       // Fetch store names for all orders
-      const storeIds = [...new Set(ordersData?.map(order => order.store_id) || [])];
+      const storeIds = [...new Set(regularOrders?.map(order => order.store_id) || [])];
       const { data: profilesData, error: profilesError } = await supabase
         .from("profiles")
         .select("id, store_name")
@@ -107,7 +118,7 @@ export const useOrders = (userId: string | undefined, isAdmin: boolean | undefin
 
       const storeNameMap = new Map(profilesData?.map(profile => [profile.id, profile.store_name]));
 
-      const processedOrders = ordersData?.map(order => ({
+      const processedOrders = regularOrders?.map(order => ({
         ...order,
         store_name: storeNameMap.get(order.store_id) || "Unknown Store",
         order_items: Array.isArray(order.order_items) ? order.order_items : []
