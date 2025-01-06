@@ -52,6 +52,7 @@ export function OrdersTableRow({
 
   const handleStatusChange = async (newStatus: string) => {
     try {
+      console.log("Updating order status:", { orderId: order.id, newStatus, isAdmin });
       const { error } = await supabase
         .from('orders')
         .update({ status: newStatus })
