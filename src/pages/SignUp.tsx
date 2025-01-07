@@ -5,6 +5,7 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { SignUpForm } from "@/components/auth/SignUpForm";
 import { validateSignupForm } from "@/utils/auth-validation";
 import { useToast } from "@/hooks/use-toast";
+import { AuthError } from "@supabase/supabase-js";
 
 const SignUp = () => {
   const navigate = useNavigate();
@@ -27,12 +28,26 @@ const SignUp = () => {
         email,
         password,
         options: {
-          data: metadata,
+          data: {
+            full_name: metadata.full_name,
+            phone: metadata.phone || null,
+            store_name: metadata.store_name,
+            username: metadata.username.toLowerCase(),
+          },
         }
       });
 
       if (signUpError) {
         console.error("Signup error:", signUpError);
+        if (signUpError instanceof AuthError) {
+          // Handle specific auth errors
+          switch (signUpError.status) {
+            case 500:
+              throw new Error("There was an issue creating your account. Please try again with a different username.");
+            default:
+              throw signUpError;
+          }
+        }
         throw signUpError;
       }
 

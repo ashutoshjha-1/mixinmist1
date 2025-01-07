@@ -10,8 +10,10 @@ export const validateSignupForm = (formData: FormData) => {
     throw new Error("All required fields must be filled");
   }
 
-  if (!/^[a-z0-9_-]{3,}$/.test(username.toLowerCase())) {
-    throw new Error("Username must be at least 3 characters and can only contain letters, numbers, underscores, and hyphens");
+  // Validate username format
+  const usernameRegex = /^[a-z0-9_-]{3,}$/;
+  if (!usernameRegex.test(username.toLowerCase())) {
+    throw new Error("Username must be at least 3 characters and can only contain lowercase letters, numbers, underscores, and hyphens");
   }
 
   if (password.length < 6) {
