@@ -12,11 +12,11 @@ export const useStoreProduct = (store: string | undefined, productId: string | u
       
       console.log("Fetching product data:", { store, productId });
       
-      // First get the profile using username (case-insensitive search)
+      // First get the profile using store_name (case-insensitive search)
       const { data: profile, error: profileError } = await supabase
         .from("profiles")
         .select("id")
-        .ilike("username", store)
+        .ilike("store_name", store)
         .maybeSingle();
 
       if (profileError) {
@@ -25,7 +25,7 @@ export const useStoreProduct = (store: string | undefined, productId: string | u
       }
 
       if (!profile) {
-        console.error("Store not found for username:", store);
+        console.error("Store not found for store name:", store);
         throw new Error("Store not found");
       }
 
@@ -74,5 +74,6 @@ export const useStoreProduct = (store: string | undefined, productId: string | u
       return transformedProduct;
     },
     enabled: !!store && !!productId,
+    retry: false,
   });
 };
