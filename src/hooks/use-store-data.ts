@@ -2,6 +2,7 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { FooterLink } from "@/integrations/supabase/types/footer";
 import { MenuItem } from "@/integrations/supabase/types/menu";
+import { toast } from "@/components/ui/use-toast";
 
 interface StoreData {
   profile: {
@@ -58,11 +59,21 @@ export const useStoreData = (username: string | undefined) => {
 
       if (profileError) {
         console.error("Profile fetch error:", profileError);
+        toast({
+          variant: "destructive",
+          title: "Error",
+          description: "Failed to fetch store profile. Please try again later.",
+        });
         throw profileError;
       }
 
       if (!profile) {
         console.error("Profile not found for username:", username);
+        toast({
+          variant: "destructive",
+          title: "Store Not Found",
+          description: "The store you're looking for doesn't exist.",
+        });
         throw new Error("Store not found");
       }
 
@@ -77,11 +88,21 @@ export const useStoreData = (username: string | undefined) => {
 
       if (settingsError) {
         console.error("Settings fetch error:", settingsError);
+        toast({
+          variant: "destructive",
+          title: "Error",
+          description: "Failed to fetch store settings. Please try again later.",
+        });
         throw settingsError;
       }
 
       if (!settings) {
         console.error("Store settings not found for user:", profile.id);
+        toast({
+          variant: "destructive",
+          title: "Error",
+          description: "Store settings not found. Please try again later.",
+        });
         throw new Error("Store settings not found");
       }
 
@@ -100,6 +121,11 @@ export const useStoreData = (username: string | undefined) => {
 
       if (productsError) {
         console.error("Products fetch error:", productsError);
+        toast({
+          variant: "destructive",
+          title: "Error",
+          description: "Failed to fetch store products. Please try again later.",
+        });
         throw productsError;
       }
 
@@ -145,5 +171,6 @@ export const useStoreData = (username: string | undefined) => {
       } as StoreData;
     },
     enabled: !!username,
+    retry: false, // Don't retry if store is not found
   });
 };
