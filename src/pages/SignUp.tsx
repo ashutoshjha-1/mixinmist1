@@ -1,16 +1,18 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
-import { SignUpForm } from "@/components/auth/SignUpForm";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { AuthApiError } from "@supabase/supabase-js";
-import { validateSignupForm } from "@/utils/validation";
-import { toast } from "@/hooks/use-toast";
+import { Mail, Lock, User, Phone, Store, AtSign } from "lucide-react";
+import { useToast } from "@/components/ui/use-toast";
 
 const SignUp = () => {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const { toast } = useToast();
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -26,8 +28,11 @@ const SignUp = () => {
       const storeName = formData.get("storeName") as string;
       const username = formData.get("username") as string;
 
-      // Validate form data
-      validateSignupForm(email, password, fullName, storeName, username);
+      // Basic validation
+      if (!username.match(/^[a-z0-9_-]{3,}$/)) {
+        setError("Username must be at least 3 characters and can only contain letters, numbers, underscores, and hyphens");
+        return;
+      }
 
       const metadata = {
         full_name: fullName.trim(),
@@ -47,21 +52,13 @@ const SignUp = () => {
       });
 
       if (signUpError) {
-        console.error("Signup error details:", signUpError);
-        
-        if (signUpError instanceof AuthApiError) {
-          switch (signUpError.message) {
-            case "Database error saving new user":
-              setError("Username may already be taken. Please try a different username.");
-              break;
-            case "User already registered":
-              setError("An account with this email already exists. Please sign in instead.");
-              break;
-            default:
-              setError(signUpError.message);
-          }
+        console.error("Signup error:", signUpError);
+        if (signUpError.message.includes("Username")) {
+          setError("This username is already taken. Please choose another one.");
+        } else if (signUpError.message.includes("User already registered")) {
+          setError("An account with this email already exists. Please sign in instead.");
         } else {
-          setError("An unexpected error occurred. Please try again.");
+          setError(signUpError.message);
         }
         return;
       }
@@ -76,11 +73,7 @@ const SignUp = () => {
       }
     } catch (error) {
       console.error("Error in signup process:", error);
-      if (error instanceof Error) {
-        setError(error.message);
-      } else {
-        setError("An unexpected error occurred");
-      }
+      setError(error instanceof Error ? error.message : "An unexpected error occurred");
     } finally {
       setLoading(false);
     }
@@ -101,11 +94,118 @@ const SignUp = () => {
           </Alert>
         )}
 
-        <SignUpForm 
-          onSubmit={handleSubmit}
-          loading={loading}
-          onSignInClick={() => navigate("/signin")}
-        />
+        <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
+          <div className="space-y-4">
+            <div>
+              <Label htmlFor="fullName">Full Name</Label>
+              <div className="relative">
+                <User className="absolute left-3 top-3 h-5 w-5 text-gray-400" />
+                <Input
+                  id="fullName"
+                  name="fullName"
+                  type="text"
+                  required
+                  className="pl-10"
+                  placeholder="John Doe"
+                />
+              </div>
+            </div>
+
+            <div>
+              <Label htmlFor="email">Email address</Label>
+              <div className="relative">
+                <Mail className="absolute left-3 top-3 h-5 w-5 text-gray-400" />
+                <Input
+                  id="email"
+                  name="email"
+                  type="email"
+                  required
+                  className="pl-10"
+                  placeholder="you@example.com"
+                />
+              </div>
+            </div>
+
+            <div>
+              <Label htmlFor="password">Password</Label>
+              <div className="relative">
+                <Lock className="absolute left-3 top-3 h-5 w-5 text-gray-400" />
+                <Input
+                  id="password"
+                  name="password"
+                  type="password"
+                  required
+                  className="pl-10"
+                  placeholder="••••••••"
+                  minLength={6}
+                />
+              </div>
+            </div>
+
+            <div>
+              <Label htmlFor="phone">Phone</Label>
+              <div className="relative">
+                <Phone className="absolute left-3 top-3 h-5 w-5 text-gray-400" />
+                <Input
+                  id="phone"
+                  name="phone"
+                  type="tel"
+                  className="pl-10"
+                  placeholder="+1234567890"
+                />
+              </div>
+            </div>
+
+            <div>
+              <Label htmlFor="storeName">Store Name</Label>
+              <div className="relative">
+                <Store className="absolute left-3 top-3 h-5 w-5 text-gray-400" />
+                <Input
+                  id="storeName"
+                  name="storeName"
+                  type="text"
+                  required
+                  className="pl-10"
+                  placeholder="My Awesome Store"
+                />
+              </div>
+            </div>
+
+            <div>
+              <Label htmlFor="username">Username</Label>
+              <div className="relative">
+                <AtSign className="absolute left-3 top-3 h-5 w-5 text-gray-400" />
+                <Input
+                  id="username"
+                  name="username"
+                  type="text"
+                  required
+                  className="pl-10"
+                  placeholder="johndoe"
+                  pattern="^[a-z0-9_-]{3,}$"
+                  title="Username must be at least 3 characters and can only contain letters, numbers, underscores, and hyphens"
+                />
+              </div>
+            </div>
+          </div>
+
+          <div className="flex flex-col space-y-4">
+            <Button type="submit" disabled={loading}>
+              {loading ? "Creating account..." : "Sign up"}
+            </Button>
+            
+            <p className="text-center text-sm text-gray-600">
+              Already have an account?{" "}
+              <button
+                type="button"
+                onClick={() => navigate("/signin")}
+                className="font-medium text-primary hover:text-primary/80"
+              >
+                Sign in
+              </button>
+            </p>
+          </div>
+        </form>
       </div>
     </div>
   );

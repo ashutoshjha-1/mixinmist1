@@ -5,12 +5,14 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { AuthError } from "@supabase/supabase-js";
+import { Mail, Lock } from "lucide-react";
+import { useToast } from "@/components/ui/use-toast";
 
 const SignIn = () => {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const { toast } = useToast();
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -22,8 +24,10 @@ const SignIn = () => {
       const email = formData.get("email") as string;
       const password = formData.get("password") as string;
 
+      console.log("Attempting signin with email:", email);
+
       const { error: signInError } = await supabase.auth.signInWithPassword({
-        email,
+        email: email.trim(),
         password,
       });
 
@@ -33,10 +37,14 @@ const SignIn = () => {
         return;
       }
 
+      toast({
+        title: "Signed in successfully",
+        description: "Welcome back!",
+      });
       navigate("/dashboard");
     } catch (error) {
       console.error("Error in signin process:", error);
-      setError(error instanceof AuthError ? error.message : "An unexpected error occurred");
+      setError(error instanceof Error ? error.message : "An unexpected error occurred");
     } finally {
       setLoading(false);
     }
@@ -61,26 +69,34 @@ const SignIn = () => {
           <div className="space-y-4">
             <div>
               <Label htmlFor="email">Email address</Label>
-              <Input
-                id="email"
-                name="email"
-                type="email"
-                autoComplete="email"
-                required
-                className="mt-1"
-              />
+              <div className="relative">
+                <Mail className="absolute left-3 top-3 h-5 w-5 text-gray-400" />
+                <Input
+                  id="email"
+                  name="email"
+                  type="email"
+                  autoComplete="email"
+                  required
+                  className="pl-10"
+                  placeholder="you@example.com"
+                />
+              </div>
             </div>
 
             <div>
               <Label htmlFor="password">Password</Label>
-              <Input
-                id="password"
-                name="password"
-                type="password"
-                autoComplete="current-password"
-                required
-                className="mt-1"
-              />
+              <div className="relative">
+                <Lock className="absolute left-3 top-3 h-5 w-5 text-gray-400" />
+                <Input
+                  id="password"
+                  name="password"
+                  type="password"
+                  autoComplete="current-password"
+                  required
+                  className="pl-10"
+                  placeholder="••••••••"
+                />
+              </div>
             </div>
           </div>
 
