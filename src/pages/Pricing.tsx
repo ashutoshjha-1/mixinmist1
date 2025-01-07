@@ -37,26 +37,20 @@ const PricingPage = () => {
       // Log the attempt to create a checkout session
       console.log("Creating checkout session for user:", session.user.email);
 
-      const response = await fetch("/api/create-checkout", {
-        method: "POST",
+      const { data, error } = await supabase.functions.invoke('create-checkout', {
         headers: {
-          "Content-Type": "application/json",
           Authorization: `Bearer ${session.access_token}`,
         },
       });
 
-      if (!response.ok) {
-        throw new Error("Failed to create checkout session");
-      }
-
-      const { url, error } = await response.json();
-
       if (error) {
-        throw new Error(error);
+        throw new Error(error.message || "Failed to create checkout session");
       }
 
-      if (url) {
-        window.location.href = url;
+      if (data?.url) {
+        window.location.href = data.url;
+      } else {
+        throw new Error("No checkout URL received");
       }
     } catch (error: any) {
       console.error("Subscription error:", error);
