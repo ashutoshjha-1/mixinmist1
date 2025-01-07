@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
-import { Check } from "lucide-react";
+import { Check, Loader2 } from "lucide-react";
 
 const PricingPage = () => {
   const { toast } = useToast();
@@ -34,6 +34,9 @@ const PricingPage = () => {
         return;
       }
 
+      // Log the attempt to create a checkout session
+      console.log("Creating checkout session for user:", session.user.email);
+
       const response = await fetch("/api/create-checkout", {
         method: "POST",
         headers: {
@@ -41,6 +44,10 @@ const PricingPage = () => {
           Authorization: `Bearer ${session.access_token}`,
         },
       });
+
+      if (!response.ok) {
+        throw new Error("Failed to create checkout session");
+      }
 
       const { url, error } = await response.json();
 
@@ -118,7 +125,14 @@ const PricingPage = () => {
                 className="w-full"
                 disabled={isLoading}
               >
-                {isLoading ? "Processing..." : "Subscribe Now"}
+                {isLoading ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Processing...
+                  </>
+                ) : (
+                  "Subscribe Now"
+                )}
               </Button>
             </div>
             <p className="mt-4 text-sm text-gray-500">
