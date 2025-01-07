@@ -3,9 +3,9 @@ import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { SignUpForm } from "@/components/auth/SignUpForm";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { AuthError, AuthApiError } from "@supabase/supabase-js";
+import { AuthApiError } from "@supabase/supabase-js";
 import { validateSignupForm } from "@/utils/validation";
-import { toast } from "@/components/ui/use-toast";
+import { toast } from "@/hooks/use-toast";
 
 const SignUp = () => {
   const navigate = useNavigate();
@@ -36,7 +36,7 @@ const SignUp = () => {
         username: username.toLowerCase().trim(),
       };
 
-      console.log("Attempting signup with metadata:", metadata);
+      console.log("Starting signup process with metadata:", metadata);
 
       const { data, error: signUpError } = await supabase.auth.signUp({
         email: email.trim(),
@@ -48,7 +48,7 @@ const SignUp = () => {
       });
 
       if (signUpError) {
-        console.error("Signup error:", signUpError);
+        console.error("Signup error details:", signUpError);
         
         if (signUpError instanceof AuthApiError) {
           switch (signUpError.message) {
@@ -68,7 +68,7 @@ const SignUp = () => {
       }
 
       if (data?.user) {
-        console.log("Signup successful:", data.user);
+        console.log("Signup successful, user data:", data.user);
         toast({
           title: "Account created successfully",
           description: "Please check your email to verify your account.",

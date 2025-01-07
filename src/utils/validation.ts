@@ -22,4 +22,9 @@ export const validateSignupForm = (
   if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
     throw new Error("Please enter a valid email address");
   }
+
+  // Additional validation for store name
+  if (storeName.trim().length < 3) {
+    throw new Error("Store name must be at least 3 characters long");
+  }
 };
