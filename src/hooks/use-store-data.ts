@@ -39,22 +39,22 @@ interface StoreData {
   }[];
 }
 
-export const useStoreData = (username: string | undefined) => {
+export const useStoreData = (storeName: string | undefined) => {
   return useQuery({
-    queryKey: ["store", username?.toLowerCase()],
+    queryKey: ["store", storeName],
     queryFn: async () => {
-      if (!username) {
-        console.error("Store username is required but was undefined");
-        throw new Error("Store username is required");
+      if (!storeName) {
+        console.error("Store name is required but was undefined");
+        throw new Error("Store name is required");
       }
 
-      console.log("Fetching store data for username:", username);
+      console.log("Fetching store data for store name:", storeName);
 
-      // First get the profile using case-insensitive search
+      // First get the profile using store_name
       const { data: profile, error: profileError } = await supabase
         .from("profiles")
         .select("*")
-        .ilike("username", username)
+        .ilike("store_name", storeName)
         .maybeSingle();
 
       if (profileError) {
@@ -68,7 +68,7 @@ export const useStoreData = (username: string | undefined) => {
       }
 
       if (!profile) {
-        console.error("Profile not found for username:", username);
+        console.error("Profile not found for store name:", storeName);
         toast({
           variant: "destructive",
           title: "Store Not Found",
@@ -170,7 +170,7 @@ export const useStoreData = (username: string | undefined) => {
         products,
       } as StoreData;
     },
-    enabled: !!username,
+    enabled: !!storeName,
     retry: false, // Don't retry if store is not found
   });
 };

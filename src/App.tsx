@@ -21,7 +21,7 @@ function App() {
         <Route path="/" element={<Index />} />
         <Route path="/signin" element={<SignIn />} />
         <Route path="/signup" element={<SignUp />} />
-        <Route path="/store/:username" element={<Store />} />
+        <Route path="/store/:storename" element={<Store />} />
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/my-products" element={<MyProducts />} />
         <Route path="/find-products" element={<FindProducts />} />

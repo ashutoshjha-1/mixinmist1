@@ -9,8 +9,8 @@ import { MenuItem } from "@/integrations/supabase/types/menu";
 import { FooterLink } from "@/integrations/supabase/types/footer";
 
 export default function Store() {
-  const { username } = useParams<{ username: string }>();
-  const { data: storeData, isLoading, error } = useStoreData(username);
+  const { storename } = useParams<{ storename: string }>();
+  const { data: storeData, isLoading, error } = useStoreData(storename);
 
   if (isLoading) {
     return (
