@@ -12,13 +12,14 @@ export const SubscriptionGuard = ({ children }: SubscriptionGuardProps) => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const [loading, setLoading] = useState(true);
-  const { data: isAdmin } = useAdminCheck();
+  const { data: isAdmin, isLoading: isAdminLoading } = useAdminCheck();
 
   useEffect(() => {
     const checkSubscription = async () => {
       try {
         // If user is admin, bypass subscription check
         if (isAdmin) {
+          console.log("Admin user detected, bypassing subscription check");
           setLoading(false);
           return;
         }
@@ -66,8 +67,10 @@ export const SubscriptionGuard = ({ children }: SubscriptionGuardProps) => {
       }
     };
 
-    checkSubscription();
-  }, [navigate, toast, isAdmin]);
+    if (!isAdminLoading) {
+      checkSubscription();
+    }
+  }, [navigate, toast, isAdmin, isAdminLoading]);
 
   if (loading && !isAdmin) {
     return <div>Loading...</div>;
