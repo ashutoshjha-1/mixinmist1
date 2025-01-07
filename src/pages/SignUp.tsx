@@ -1,11 +1,11 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+import { SignUpForm } from "@/components/auth/SignUpForm";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { AuthError, AuthApiError } from "@supabase/supabase-js";
+import { validateSignupForm } from "@/utils/validation";
+import { toast } from "@/components/ui/use-toast";
 
 const SignUp = () => {
   const navigate = useNavigate();
@@ -26,21 +26,12 @@ const SignUp = () => {
       const storeName = formData.get("storeName") as string;
       const username = formData.get("username") as string;
 
-      // Basic validation
-      if (!email || !password || !fullName || !storeName || !username) {
-        setError("All fields except phone are required");
-        return;
-      }
-
-      // Username format validation
-      if (!/^[a-z0-9_-]{3,}$/.test(username.toLowerCase())) {
-        setError("Username must be at least 3 characters and can only contain letters, numbers, underscores, and hyphens");
-        return;
-      }
+      // Validate form data
+      validateSignupForm(email, password, fullName, storeName, username);
 
       const metadata = {
         full_name: fullName.trim(),
-        phone: phone.trim() || null,
+        phone: phone?.trim() || null,
         store_name: storeName.trim(),
         username: username.toLowerCase().trim(),
       };
@@ -58,6 +49,7 @@ const SignUp = () => {
 
       if (signUpError) {
         console.error("Signup error:", signUpError);
+        
         if (signUpError instanceof AuthApiError) {
           switch (signUpError.message) {
             case "Database error saving new user":
@@ -77,11 +69,19 @@ const SignUp = () => {
 
       if (data?.user) {
         console.log("Signup successful:", data.user);
+        toast({
+          title: "Account created successfully",
+          description: "Please check your email to verify your account.",
+        });
         navigate("/signin");
       }
     } catch (error) {
       console.error("Error in signup process:", error);
-      setError(error instanceof AuthError ? error.message : "An unexpected error occurred");
+      if (error instanceof Error) {
+        setError(error.message);
+      } else {
+        setError("An unexpected error occurred");
+      }
     } finally {
       setLoading(false);
     }
@@ -102,95 +102,11 @@ const SignUp = () => {
           </Alert>
         )}
 
-        <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
-          <div className="space-y-4">
-            <div>
-              <Label htmlFor="fullName">Full Name</Label>
-              <Input
-                id="fullName"
-                name="fullName"
-                type="text"
-                required
-                className="mt-1"
-              />
-            </div>
-
-            <div>
-              <Label htmlFor="email">Email address</Label>
-              <Input
-                id="email"
-                name="email"
-                type="email"
-                autoComplete="email"
-                required
-                className="mt-1"
-              />
-            </div>
-
-            <div>
-              <Label htmlFor="password">Password</Label>
-              <Input
-                id="password"
-                name="password"
-                type="password"
-                autoComplete="new-password"
-                required
-                className="mt-1"
-              />
-            </div>
-
-            <div>
-              <Label htmlFor="phone">Phone (optional)</Label>
-              <Input
-                id="phone"
-                name="phone"
-                type="tel"
-                className="mt-1"
-              />
-            </div>
-
-            <div>
-              <Label htmlFor="storeName">Store Name</Label>
-              <Input
-                id="storeName"
-                name="storeName"
-                type="text"
-                required
-                className="mt-1"
-              />
-            </div>
-
-            <div>
-              <Label htmlFor="username">Username</Label>
-              <Input
-                id="username"
-                name="username"
-                type="text"
-                required
-                className="mt-1"
-                pattern="^[a-zA-Z0-9_-]{3,}$"
-                title="Username must be at least 3 characters and can only contain letters, numbers, underscores, and hyphens"
-              />
-            </div>
-          </div>
-
-          <div className="flex flex-col space-y-4">
-            <Button type="submit" disabled={loading}>
-              {loading ? "Creating account..." : "Sign up"}
-            </Button>
-            
-            <p className="text-center text-sm text-gray-600">
-              Already have an account?{" "}
-              <button
-                type="button"
-                onClick={() => navigate("/signin")}
-                className="font-medium text-primary hover:text-primary/80"
-              >
-                Sign in
-              </button>
-            </p>
-          </div>
-        </form>
+        <SignUpForm 
+          onSubmit={handleSubmit}
+          loading={loading}
+          onSignInClick={() => navigate("/signin")}
+        />
       </div>
     </div>
   );
