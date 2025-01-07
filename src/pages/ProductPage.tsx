@@ -5,37 +5,46 @@ import { StoreHeader } from "@/components/store/StoreHeader";
 import { ProductDetails } from "@/components/store/ProductDetails";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import { toast } from "@/components/ui/use-toast";
 
 export default function ProductPage() {
-  const params = useParams<{ username: string; productId: string }>();
-  const store = params?.username;
-  const productId = params?.productId;
+  const { storename, productId } = useParams<{ storename: string; productId: string }>();
   
-  console.log("ProductPage params:", { store, productId });
+  console.log("ProductPage params:", { storename, productId });
   
   const { data: storeSettings, isLoading: isLoadingSettings } = useQuery({
-    queryKey: ["store-settings", store],
+    queryKey: ["store-settings", storename],
     queryFn: async () => {
-      if (!store) {
+      if (!storename) {
         console.error("Store name is required but was undefined");
         throw new Error("Store name is required");
       }
 
-      console.log("Fetching store settings for store name:", store);
+      console.log("Fetching store settings for store name:", storename);
 
       const { data: profile, error: profileError } = await supabase
         .from("profiles")
         .select("id")
-        .ilike("username", store)
+        .ilike("store_name", storename)
         .maybeSingle();
 
       if (profileError) {
         console.error("Profile fetch error:", profileError);
+        toast({
+          variant: "destructive",
+          title: "Error",
+          description: "Failed to load store settings",
+        });
         throw profileError;
       }
 
       if (!profile) {
-        console.error("Store not found for store name:", store);
+        console.error("Store not found for store name:", storename);
+        toast({
+          variant: "destructive",
+          title: "Store Not Found",
+          description: "The store you're looking for doesn't exist",
+        });
         throw new Error("Store not found");
       }
 
@@ -49,11 +58,21 @@ export default function ProductPage() {
 
       if (settingsError) {
         console.error("Settings fetch error:", settingsError);
+        toast({
+          variant: "destructive",
+          title: "Error",
+          description: "Failed to load store settings",
+        });
         throw settingsError;
       }
 
       if (!settings) {
         console.error("Store settings not found for user:", profile.id);
+        toast({
+          variant: "destructive",
+          title: "Error",
+          description: "Store settings not found",
+        });
         throw new Error("Store settings not found");
       }
 
@@ -71,10 +90,11 @@ export default function ProductPage() {
         menu_items: menuItems
       };
     },
-    enabled: !!store,
+    enabled: !!storename,
+    retry: false,
   });
 
-  const { data: product, isLoading, error } = useStoreProduct(store, productId);
+  const { data: product, isLoading, error } = useStoreProduct(storename, productId);
 
   console.log("Product query result:", { product, isLoading, error });
 
