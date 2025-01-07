@@ -1,17 +1,47 @@
+import { useState } from "react";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Mail, Lock, User, Phone, Store, AtSign } from "lucide-react";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { AuthError } from "@supabase/supabase-js";
 
 interface SignUpFormProps {
   onSubmit: (e: React.FormEvent<HTMLFormElement>) => void;
   loading: boolean;
   onSignInClick: () => void;
+  error?: string | null;
 }
 
-export const SignUpForm = ({ onSubmit, loading, onSignInClick }: SignUpFormProps) => {
+export const SignUpForm = ({ onSubmit, loading, onSignInClick, error }: SignUpFormProps) => {
+  const [validationError, setValidationError] = useState<string | null>(null);
+
+  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    setValidationError(null);
+
+    const formData = new FormData(e.currentTarget);
+    const username = formData.get("username") as string;
+
+    // Validate username format
+    if (!username.match(/^[a-z0-9_-]{3,}$/)) {
+      setValidationError("Username must be at least 3 characters and can only contain lowercase letters, numbers, underscores, and hyphens");
+      return;
+    }
+
+    onSubmit(e);
+  };
+
   return (
-    <form className="mt-8 space-y-6" onSubmit={onSubmit}>
+    <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
+      {(error || validationError) && (
+        <Alert variant="destructive">
+          <AlertDescription>
+            {validationError || error}
+          </AlertDescription>
+        </Alert>
+      )}
+
       <div className="space-y-4">
         <div>
           <Label htmlFor="fullName">Full Name</Label>

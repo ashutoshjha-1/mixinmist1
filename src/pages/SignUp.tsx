@@ -1,17 +1,13 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
-import { Alert, AlertDescription } from "@/components/ui/alert";
 import { SignUpForm } from "@/components/auth/SignUpForm";
-import { validateSignupForm } from "@/utils/auth-validation";
-import { useToast } from "@/hooks/use-toast";
 import { AuthError } from "@supabase/supabase-js";
 
 const SignUp = () => {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const { toast } = useToast();
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -20,48 +16,50 @@ const SignUp = () => {
 
     try {
       const formData = new FormData(e.currentTarget);
-      const { email, password, metadata } = validateSignupForm(formData);
+      const email = formData.get("email") as string;
+      const password = formData.get("password") as string;
+      const fullName = formData.get("fullName") as string;
+      const phone = formData.get("phone") as string;
+      const storeName = formData.get("storeName") as string;
+      const username = formData.get("username") as string;
 
-      console.log("Starting signup process with metadata:", metadata);
-
-      const { data, error: signUpError } = await supabase.auth.signUp({
-        email,
+      const { error: signUpError } = await supabase.auth.signUp({
+        email: email.trim(),
         password,
         options: {
           data: {
-            full_name: metadata.full_name,
-            phone: metadata.phone || null,
-            store_name: metadata.store_name,
-            username: metadata.username.toLowerCase(),
+            full_name: fullName.trim(),
+            phone: phone?.trim() || null,
+            store_name: storeName.trim(),
+            username: username.toLowerCase().trim(),
           },
-        }
+        },
       });
 
       if (signUpError) {
-        console.error("Signup error:", signUpError);
-        if (signUpError instanceof AuthError) {
-          // Handle specific auth errors
-          switch (signUpError.status) {
-            case 500:
-              throw new Error("There was an issue creating your account. Please try again with a different username.");
-            default:
-              throw signUpError;
-          }
-        }
         throw signUpError;
       }
 
-      if (data?.user) {
-        console.log("Signup successful, user data:", data.user);
-        toast({
-          title: "Account created successfully",
-          description: "Please check your email to verify your account.",
-        });
-        navigate("/signin");
+      navigate("/signin");
+    } catch (err) {
+      console.error("Signup error:", err);
+      if (err instanceof AuthError) {
+        switch (err.status) {
+          case 400:
+            setError("Invalid email or password format");
+            break;
+          case 422:
+            setError("Username or email already taken");
+            break;
+          case 500:
+            setError("Server error. Please try again later");
+            break;
+          default:
+            setError(err.message);
+        }
+      } else {
+        setError("An unexpected error occurred");
       }
-    } catch (error) {
-      console.error("Error in signup process:", error);
-      setError(error instanceof Error ? error.message : "An unexpected error occurred");
     } finally {
       setLoading(false);
     }
@@ -76,16 +74,11 @@ const SignUp = () => {
           </h2>
         </div>
 
-        {error && (
-          <Alert variant="destructive">
-            <AlertDescription>{error}</AlertDescription>
-          </Alert>
-        )}
-
         <SignUpForm
           onSubmit={handleSubmit}
           loading={loading}
           onSignInClick={() => navigate("/signin")}
+          error={error}
         />
       </div>
     </div>
