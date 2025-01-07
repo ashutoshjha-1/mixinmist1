@@ -5,7 +5,7 @@ import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.45.0'
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
-  'Content-Security-Policy': "default-src 'self' 'unsafe-inline' https://*.stripe.com; frame-src 'self' https://*.stripe.com;"
+  'Content-Security-Policy': "frame-ancestors 'self' https://*.stripe.com; frame-src 'self' https://*.stripe.com; default-src 'self' https://*.stripe.com; script-src 'self' 'unsafe-inline' https://*.stripe.com; style-src 'self' 'unsafe-inline' https://*.stripe.com;"
 }
 
 serve(async (req) => {
