@@ -1,4 +1,5 @@
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import { Toaster } from "@/components/ui/toaster";
 import Index from "@/pages/Index";
 import SignIn from "@/pages/SignIn";
 import SignUp from "@/pages/SignUp";
@@ -9,8 +10,9 @@ import FindProducts from "@/pages/FindProducts";
 import SampleOrders from "@/pages/SampleOrders";
 import ProductPage from "@/pages/ProductPage";
 import Pricing from "@/pages/Pricing";
-import { Toaster } from "@/components/ui/toaster";
-import "./App.css";
+import StoreSettings from "@/pages/dashboard/StoreSettings";
+import MyAccount from "@/pages/dashboard/MyAccount";
+import CustomerOrders from "@/pages/dashboard/CustomerOrders";
 
 function App() {
   return (
@@ -26,9 +28,9 @@ function App() {
         <Route path="/sample-orders" element={<SampleOrders />} />
         <Route path="/product/:id" element={<ProductPage />} />
         <Route path="/pricing" element={<Pricing />} />
-        <Route path="/orders" element={<Dashboard />} />
-        <Route path="/store-settings" element={<Dashboard />} />
-        <Route path="/my-account" element={<Dashboard />} />
+        <Route path="/orders" element={<CustomerOrders />} />
+        <Route path="/store-settings" element={<StoreSettings />} />
+        <Route path="/my-account" element={<MyAccount />} />
       </Routes>
       <Toaster />
     </Router>
