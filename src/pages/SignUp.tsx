@@ -43,7 +43,6 @@ const SignUp = () => {
         password,
         options: {
           data: metadata,
-          emailRedirectTo: `${window.location.origin}/signin`,
         },
       });
 
