@@ -1,15 +1,14 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
-import { SignUpForm } from "@/components/auth/SignUpForm";
-import { validateSignupForm } from "@/utils/validation";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { AuthError, AuthApiError } from "@supabase/supabase-js";
 
 const SignUp = () => {
   const navigate = useNavigate();
-  const { toast } = useToast();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -20,28 +19,36 @@ const SignUp = () => {
 
     try {
       const formData = new FormData(e.currentTarget);
-      const email = (formData.get("email") as string).trim().toLowerCase();
+      const email = formData.get("email") as string;
       const password = formData.get("password") as string;
-      const fullName = (formData.get("fullName") as string).trim();
-      const phone = (formData.get("phone") as string)?.trim() || null;
-      const storeName = (formData.get("storeName") as string).trim();
-      const username = (formData.get("username") as string).toLowerCase().trim();
+      const fullName = formData.get("fullName") as string;
+      const phone = formData.get("phone") as string;
+      const storeName = formData.get("storeName") as string;
+      const username = formData.get("username") as string;
 
-      // Validate form data
-      validateSignupForm(email, password, fullName, storeName, username);
+      // Basic validation
+      if (!email || !password || !fullName || !storeName || !username) {
+        setError("All fields except phone are required");
+        return;
+      }
 
-      // Prepare metadata - ensure all required fields are present
+      // Username format validation
+      if (!/^[a-z0-9_-]{3,}$/.test(username.toLowerCase())) {
+        setError("Username must be at least 3 characters and can only contain letters, numbers, underscores, and hyphens");
+        return;
+      }
+
       const metadata = {
-        full_name: fullName,
-        phone,
-        store_name: storeName,
-        username,
+        full_name: fullName.trim(),
+        phone: phone.trim() || null,
+        store_name: storeName.trim(),
+        username: username.toLowerCase().trim(),
       };
 
       console.log("Attempting signup with metadata:", metadata);
 
       const { data, error: signUpError } = await supabase.auth.signUp({
-        email,
+        email: email.trim(),
         password,
         options: {
           data: metadata,
@@ -70,17 +77,11 @@ const SignUp = () => {
 
       if (data?.user) {
         console.log("Signup successful:", data.user);
-        toast({
-          title: "Success!",
-          description: "Please check your email to verify your account.",
-        });
         navigate("/signin");
-      } else {
-        throw new Error("No user data returned from signup");
       }
-    } catch (error: any) {
+    } catch (error) {
       console.error("Error in signup process:", error);
-      setError(error.message);
+      setError(error instanceof AuthError ? error.message : "An unexpected error occurred");
     } finally {
       setLoading(false);
     }
@@ -90,22 +91,106 @@ const SignUp = () => {
     <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-md w-full space-y-8">
         <div>
-          <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
+          <h2 className="mt-6 text-center text-3xl font-bold text-gray-900">
             Create your account
           </h2>
         </div>
-        
+
         {error && (
           <Alert variant="destructive">
             <AlertDescription>{error}</AlertDescription>
           </Alert>
         )}
 
-        <SignUpForm 
-          onSubmit={handleSubmit}
-          loading={loading}
-          onSignInClick={() => navigate("/signin")}
-        />
+        <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
+          <div className="space-y-4">
+            <div>
+              <Label htmlFor="fullName">Full Name</Label>
+              <Input
+                id="fullName"
+                name="fullName"
+                type="text"
+                required
+                className="mt-1"
+              />
+            </div>
+
+            <div>
+              <Label htmlFor="email">Email address</Label>
+              <Input
+                id="email"
+                name="email"
+                type="email"
+                autoComplete="email"
+                required
+                className="mt-1"
+              />
+            </div>
+
+            <div>
+              <Label htmlFor="password">Password</Label>
+              <Input
+                id="password"
+                name="password"
+                type="password"
+                autoComplete="new-password"
+                required
+                className="mt-1"
+              />
+            </div>
+
+            <div>
+              <Label htmlFor="phone">Phone (optional)</Label>
+              <Input
+                id="phone"
+                name="phone"
+                type="tel"
+                className="mt-1"
+              />
+            </div>
+
+            <div>
+              <Label htmlFor="storeName">Store Name</Label>
+              <Input
+                id="storeName"
+                name="storeName"
+                type="text"
+                required
+                className="mt-1"
+              />
+            </div>
+
+            <div>
+              <Label htmlFor="username">Username</Label>
+              <Input
+                id="username"
+                name="username"
+                type="text"
+                required
+                className="mt-1"
+                pattern="^[a-zA-Z0-9_-]{3,}$"
+                title="Username must be at least 3 characters and can only contain letters, numbers, underscores, and hyphens"
+              />
+            </div>
+          </div>
+
+          <div className="flex flex-col space-y-4">
+            <Button type="submit" disabled={loading}>
+              {loading ? "Creating account..." : "Sign up"}
+            </Button>
+            
+            <p className="text-center text-sm text-gray-600">
+              Already have an account?{" "}
+              <button
+                type="button"
+                onClick={() => navigate("/signin")}
+                className="font-medium text-primary hover:text-primary/80"
+              >
+                Sign in
+              </button>
+            </p>
+          </div>
+        </form>
       </div>
     </div>
   );
