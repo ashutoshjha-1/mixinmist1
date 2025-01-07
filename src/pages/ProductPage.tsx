@@ -1,5 +1,5 @@
 import React from "react";
-import { useParams } from "react-router-dom";
+import { useParams, Navigate } from "react-router-dom";
 import { useStoreProduct } from "@/hooks/use-store-product";
 import { StoreHeader } from "@/components/store/StoreHeader";
 import { ProductDetails } from "@/components/store/ProductDetails";
@@ -11,15 +11,20 @@ export default function ProductPage() {
   const { storename, productId } = useParams<{ storename: string; productId: string }>();
   
   console.log("ProductPage params:", { storename, productId });
+
+  // Redirect if store name is undefined
+  if (!storename || storename === "undefined") {
+    toast({
+      variant: "destructive",
+      title: "Error",
+      description: "Store name is required",
+    });
+    return <Navigate to="/" />;
+  }
   
   const { data: storeSettings, isLoading: isLoadingSettings } = useQuery({
     queryKey: ["store-settings", storename],
     queryFn: async () => {
-      if (!storename) {
-        console.error("Store name is required but was undefined");
-        throw new Error("Store name is required");
-      }
-
       console.log("Fetching store settings for store name:", storename);
 
       const { data: profile, error: profileError } = await supabase
@@ -90,7 +95,7 @@ export default function ProductPage() {
         menu_items: menuItems
       };
     },
-    enabled: !!storename,
+    enabled: !!storename && storename !== "undefined",
     retry: false,
   });
 
