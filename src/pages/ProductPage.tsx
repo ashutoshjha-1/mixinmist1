@@ -4,6 +4,7 @@ import { useStoreProduct } from "@/hooks/use-store-product";
 import { StoreHeader } from "@/components/store/StoreHeader";
 import { ProductDetails } from "@/components/store/ProductDetails";
 import { useStoreData } from "@/hooks/use-store-data";
+import { toast } from "@/components/ui/use-toast";
 
 export default function ProductPage() {
   const { storename, productId } = useParams<{ storename: string; productId: string }>();
@@ -34,14 +35,46 @@ export default function ProductPage() {
   }
 
   // Handle store error
-  if (storeError || !storeData) {
+  if (storeError) {
     console.error("Store error:", storeError);
+    toast({
+      variant: "destructive",
+      title: "Error",
+      description: "Failed to load store data. Please try again later.",
+    });
+    return <Navigate to="/" replace />;
+  }
+
+  // Handle missing store data
+  if (!storeData) {
+    console.error("Store data not found");
+    toast({
+      variant: "destructive",
+      title: "Store Not Found",
+      description: "The store you're looking for doesn't exist.",
+    });
     return <Navigate to="/" replace />;
   }
 
   // Handle product error
-  if (productError || !product) {
+  if (productError) {
     console.error("Product error:", productError);
+    toast({
+      variant: "destructive",
+      title: "Error",
+      description: "Failed to load product data. Please try again later.",
+    });
+    return <Navigate to={`/store/${storename}`} replace />;
+  }
+
+  // Handle missing product data
+  if (!product) {
+    console.error("Product not found");
+    toast({
+      variant: "destructive",
+      title: "Product Not Found",
+      description: "The product you're looking for doesn't exist in this store.",
+    });
     return <Navigate to={`/store/${storename}`} replace />;
   }
 
