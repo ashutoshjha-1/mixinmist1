@@ -22,6 +22,11 @@ export const useStoreProduct = (storename: string | undefined, productId: string
 
       if (profileError) {
         console.error("Profile fetch error:", profileError);
+        toast({
+          variant: "destructive",
+          title: "Error",
+          description: "Failed to fetch store profile",
+        });
         throw profileError;
       }
 
@@ -35,7 +40,7 @@ export const useStoreProduct = (storename: string | undefined, productId: string
         throw new Error("Store not found");
       }
 
-      // Get the product with user-specific pricing
+      // Get the product with user-specific pricing and description
       const { data: userProduct, error: userProductError } = await supabase
         .from("user_products")
         .select(`
@@ -54,6 +59,11 @@ export const useStoreProduct = (storename: string | undefined, productId: string
 
       if (userProductError) {
         console.error("Product fetch error:", userProductError);
+        toast({
+          variant: "destructive",
+          title: "Error",
+          description: "Failed to fetch product details",
+        });
         throw userProductError;
       }
 
@@ -67,6 +77,7 @@ export const useStoreProduct = (storename: string | undefined, productId: string
         throw new Error("Product not found");
       }
 
+      // Return the product with store-specific details
       return {
         id: userProduct.products.id,
         name: userProduct.products.name,
@@ -76,6 +87,6 @@ export const useStoreProduct = (storename: string | undefined, productId: string
       };
     },
     enabled: !!storename && !!productId,
-    retry: false,
+    retry: false, // Don't retry if store/product is not found
   });
 };
