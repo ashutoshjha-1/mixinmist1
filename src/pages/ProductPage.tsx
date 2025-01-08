@@ -7,6 +7,8 @@ import { useStoreData } from "@/hooks/use-store-data";
 
 export default function ProductPage() {
   const { storename, productId } = useParams<{ storename: string; productId: string }>();
+  
+  console.log("ProductPage mounted with params:", { storename, productId });
 
   // First fetch store data
   const { 

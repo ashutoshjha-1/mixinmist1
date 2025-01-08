@@ -6,18 +6,18 @@ export const useStoreProduct = (storename: string | undefined, productId: string
   return useQuery({
     queryKey: ["store-product", storename, productId],
     queryFn: async () => {
+      console.log("Starting product fetch with:", { storename, productId });
+
       if (!storename || !productId) {
         console.error("Missing required parameters:", { storename, productId });
         throw new Error("Store name and product ID are required");
       }
 
-      console.log("Fetching product data for store:", storename, "product:", productId);
-
       // First get the profile using store_name
       const { data: profile, error: profileError } = await supabase
         .from("profiles")
         .select("id")
-        .ilike("store_name", storename)
+        .eq("store_name", storename)
         .maybeSingle();
 
       if (profileError) {
@@ -39,6 +39,8 @@ export const useStoreProduct = (storename: string | undefined, productId: string
         });
         throw new Error("Store not found");
       }
+
+      console.log("Found profile:", profile);
 
       // Get the product with user-specific pricing and description
       const { data: userProduct, error: userProductError } = await supabase
@@ -76,6 +78,8 @@ export const useStoreProduct = (storename: string | undefined, productId: string
         });
         throw new Error("Product not found");
       }
+
+      console.log("Found product:", userProduct);
 
       // Return the product with store-specific details
       return {
