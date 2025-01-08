@@ -6,6 +6,7 @@ interface Product {
   price: number;
   image_url: string;
   description?: string;
+  is_sample?: boolean;
 }
 
 interface ProductGridProps {
@@ -14,6 +15,7 @@ interface ProductGridProps {
   addedProducts: Set<string>;
   onAddToStore: (productId: string, price: number, name: string, description: string) => void;
   onEdit?: (product: Product) => void;
+  showSampleProducts?: boolean;
 }
 
 export const ProductGrid = ({ 
@@ -21,13 +23,19 @@ export const ProductGrid = ({
   isAdmin, 
   addedProducts, 
   onAddToStore,
-  onEdit 
+  onEdit,
+  showSampleProducts = false
 }: ProductGridProps) => {
   if (!products) return null;
 
+  // Filter out sample products unless specifically requested
+  const filteredProducts = products.filter(product => 
+    showSampleProducts ? product.is_sample : !product.is_sample
+  );
+
   return (
     <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-4">
-      {products.map((product) => (
+      {filteredProducts.map((product) => (
         <ProductCard
           key={product.id}
           product={product}

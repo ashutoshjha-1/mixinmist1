@@ -151,6 +151,7 @@ const FindProducts = () => {
             addedProducts={addedProducts}
             onAddToStore={handleAddToStore}
             onEdit={handleEditProduct}
+            showSampleProducts={false}
           />
 
           {isAdmin && (
