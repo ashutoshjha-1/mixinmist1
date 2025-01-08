@@ -1,35 +1,28 @@
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 
-export const useStoreProduct = (store: string | undefined, productId: string | undefined) => {
+export const useStoreProduct = (storename: string | undefined, productId: string | undefined) => {
   return useQuery({
-    queryKey: ["store-product", store, productId],
+    queryKey: ["store-product", storename, productId],
     queryFn: async () => {
-      if (!store || !productId) {
-        console.error("Store name and product ID are required", { store, productId });
+      if (!storename || !productId) {
         throw new Error("Store name and product ID are required");
       }
-      
-      console.log("Fetching product data:", { store, productId });
-      
+
       // First get the profile using store_name (case-insensitive search)
       const { data: profile, error: profileError } = await supabase
         .from("profiles")
         .select("id")
-        .ilike("store_name", store)
+        .ilike("store_name", storename)
         .maybeSingle();
 
       if (profileError) {
-        console.error("Profile fetch error:", profileError);
         throw profileError;
       }
 
       if (!profile) {
-        console.error("Store not found for store name:", store);
         throw new Error("Store not found");
       }
-
-      console.log("Found profile:", profile);
 
       // Get the product with user-specific pricing
       const { data: userProduct, error: userProductError } = await supabase
@@ -48,32 +41,22 @@ export const useStoreProduct = (store: string | undefined, productId: string | u
         .eq("product_id", productId)
         .maybeSingle();
 
-      console.log("User product query result:", userProduct);
-
       if (userProductError) {
-        console.error("Product fetch error:", userProductError);
         throw userProductError;
       }
 
       if (!userProduct || !userProduct.products) {
-        console.error("Product not found for store:", store, "product:", productId);
         throw new Error("Product not found");
       }
 
-      // Transform the data
-      const transformedProduct = {
+      return {
         id: userProduct.products.id,
         name: userProduct.products.name,
         price: userProduct.custom_price,
         image_url: userProduct.products.image_url,
         description: userProduct.custom_description || userProduct.products.description,
       };
-
-      console.log("Transformed product data:", transformedProduct);
-
-      return transformedProduct;
     },
-    enabled: !!store && !!productId,
-    retry: false,
+    enabled: !!storename && !!productId,
   });
 };
