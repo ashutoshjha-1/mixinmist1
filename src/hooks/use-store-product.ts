@@ -7,6 +7,7 @@ export const useStoreProduct = (storename: string | undefined, productId: string
     queryKey: ["store-product", storename, productId],
     queryFn: async () => {
       if (!storename || !productId) {
+        console.error("Missing required parameters:", { storename, productId });
         throw new Error("Store name and product ID are required");
       }
 
@@ -16,7 +17,7 @@ export const useStoreProduct = (storename: string | undefined, productId: string
       const { data: profile, error: profileError } = await supabase
         .from("profiles")
         .select("id")
-        .eq("store_name", storename)
+        .ilike("store_name", storename)
         .maybeSingle();
 
       if (profileError) {
@@ -25,11 +26,11 @@ export const useStoreProduct = (storename: string | undefined, productId: string
       }
 
       if (!profile) {
-        console.error("Store not found:", storename);
+        console.error("Store not found for name:", storename);
         toast({
           variant: "destructive",
-          title: "Error",
-          description: "Store not found",
+          title: "Store Not Found",
+          description: "The store you're looking for doesn't exist.",
         });
         throw new Error("Store not found");
       }
@@ -60,8 +61,8 @@ export const useStoreProduct = (storename: string | undefined, productId: string
         console.error("Product not found:", productId);
         toast({
           variant: "destructive",
-          title: "Error",
-          description: "Product not found",
+          title: "Product Not Found",
+          description: "The product you're looking for doesn't exist in this store.",
         });
         throw new Error("Product not found");
       }

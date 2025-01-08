@@ -4,7 +4,6 @@ import { useStoreProduct } from "@/hooks/use-store-product";
 import { StoreHeader } from "@/components/store/StoreHeader";
 import { ProductDetails } from "@/components/store/ProductDetails";
 import { useStoreData } from "@/hooks/use-store-data";
-import { toast } from "@/components/ui/use-toast";
 
 export default function ProductPage() {
   const { storename, productId } = useParams<{ storename: string; productId: string }>();
@@ -13,16 +12,14 @@ export default function ProductPage() {
   const { 
     data: storeData, 
     isLoading: isLoadingStore, 
-    error: storeError,
-    isError: isStoreError 
+    error: storeError 
   } = useStoreData(storename);
 
   // Then fetch product data
   const { 
     data: product, 
     isLoading: isLoadingProduct,
-    error: productError,
-    isError: isProductError
+    error: productError
   } = useStoreProduct(storename, productId);
 
   // Handle loading state
@@ -35,14 +32,12 @@ export default function ProductPage() {
   }
 
   // Handle store error
-  if (isStoreError || !storeData) {
-    console.error("Store error:", storeError);
+  if (storeError || !storeData) {
     return <Navigate to="/" replace />;
   }
 
   // Handle product error
-  if (isProductError || !product) {
-    console.error("Product error:", productError);
+  if (productError || !product) {
     return <Navigate to={`/store/${storename}`} replace />;
   }
 
