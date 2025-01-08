@@ -33,11 +33,13 @@ export default function ProductPage() {
 
   // Handle store error
   if (storeError || !storeData) {
+    console.error("Store error:", storeError);
     return <Navigate to="/" replace />;
   }
 
   // Handle product error
   if (productError || !product) {
+    console.error("Product error:", productError);
     return <Navigate to={`/store/${storename}`} replace />;
   }
 
