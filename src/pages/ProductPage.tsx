@@ -8,14 +8,24 @@ import { toast } from "@/components/ui/use-toast";
 
 export default function ProductPage() {
   const { storename, productId } = useParams<{ storename: string; productId: string }>();
-  
-  // Fetch store data first
-  const { data: storeData, isLoading: isLoadingStore, error: storeError } = useStoreData(storename);
-  
-  // Then fetch product data
-  const { data: product, isLoading: isLoadingProduct, error: productError } = useStoreProduct(storename, productId);
 
-  // Handle loading states
+  // First fetch store data
+  const { 
+    data: storeData, 
+    isLoading: isLoadingStore, 
+    error: storeError,
+    isError: isStoreError 
+  } = useStoreData(storename);
+
+  // Then fetch product data
+  const { 
+    data: product, 
+    isLoading: isLoadingProduct,
+    error: productError,
+    isError: isProductError
+  } = useStoreProduct(storename, productId);
+
+  // Handle loading state
   if (isLoadingStore || isLoadingProduct) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
@@ -25,23 +35,15 @@ export default function ProductPage() {
   }
 
   // Handle store error
-  if (storeError || !storeData) {
-    toast({
-      variant: "destructive",
-      title: "Error",
-      description: "Store not found",
-    });
-    return <Navigate to="/" />;
+  if (isStoreError || !storeData) {
+    console.error("Store error:", storeError);
+    return <Navigate to="/" replace />;
   }
 
   // Handle product error
-  if (productError || !product) {
-    toast({
-      variant: "destructive",
-      title: "Error",
-      description: "Product not found",
-    });
-    return <Navigate to={`/store/${storename}`} />;
+  if (isProductError || !product) {
+    console.error("Product error:", productError);
+    return <Navigate to={`/store/${storename}`} replace />;
   }
 
   const { settings } = storeData;

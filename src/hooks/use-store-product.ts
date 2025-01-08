@@ -1,5 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import { toast } from "@/components/ui/use-toast";
 
 export const useStoreProduct = (storename: string | undefined, productId: string | undefined) => {
   return useQuery({
@@ -9,18 +10,27 @@ export const useStoreProduct = (storename: string | undefined, productId: string
         throw new Error("Store name and product ID are required");
       }
 
-      // First get the profile using store_name (case-insensitive search)
+      console.log("Fetching product data for store:", storename, "product:", productId);
+
+      // First get the profile using store_name
       const { data: profile, error: profileError } = await supabase
         .from("profiles")
         .select("id")
-        .ilike("store_name", storename)
+        .eq("store_name", storename)
         .maybeSingle();
 
       if (profileError) {
+        console.error("Profile fetch error:", profileError);
         throw profileError;
       }
 
       if (!profile) {
+        console.error("Store not found:", storename);
+        toast({
+          variant: "destructive",
+          title: "Error",
+          description: "Store not found",
+        });
         throw new Error("Store not found");
       }
 
@@ -42,10 +52,17 @@ export const useStoreProduct = (storename: string | undefined, productId: string
         .maybeSingle();
 
       if (userProductError) {
+        console.error("Product fetch error:", userProductError);
         throw userProductError;
       }
 
       if (!userProduct || !userProduct.products) {
+        console.error("Product not found:", productId);
+        toast({
+          variant: "destructive",
+          title: "Error",
+          description: "Product not found",
+        });
         throw new Error("Product not found");
       }
 
@@ -58,5 +75,6 @@ export const useStoreProduct = (storename: string | undefined, productId: string
       };
     },
     enabled: !!storename && !!productId,
+    retry: false,
   });
 };
