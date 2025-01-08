@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Link, useParams } from "react-router-dom";
+import { useParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { useCart } from "@/contexts/CartContext";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
@@ -48,20 +48,13 @@ export const StoreProducts = ({ products }: StoreProductsProps) => {
             key={product.id}
             className="border rounded-lg overflow-hidden shadow-lg"
           >
-            <Link to={`/store/${username}/product/${product.id}`}>
-              <img
-                src={product.image_url}
-                alt={product.name}
-                className="w-full h-64 object-cover"
-              />
-            </Link>
+            <img
+              src={product.image_url}
+              alt={product.name}
+              className="w-full h-64 object-cover"
+            />
             <div className="p-4">
-              <Link 
-                to={`/store/${username}/product/${product.id}`}
-                className="hover:underline"
-              >
-                <h3 className="text-xl font-semibold mb-2">{product.name}</h3>
-              </Link>
+              <h3 className="text-xl font-semibold mb-2">{product.name}</h3>
               <p className="text-lg font-bold text-primary">
                 ${product.price.toFixed(2)}
               </p>
