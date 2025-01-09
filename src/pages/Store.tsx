@@ -3,11 +3,8 @@ import { StoreHero } from "@/components/store/StoreHero";
 import { StoreProducts } from "@/components/store/StoreProducts";
 import { StoreFooter } from "@/components/store/StoreFooter";
 import { StoreHeader } from "@/components/store/StoreHeader";
-import { StoreCarousel } from "@/components/store/StoreCarousel";
-import { WaveDesign } from "@/components/store/WaveDesign";
 import { CartProvider } from "@/contexts/CartContext";
 import { useStoreData } from "@/hooks/use-store-data";
-import { CarouselImage } from "@/integrations/supabase/types/store-settings";
 
 export default function Store() {
   const { storename } = useParams<{ storename: string }>();
@@ -33,7 +30,6 @@ export default function Store() {
   }
 
   const { settings, products } = storeData;
-  const carouselImages = (settings.carousel_images || []) as CarouselImage[];
 
   return (
     <CartProvider>
@@ -48,13 +44,6 @@ export default function Store() {
           title={settings.hero_title}
           subtitle={settings.hero_subtitle}
         />
-        {settings.show_wave_design && (
-          <WaveDesign 
-            color={settings.wave_color || settings.theme_color} 
-            className="transform -mt-1"
-          />
-        )}
-        <StoreCarousel images={carouselImages} />
         <StoreProducts products={products} />
         <StoreFooter
           themeColor={settings.theme_color}
