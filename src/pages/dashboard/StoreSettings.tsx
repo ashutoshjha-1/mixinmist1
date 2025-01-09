@@ -1,9 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
-import { useToast } from "@/hooks/use-toast";
 import { DashboardSidebar } from "@/components/dashboard/DashboardSidebar";
 import { DashboardHeader } from "@/components/dashboard/DashboardHeader";
 import { HeroSection } from "@/components/dashboard/store-settings/HeroSection";
@@ -12,129 +9,12 @@ import { HeaderSection } from "@/components/dashboard/store-settings/HeaderSecti
 import { RoleBasedSettings } from "@/components/dashboard/store-settings/RoleBasedSettings";
 import { CarouselSection } from "@/components/dashboard/store-settings/CarouselSection";
 import { WaveSection } from "@/components/dashboard/store-settings/WaveSection";
+import { useStoreSettings } from "@/hooks/use-store-settings";
 
 export default function StoreSettings() {
-  const { toast } = useToast();
   const navigate = useNavigate();
-  const queryClient = useQueryClient();
   const [isEditing, setIsEditing] = useState(false);
-
-  const { data: settings, isLoading, error } = useQuery({
-    queryKey: ["store-settings"],
-    queryFn: async () => {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) {
-        throw new Error("Not authenticated");
-      }
-
-      try {
-        const { data: profile, error: profileError } = await supabase
-          .from("profiles")
-          .select("store_name")
-          .eq("id", user.id)
-          .maybeSingle();
-
-        if (profileError) throw profileError;
-        if (!profile) throw new Error("Profile not found");
-
-        const { data, error } = await supabase
-          .from("store_settings")
-          .select("*")
-          .eq("user_id", user.id)
-          .maybeSingle();
-
-        if (error) throw error;
-        if (!data) throw new Error("Store settings not found");
-
-        // Parse menu items, bottom menu items, and footer links
-        const menuItems = data.menu_items 
-          ? (data.menu_items as any[]).map((item: any) => ({
-              label: String(item.label || ''),
-              url: String(item.url || '')
-            }))
-          : [];
-
-        const bottomMenuItems = data.bottom_menu_items 
-          ? (data.bottom_menu_items as any[]).map((item: any) => ({
-              label: String(item.label || ''),
-              url: String(item.url || '')
-            }))
-          : [];
-
-        const footerLinks = data.footer_links 
-          ? (data.footer_links as any[]).map((link: any) => ({
-              label: String(link.label || ''),
-              url: String(link.url || '')
-            }))
-          : [];
-
-        return { 
-          ...data, 
-          store_name: profile.store_name,
-          menu_items: menuItems,
-          bottom_menu_items: bottomMenuItems,
-          footer_links: footerLinks
-        };
-      } catch (error: any) {
-        toast({
-          variant: "destructive",
-          title: "Error fetching settings",
-          description: error.message,
-        });
-        throw error;
-      }
-    },
-    retry: 1,
-  });
-
-  const updateSettings = useMutation({
-    mutationFn: async (formData: FormData) => {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) throw new Error("Not authenticated");
-
-      const menuItems = formData.get("menu_items");
-      const bottomMenuItems = formData.get("bottom_menu_items");
-      const footerLinks = formData.get("footer_links");
-      
-      const newSettings = {
-        hero_title: String(formData.get("hero_title") || ""),
-        hero_subtitle: String(formData.get("hero_subtitle") || ""),
-        hero_image_url: String(formData.get("hero_image_url") || ""),
-        footer_text: String(formData.get("footer_text") || ""),
-        theme_color: String(formData.get("theme_color") || ""),
-        custom_domain: String(formData.get("custom_domain") || ""),
-        icon_image_url: String(formData.get("icon_image_url") || ""),
-        menu_items: menuItems ? JSON.parse(menuItems as string) : [],
-        bottom_menu_items: bottomMenuItems ? JSON.parse(bottomMenuItems as string) : [],
-        footer_links: footerLinks ? JSON.parse(footerLinks as string) : [],
-      };
-
-      const { data, error } = await supabase
-        .from("store_settings")
-        .update(newSettings)
-        .eq("user_id", user.id)
-        .select()
-        .single();
-
-      if (error) throw error;
-      return data;
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["store-settings"] });
-      toast({
-        title: "Settings updated",
-        description: "Your store settings have been updated successfully.",
-      });
-      setIsEditing(false);
-    },
-    onError: (error) => {
-      toast({
-        variant: "destructive",
-        title: "Error",
-        description: "Failed to update settings: " + error.message,
-      });
-    },
-  });
+  const { settings, isLoading, error, updateSettings } = useStoreSettings();
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
