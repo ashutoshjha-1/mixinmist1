@@ -5,6 +5,8 @@ import { StoreFooter } from "@/components/store/StoreFooter";
 import { StoreHeader } from "@/components/store/StoreHeader";
 import { CartProvider } from "@/contexts/CartContext";
 import { useStoreData } from "@/hooks/use-store-data";
+import { MenuItem } from "@/integrations/supabase/types/menu";
+import { FooterLink } from "@/integrations/supabase/types/footer";
 
 export default function Store() {
   const { storename } = useParams<{ storename: string }>();
@@ -31,12 +33,17 @@ export default function Store() {
 
   const { settings, products } = storeData;
 
+  // Ensure menu items and footer links are properly typed
+  const menuItems = (settings.menu_items || []) as MenuItem[];
+  const footerLinks = (settings.footer_links || []) as FooterLink[];
+  const bottomMenuItems = (settings.bottom_menu_items || []) as MenuItem[];
+
   return (
     <CartProvider>
       <div className="min-h-screen">
         <StoreHeader 
           iconImageUrl={settings.icon_image_url}
-          menuItems={settings.menu_items || []}
+          menuItems={menuItems}
         />
         <StoreHero
           heroImageUrl={settings.hero_image_url}
@@ -48,8 +55,8 @@ export default function Store() {
         <StoreFooter
           themeColor={settings.theme_color}
           footerText={settings.footer_text}
-          footerLinks={settings.footer_links}
-          bottomMenuItems={settings.bottom_menu_items}
+          footerLinks={footerLinks}
+          bottomMenuItems={bottomMenuItems}
         />
       </div>
     </CartProvider>

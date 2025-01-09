@@ -2,7 +2,6 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { FooterLink } from "@/integrations/supabase/types/footer";
 import { MenuItem } from "@/integrations/supabase/types/menu";
-import { CarouselImage } from "@/integrations/supabase/types/store-settings";
 import { toast } from "@/components/ui/use-toast";
 
 interface StoreData {
@@ -31,10 +30,6 @@ interface StoreData {
     theme_color: string;
     updated_at: string;
     user_id: string;
-    carousel_images: CarouselImage[];
-    carousel_buttons: any[];
-    wave_color: string | null;
-    show_wave_design: boolean | null;
   };
   products: {
     id: string;
@@ -164,15 +159,6 @@ export const useStoreData = (storeName: string | undefined) => {
           }))
         : [];
 
-      // Parse and type-check carousel images
-      const carouselImages = Array.isArray(settings.carousel_images)
-        ? (settings.carousel_images as any[]).map((image) => ({
-            url: String(image?.url || ''),
-            buttonText: image?.buttonText ? String(image.buttonText) : undefined,
-            buttonUrl: image?.buttonUrl ? String(image.buttonUrl) : undefined
-          }))
-        : [];
-
       return {
         profile,
         settings: {
@@ -180,10 +166,6 @@ export const useStoreData = (storeName: string | undefined) => {
           menu_items: menuItems,
           footer_links: footerLinks,
           bottom_menu_items: bottomMenuItems,
-          carousel_images: carouselImages,
-          carousel_buttons: settings.carousel_buttons || [],
-          wave_color: settings.wave_color || '#4F46E5',
-          show_wave_design: settings.show_wave_design ?? true
         },
         products,
       } as StoreData;
