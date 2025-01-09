@@ -34,34 +34,33 @@ export const useStoreSettings = () => {
         if (error) throw error;
         if (!data) throw new Error("Store settings not found");
 
-        // Parse menu items, bottom menu items, and footer links
-        const menuItems = data.menu_items 
-          ? (data.menu_items as any[]).map((item: any) => ({
-              label: String(item.label || ''),
-              url: String(item.url || '')
+        // Parse JSON fields
+        const menuItems = Array.isArray(data.menu_items) 
+          ? data.menu_items.map((item: any) => ({
+              label: String(item?.label || ''),
+              url: String(item?.url || '')
             }))
           : [];
 
-        const bottomMenuItems = data.bottom_menu_items 
-          ? (data.bottom_menu_items as any[]).map((item: any) => ({
-              label: String(item.label || ''),
-              url: String(item.url || '')
+        const bottomMenuItems = Array.isArray(data.bottom_menu_items)
+          ? data.bottom_menu_items.map((item: any) => ({
+              label: String(item?.label || ''),
+              url: String(item?.url || '')
             }))
           : [];
 
-        const footerLinks = data.footer_links 
-          ? (data.footer_links as any[]).map((link: any) => ({
-              label: String(link.label || ''),
-              url: String(link.url || '')
+        const footerLinks = Array.isArray(data.footer_links)
+          ? data.footer_links.map((link: any) => ({
+              label: String(link?.label || ''),
+              url: String(link?.url || '')
             }))
           : [];
 
-        // Parse carousel images
-        const carouselImages = data.carousel_images 
-          ? (data.carousel_images as any[]).map((image: any) => ({
-              url: String(image.url || ''),
-              buttonText: image.buttonText ? String(image.buttonText) : undefined,
-              buttonUrl: image.buttonUrl ? String(image.buttonUrl) : undefined
+        const carouselImages = Array.isArray(data.carousel_images)
+          ? data.carousel_images.map((image: any) => ({
+              url: String(image?.url || ''),
+              buttonText: image?.buttonText ? String(image.buttonText) : undefined,
+              buttonUrl: image?.buttonUrl ? String(image.buttonUrl) : undefined
             }))
           : [];
 
@@ -71,7 +70,9 @@ export const useStoreSettings = () => {
           menu_items: menuItems,
           bottom_menu_items: bottomMenuItems,
           footer_links: footerLinks,
-          carousel_images: carouselImages
+          carousel_images: carouselImages,
+          wave_color: data.wave_color || '#4F46E5',
+          show_wave_design: data.show_wave_design ?? true
         } as StoreSettings;
       } catch (error: any) {
         toast({
@@ -107,6 +108,8 @@ export const useStoreSettings = () => {
         bottom_menu_items: bottomMenuItems ? JSON.parse(bottomMenuItems as string) : [],
         footer_links: footerLinks ? JSON.parse(footerLinks as string) : [],
         carousel_images: carouselImages ? JSON.parse(carouselImages as string) : [],
+        wave_color: String(formData.get("wave_color") || "#4F46E5"),
+        show_wave_design: formData.get("show_wave_design") === "true"
       };
 
       const { data, error } = await supabase
