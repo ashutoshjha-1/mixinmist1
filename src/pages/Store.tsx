@@ -7,6 +7,7 @@ import { StoreCarousel } from "@/components/store/StoreCarousel";
 import { WaveDesign } from "@/components/store/WaveDesign";
 import { CartProvider } from "@/contexts/CartContext";
 import { useStoreData } from "@/hooks/use-store-data";
+import { CarouselImage } from "@/integrations/supabase/types/store-settings";
 
 export default function Store() {
   const { storename } = useParams<{ storename: string }>();
@@ -32,7 +33,7 @@ export default function Store() {
   }
 
   const { settings, products } = storeData;
-  const carouselImages = settings.carousel_images || [];
+  const carouselImages = (settings.carousel_images || []) as CarouselImage[];
 
   return (
     <CartProvider>

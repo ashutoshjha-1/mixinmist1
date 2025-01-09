@@ -2,6 +2,7 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { FooterLink } from "@/integrations/supabase/types/footer";
 import { MenuItem } from "@/integrations/supabase/types/menu";
+import { CarouselImage } from "@/integrations/supabase/types/store-settings";
 import { toast } from "@/components/ui/use-toast";
 
 interface StoreData {
@@ -30,6 +31,10 @@ interface StoreData {
     theme_color: string;
     updated_at: string;
     user_id: string;
+    carousel_images: CarouselImage[];
+    carousel_buttons: any[];
+    wave_color: string | null;
+    show_wave_design: boolean | null;
   };
   products: {
     id: string;
