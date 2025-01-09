@@ -2,12 +2,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { SectionTitle } from "./SectionTitle";
 import { useState } from "react";
-
-interface CarouselImage {
-  url: string;
-  buttonText?: string;
-  buttonUrl?: string;
-}
+import { CarouselImage } from "@/integrations/supabase/types/store-settings";
 
 interface CarouselSectionProps {
   isEditing: boolean;
