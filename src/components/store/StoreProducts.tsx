@@ -27,7 +27,7 @@ export const StoreProducts = ({ products }: StoreProductsProps) => {
       name: product.name,
       price: product.price,
       quantity: 1,
-      image_url: product.image_url,
+      image_url: "/lovable-uploads/1e9e3bad-e337-449b-9770-a75c166b3a23.png",
     });
   };
 
@@ -49,7 +49,7 @@ export const StoreProducts = ({ products }: StoreProductsProps) => {
             className="border rounded-lg overflow-hidden shadow-lg"
           >
             <img
-              src={product.image_url}
+              src="/lovable-uploads/1e9e3bad-e337-449b-9770-a75c166b3a23.png"
               alt={product.name}
               className="w-full h-64 object-cover"
             />
