@@ -231,6 +231,8 @@ export type Database = {
       store_settings: {
         Row: {
           bottom_menu_items: Json | null
+          carousel_buttons: Json | null
+          carousel_images: Json | null
           created_at: string
           custom_domain: string | null
           footer_links: Json | null
@@ -241,13 +243,17 @@ export type Database = {
           icon_image_url: string | null
           id: string
           menu_items: Json | null
+          show_wave_design: boolean | null
           store_name: string
           theme_color: string | null
           updated_at: string
           user_id: string
+          wave_color: string | null
         }
         Insert: {
           bottom_menu_items?: Json | null
+          carousel_buttons?: Json | null
+          carousel_images?: Json | null
           created_at?: string
           custom_domain?: string | null
           footer_links?: Json | null
@@ -258,13 +264,17 @@ export type Database = {
           icon_image_url?: string | null
           id?: string
           menu_items?: Json | null
+          show_wave_design?: boolean | null
           store_name: string
           theme_color?: string | null
           updated_at?: string
           user_id: string
+          wave_color?: string | null
         }
         Update: {
           bottom_menu_items?: Json | null
+          carousel_buttons?: Json | null
+          carousel_images?: Json | null
           created_at?: string
           custom_domain?: string | null
           footer_links?: Json | null
@@ -275,10 +285,12 @@ export type Database = {
           icon_image_url?: string | null
           id?: string
           menu_items?: Json | null
+          show_wave_design?: boolean | null
           store_name?: string
           theme_color?: string | null
           updated_at?: string
           user_id?: string
+          wave_color?: string | null
         }
         Relationships: []
       }

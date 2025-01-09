@@ -3,6 +3,8 @@ import { StoreHero } from "@/components/store/StoreHero";
 import { StoreProducts } from "@/components/store/StoreProducts";
 import { StoreFooter } from "@/components/store/StoreFooter";
 import { StoreHeader } from "@/components/store/StoreHeader";
+import { StoreCarousel } from "@/components/store/StoreCarousel";
+import { WaveDesign } from "@/components/store/WaveDesign";
 import { CartProvider } from "@/contexts/CartContext";
 import { useStoreData } from "@/hooks/use-store-data";
 import { MenuItem } from "@/integrations/supabase/types/menu";
@@ -37,6 +39,11 @@ export default function Store() {
   const menuItems = (settings.menu_items || []) as MenuItem[];
   const footerLinks = (settings.footer_links || []) as FooterLink[];
   const bottomMenuItems = (settings.bottom_menu_items || []) as MenuItem[];
+  const carouselImages = (settings.carousel_images || []).map((image: any) => ({
+    url: image.url,
+    buttonText: image.buttonText,
+    buttonUrl: image.buttonUrl,
+  }));
 
   return (
     <CartProvider>
@@ -51,6 +58,13 @@ export default function Store() {
           title={settings.hero_title}
           subtitle={settings.hero_subtitle}
         />
+        {settings.show_wave_design && (
+          <WaveDesign 
+            color={settings.wave_color || settings.theme_color} 
+            className="transform -mt-1"
+          />
+        )}
+        <StoreCarousel images={carouselImages} />
         <StoreProducts products={products} />
         <StoreFooter
           themeColor={settings.theme_color}

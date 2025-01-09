@@ -10,6 +10,8 @@ import { HeroSection } from "@/components/dashboard/store-settings/HeroSection";
 import { FooterSection } from "@/components/dashboard/store-settings/FooterSection";
 import { HeaderSection } from "@/components/dashboard/store-settings/HeaderSection";
 import { RoleBasedSettings } from "@/components/dashboard/store-settings/RoleBasedSettings";
+import { CarouselSection } from "@/components/dashboard/store-settings/CarouselSection";
+import { WaveSection } from "@/components/dashboard/store-settings/WaveSection";
 
 export default function StoreSettings() {
   const { toast } = useToast();
@@ -195,6 +197,8 @@ export default function StoreSettings() {
             <form onSubmit={handleSubmit} className="space-y-6">
               <HeaderSection isEditing={isEditing} settings={settings} />
               <HeroSection isEditing={isEditing} settings={settings} />
+              <WaveSection isEditing={isEditing} settings={settings} />
+              <CarouselSection isEditing={isEditing} settings={settings} />
               <FooterSection isEditing={isEditing} settings={settings} />
 
               <Button type="submit" className="w-full">
@@ -205,6 +209,8 @@ export default function StoreSettings() {
             <div className="space-y-6">
               <HeaderSection isEditing={isEditing} settings={settings} />
               <HeroSection isEditing={isEditing} settings={settings} />
+              <WaveSection isEditing={isEditing} settings={settings} />
+              <CarouselSection isEditing={isEditing} settings={settings} />
               <FooterSection isEditing={isEditing} settings={settings} />
             </div>
           )}
