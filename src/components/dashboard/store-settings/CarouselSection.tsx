@@ -12,7 +12,7 @@ interface CarouselImage {
 interface CarouselSectionProps {
   isEditing: boolean;
   settings: {
-    carousel_images: CarouselImage[];
+    carousel_images?: CarouselImage[];
   };
 }
 

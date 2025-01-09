@@ -6,8 +6,8 @@ import { SectionTitle } from "./SectionTitle";
 interface WaveSectionProps {
   isEditing: boolean;
   settings: {
-    show_wave_design: boolean;
-    wave_color: string;
+    show_wave_design?: boolean;
+    wave_color?: string;
   };
 }
 
