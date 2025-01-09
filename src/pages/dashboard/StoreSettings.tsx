@@ -3,12 +3,10 @@ import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { DashboardSidebar } from "@/components/dashboard/DashboardSidebar";
 import { DashboardHeader } from "@/components/dashboard/DashboardHeader";
-import { HeroSection } from "@/components/dashboard/store-settings/HeroSection";
-import { FooterSection } from "@/components/dashboard/store-settings/FooterSection";
 import { HeaderSection } from "@/components/dashboard/store-settings/HeaderSection";
-import { RoleBasedSettings } from "@/components/dashboard/store-settings/RoleBasedSettings";
-import { CarouselSection } from "@/components/dashboard/store-settings/CarouselSection";
-import { WaveSection } from "@/components/dashboard/store-settings/WaveSection";
+import { AdminSettings } from "@/components/dashboard/store-settings/AdminSettings";
+import { DesignSettings } from "@/components/dashboard/store-settings/DesignSettings";
+import { ContentSettings } from "@/components/dashboard/store-settings/ContentSettings";
 import { useStoreSettings } from "@/hooks/use-store-settings";
 
 export default function StoreSettings() {
@@ -71,16 +69,13 @@ export default function StoreSettings() {
             </div>
           </div>
 
-          <RoleBasedSettings />
+          <AdminSettings />
 
           {isEditing ? (
             <form onSubmit={handleSubmit} className="space-y-6">
               <HeaderSection isEditing={isEditing} settings={settings} />
-              <HeroSection isEditing={isEditing} settings={settings} />
-              <WaveSection isEditing={isEditing} settings={settings} />
-              <CarouselSection isEditing={isEditing} settings={settings} />
-              <FooterSection isEditing={isEditing} settings={settings} />
-
+              <DesignSettings isEditing={isEditing} settings={settings} />
+              <ContentSettings isEditing={isEditing} settings={settings} />
               <Button type="submit" className="w-full">
                 Save Changes
               </Button>
@@ -88,10 +83,8 @@ export default function StoreSettings() {
           ) : (
             <div className="space-y-6">
               <HeaderSection isEditing={isEditing} settings={settings} />
-              <HeroSection isEditing={isEditing} settings={settings} />
-              <WaveSection isEditing={isEditing} settings={settings} />
-              <CarouselSection isEditing={isEditing} settings={settings} />
-              <FooterSection isEditing={isEditing} settings={settings} />
+              <DesignSettings isEditing={isEditing} settings={settings} />
+              <ContentSettings isEditing={isEditing} settings={settings} />
             </div>
           )}
         </div>
