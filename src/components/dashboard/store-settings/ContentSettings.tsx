@@ -1,9 +1,10 @@
 import { HeroSection } from "./HeroSection";
 import { FooterSection } from "./FooterSection";
+import { StoreSettings } from "@/integrations/supabase/types/store-settings";
 
 interface ContentSettingsProps {
   isEditing: boolean;
-  settings: any;
+  settings: StoreSettings;
 }
 
 export const ContentSettings = ({ isEditing, settings }: ContentSettingsProps) => {

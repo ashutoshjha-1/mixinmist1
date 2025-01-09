@@ -1,9 +1,10 @@
 import { WaveSection } from "./WaveSection";
 import { CarouselSection } from "./CarouselSection";
+import { StoreSettings } from "@/integrations/supabase/types/store-settings";
 
 interface DesignSettingsProps {
   isEditing: boolean;
-  settings: any;
+  settings: StoreSettings;
 }
 
 export const DesignSettings = ({ isEditing, settings }: DesignSettingsProps) => {
