@@ -34,6 +34,11 @@ const Navbar = () => {
     } = supabase.auth.onAuthStateChange(async (_event, session) => {
       console.log("Auth state changed:", _event, session?.user?.id);
       setSession(session);
+      
+      // If signed out, ensure we clear the session
+      if (_event === 'SIGNED_OUT') {
+        setSession(null);
+      }
     });
 
     return () => {
@@ -46,15 +51,29 @@ const Navbar = () => {
       // First check if we have a valid session
       const { data: { session: currentSession } } = await supabase.auth.getSession();
       
+      // If no session, just redirect to signin
       if (!currentSession) {
         console.log("No active session found, redirecting to signin");
+        setSession(null);
         navigate("/signin");
         return;
       }
 
+      // Attempt to sign out
       const { error } = await supabase.auth.signOut();
+      
+      // Handle specific error cases
       if (error) {
         console.error("Sign out error:", error);
+        
+        // If session not found or invalid, force clear session and redirect
+        if (error.message.includes('session_not_found') || error.status === 403) {
+          console.log("Invalid session, forcing signout");
+          setSession(null);
+          navigate("/signin");
+          return;
+        }
+        
         throw error;
       }
 
@@ -68,14 +87,16 @@ const Navbar = () => {
       });
     } catch (error: any) {
       console.error("Sign out failed:", error);
+      
+      // Show error toast
       toast({
         variant: "destructive",
         title: "Error signing out",
         description: error.message || "An unexpected error occurred",
       });
       
-      // If we get a 403 error, the session is already invalid
-      if (error.status === 403) {
+      // If we get a 403 error or session not found, force clear the session
+      if (error.status === 403 || (error.message && error.message.includes('session_not_found'))) {
         setSession(null);
         navigate("/signin");
       }
@@ -203,6 +224,7 @@ const Navbar = () => {
       )}
     </nav>
   );
+
 };
 
 export default Navbar;
