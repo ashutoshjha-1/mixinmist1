@@ -8,7 +8,7 @@ import { DashboardSidebar } from "@/components/dashboard/DashboardSidebar";
 import { DashboardHeader } from "@/components/dashboard/DashboardHeader";
 import { RoleBasedSettings } from "@/components/dashboard/store-settings/RoleBasedSettings";
 import { DesignSettings } from "@/components/dashboard/store-settings/DesignSettings";
-import type { CarouselImage, StoreSettings } from "@/integrations/supabase/types/store-settings";
+import type { StoreSettings } from "@/integrations/supabase/types/store-settings";
 
 export default function StoreSettings() {
   const { toast } = useToast();
@@ -80,7 +80,9 @@ export default function StoreSettings() {
           menu_items: menuItems,
           bottom_menu_items: bottomMenuItems,
           footer_links: footerLinks,
-          carousel_images: carouselImages
+          carousel_images: carouselImages,
+          show_hero: data.show_hero ?? true,
+          show_carousel: data.show_carousel ?? false
         } as StoreSettings;
       } catch (error: any) {
         toast({
