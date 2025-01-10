@@ -1,7 +1,7 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Check, Loader2 } from "lucide-react";
 
@@ -9,6 +9,19 @@ const PricingPage = () => {
   const { toast } = useToast();
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(false);
+  const [searchParams] = useSearchParams();
+
+  useEffect(() => {
+    // Check if this is a redirect back from successful payment
+    const success = searchParams.get('success');
+    if (success === 'true') {
+      toast({
+        title: "Thank you for subscribing!",
+        description: "Welcome to your premium dashboard",
+      });
+      navigate('/dashboard', { replace: true });
+    }
+  }, [searchParams, toast, navigate]);
 
   const features = [
     "Unlimited Store Products",
