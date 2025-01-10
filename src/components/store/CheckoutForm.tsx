@@ -39,14 +39,20 @@ export function CheckoutForm({ onSuccess, prefillData }: CheckoutFormProps) {
     try {
       console.log("Searching for profile with username:", username);
       
+      // Use case-insensitive search for username
       const { data: profile, error: profileError } = await supabase
         .from("profiles")
-        .select("id")
+        .select("id, store_name")
         .ilike("username", username || '')
         .single();
 
       if (profileError || !profile) {
         console.error("Profile error:", profileError);
+        toast({
+          variant: "destructive",
+          title: "Store Not Found",
+          description: "Unable to find the store. Please try again later.",
+        });
         throw new Error("Store not found");
       }
 

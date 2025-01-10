@@ -12,9 +12,21 @@ interface HeroSectionProps {
     show_hero: boolean;
   };
   onVisibilityChange?: (value: boolean) => void;
+  onChange?: (data: {
+    hero_title?: string;
+    hero_subtitle?: string;
+    hero_image_url?: string;
+  }) => void;
 }
 
-export function HeroSection({ isEditing, settings, onVisibilityChange }: HeroSectionProps) {
+export function HeroSection({ isEditing, settings, onVisibilityChange, onChange }: HeroSectionProps) {
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    if (onChange) {
+      onChange({ [name]: value });
+    }
+  };
+
   if (isEditing) {
     return (
       <div className="space-y-4 bg-white p-6 rounded-lg shadow-sm border border-gray-100">
@@ -40,7 +52,8 @@ export function HeroSection({ isEditing, settings, onVisibilityChange }: HeroSec
               <label className="block text-sm font-medium text-gray-700 mb-2">Hero Title</label>
               <Input
                 name="hero_title"
-                defaultValue={settings.hero_title || ""}
+                value={settings.hero_title || ""}
+                onChange={handleInputChange}
                 placeholder="Welcome to our store"
                 className="w-full"
               />
@@ -50,7 +63,8 @@ export function HeroSection({ isEditing, settings, onVisibilityChange }: HeroSec
               <label className="block text-sm font-medium text-gray-700 mb-2">Hero Subtitle</label>
               <Input
                 name="hero_subtitle"
-                defaultValue={settings.hero_subtitle || ""}
+                value={settings.hero_subtitle || ""}
+                onChange={handleInputChange}
                 placeholder="Discover our amazing products"
                 className="w-full"
               />
@@ -60,7 +74,8 @@ export function HeroSection({ isEditing, settings, onVisibilityChange }: HeroSec
               <label className="block text-sm font-medium text-gray-700 mb-2">Hero Image URL</label>
               <Input
                 name="hero_image_url"
-                defaultValue={settings.hero_image_url || ""}
+                value={settings.hero_image_url || ""}
+                onChange={handleInputChange}
                 placeholder="https://example.com/hero-image.jpg"
                 className="w-full"
               />
