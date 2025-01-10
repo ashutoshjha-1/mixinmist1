@@ -77,7 +77,7 @@ export const CarouselSection = ({
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 p-6 bg-white rounded-lg border border-gray-200">
       <div className="flex justify-between items-center">
         <SectionTitle
           title="Carousel Images"
@@ -101,32 +101,37 @@ export const CarouselSection = ({
             <div className="space-y-4">
               <div className="grid gap-4">
                 {carouselImages.map((image, index) => (
-                  <div key={index} className="space-y-2 p-4 border rounded-lg">
+                  <div key={index} className="space-y-4 p-4 border rounded-lg bg-gray-50">
                     <img
                       src={image.url}
                       alt={`Carousel image ${index + 1}`}
                       className="w-full h-40 object-cover rounded-lg"
                     />
-                    <div className="space-y-2">
-                      <Label>Button Text (Optional)</Label>
-                      <Input
-                        value={image.buttonText || ""}
-                        onChange={(e) =>
-                          handleUpdateImage(index, "buttonText", e.target.value)
-                        }
-                        placeholder="Click here"
-                      />
-                      <Label>Button URL (Optional)</Label>
-                      <Input
-                        value={image.buttonUrl || ""}
-                        onChange={(e) =>
-                          handleUpdateImage(index, "buttonUrl", e.target.value)
-                        }
-                        placeholder="https://example.com"
-                      />
+                    <div className="space-y-4">
+                      <div className="space-y-2">
+                        <Label>Button Text (Optional)</Label>
+                        <Input
+                          value={image.buttonText || ""}
+                          onChange={(e) =>
+                            handleUpdateImage(index, "buttonText", e.target.value)
+                          }
+                          placeholder="Click here"
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label>Button URL (Optional)</Label>
+                        <Input
+                          value={image.buttonUrl || ""}
+                          onChange={(e) =>
+                            handleUpdateImage(index, "buttonUrl", e.target.value)
+                          }
+                          placeholder="https://example.com"
+                        />
+                      </div>
                       <Button
                         variant="destructive"
                         onClick={() => handleRemoveImage(index)}
+                        className="w-full"
                       >
                         Remove Image
                       </Button>
@@ -134,7 +139,7 @@ export const CarouselSection = ({
                   </div>
                 ))}
               </div>
-              <div>
+              <div className="mt-4">
                 <Input
                   type="file"
                   accept="image/*"
