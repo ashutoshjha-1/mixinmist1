@@ -35,7 +35,10 @@ export function FooterSection({ isEditing, settings }: FooterSectionProps) {
   if (isEditing) {
     return (
       <div className="space-y-6 bg-white p-6 rounded-lg shadow-sm border border-gray-100">
-        <SectionTitle>Footer Settings</SectionTitle>
+        <SectionTitle 
+          title="Footer Settings"
+          description="Customize your store's footer content and navigation"
+        />
         
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-2">Footer Text</label>
@@ -110,7 +113,10 @@ export function FooterSection({ isEditing, settings }: FooterSectionProps) {
 
   return (
     <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-100">
-      <SectionTitle>Footer</SectionTitle>
+      <SectionTitle 
+        title="Footer"
+        description="Current footer configuration and menu items"
+      />
       <div className="space-y-4">
         <p className="text-gray-700">
           <span className="font-medium">Footer Text:</span> {settings.footer_text || "© 2024 All rights reserved"}

@@ -33,7 +33,10 @@ export function HeaderSection({ isEditing, settings }: HeaderSectionProps) {
   if (isEditing) {
     return (
       <div className="space-y-6 bg-white p-6 rounded-lg shadow-sm border border-gray-100">
-        <SectionTitle>Header Settings</SectionTitle>
+        <SectionTitle 
+          title="Header Settings"
+          description="Customize your store's header appearance and navigation"
+        />
         
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-2">Store Icon URL</label>
@@ -108,7 +111,10 @@ export function HeaderSection({ isEditing, settings }: HeaderSectionProps) {
 
   return (
     <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-100">
-      <SectionTitle>Header</SectionTitle>
+      <SectionTitle 
+        title="Header"
+        description="Current header configuration and menu items"
+      />
       {settings.icon_image_url && (
         <div className="mb-4">
           <p className="text-sm font-medium text-gray-700 mb-2">Store Icon</p>

@@ -14,7 +14,10 @@ export function HeroSection({ isEditing, settings }: HeroSectionProps) {
   if (isEditing) {
     return (
       <div className="space-y-4 bg-white p-6 rounded-lg shadow-sm border border-gray-100">
-        <SectionTitle>Hero Section Settings</SectionTitle>
+        <SectionTitle 
+          title="Hero Section Settings"
+          description="Configure your store's hero section content and appearance"
+        />
         
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-2">Hero Title</label>
@@ -51,7 +54,10 @@ export function HeroSection({ isEditing, settings }: HeroSectionProps) {
 
   return (
     <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-100">
-      <SectionTitle>Hero Section</SectionTitle>
+      <SectionTitle 
+        title="Hero Section"
+        description="Current hero section configuration"
+      />
       <div className="space-y-2">
         <p className="text-gray-700">
           <span className="font-medium">Title:</span> {settings.hero_title}
