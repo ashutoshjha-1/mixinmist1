@@ -13,13 +13,16 @@ const PricingPage = () => {
 
   useEffect(() => {
     // Check if this is a redirect back from successful payment
-    const success = searchParams.get('success');
-    if (success === 'true') {
+    const paymentSuccess = searchParams.get('payment');
+    if (paymentSuccess === 'success') {
       toast({
         title: "Thank you for subscribing!",
         description: "Welcome to your premium dashboard",
       });
-      navigate('/dashboard', { replace: true });
+      // Small delay to ensure the toast is shown before navigation
+      setTimeout(() => {
+        navigate('/dashboard', { replace: true });
+      }, 500);
     }
   }, [searchParams, toast, navigate]);
 
