@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useAdminCheck } from "@/hooks/use-admin-check";
+import { Loader2 } from "lucide-react";
 
 interface SubscriptionGuardProps {
   children: React.ReactNode;
@@ -51,6 +52,11 @@ export const SubscriptionGuard = ({ children }: SubscriptionGuardProps) => {
         console.log("Subscription check response:", data);
 
         if (!data?.hasActiveSubscription) {
+          toast({
+            variant: "destructive",
+            title: "Subscription Required",
+            description: "Please subscribe to access the dashboard",
+          });
           navigate("/pricing");
           return;
         }
@@ -67,13 +73,21 @@ export const SubscriptionGuard = ({ children }: SubscriptionGuardProps) => {
       }
     };
 
+    // Only check subscription when admin check is complete
     if (!isAdminLoading) {
       checkSubscription();
     }
   }, [navigate, toast, isAdmin, isAdminLoading]);
 
   if (loading && !isAdmin) {
-    return <div>Loading...</div>;
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="flex flex-col items-center gap-4">
+          <Loader2 className="h-8 w-8 animate-spin text-primary" />
+          <p className="text-muted-foreground">Checking subscription status...</p>
+        </div>
+      </div>
+    );
   }
 
   return <>{children}</>;
