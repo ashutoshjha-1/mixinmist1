@@ -15,19 +15,35 @@ interface HeaderSectionProps {
     icon_image_url: string | null;
     menu_items: MenuItem[] | null;
   };
+  onChange?: (data: { icon_image_url?: string; menu_items?: MenuItem[] }) => void;
 }
 
-export function HeaderSection({ isEditing, settings }: HeaderSectionProps) {
+export function HeaderSection({ isEditing, settings, onChange }: HeaderSectionProps) {
   const [menuItems, setMenuItems] = useState<MenuItem[]>(
     settings.menu_items || []
   );
 
   const addMenuItem = () => {
-    setMenuItems([...menuItems, { label: "", url: "" }]);
+    const newItems = [...menuItems, { label: "", url: "" }];
+    setMenuItems(newItems);
+    onChange?.({ menu_items: newItems });
   };
 
   const removeMenuItem = (index: number) => {
-    setMenuItems(menuItems.filter((_, i) => i !== index));
+    const newItems = menuItems.filter((_, i) => i !== index);
+    setMenuItems(newItems);
+    onChange?.({ menu_items: newItems });
+  };
+
+  const handleIconUrlChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    onChange?.({ icon_image_url: e.target.value });
+  };
+
+  const handleMenuItemChange = (index: number, field: keyof MenuItem, value: string) => {
+    const newItems = [...menuItems];
+    newItems[index][field] = value;
+    setMenuItems(newItems);
+    onChange?.({ menu_items: newItems });
   };
 
   if (isEditing) {
@@ -45,6 +61,7 @@ export function HeaderSection({ isEditing, settings }: HeaderSectionProps) {
             defaultValue={settings.icon_image_url || ""}
             placeholder="https://example.com/store-icon.png"
             className="w-full"
+            onChange={handleIconUrlChange}
           />
         </div>
 
@@ -62,12 +79,6 @@ export function HeaderSection({ isEditing, settings }: HeaderSectionProps) {
             </Button>
           </div>
 
-          <input
-            type="hidden"
-            name="menu_items"
-            value={JSON.stringify(menuItems)}
-          />
-
           <div className="space-y-4">
             {menuItems.map((item, index) => (
               <div key={index} className="flex gap-4 items-start">
@@ -75,22 +86,14 @@ export function HeaderSection({ isEditing, settings }: HeaderSectionProps) {
                   <Input
                     placeholder="Menu Label"
                     value={item.label}
-                    onChange={(e) => {
-                      const newItems = [...menuItems];
-                      newItems[index].label = e.target.value;
-                      setMenuItems(newItems);
-                    }}
+                    onChange={(e) => handleMenuItemChange(index, "label", e.target.value)}
                   />
                 </div>
                 <div className="flex-1">
                   <Input
                     placeholder="Menu URL"
                     value={item.url}
-                    onChange={(e) => {
-                      const newItems = [...menuItems];
-                      newItems[index].url = e.target.value;
-                      setMenuItems(newItems);
-                    }}
+                    onChange={(e) => handleMenuItemChange(index, "url", e.target.value)}
                   />
                 </div>
                 <Button
