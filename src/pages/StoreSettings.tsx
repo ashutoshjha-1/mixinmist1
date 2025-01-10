@@ -8,7 +8,7 @@ import { DashboardSidebar } from "@/components/dashboard/DashboardSidebar";
 import { DashboardHeader } from "@/components/dashboard/DashboardHeader";
 import { RoleBasedSettings } from "@/components/dashboard/store-settings/RoleBasedSettings";
 import { DesignSettings } from "@/components/dashboard/store-settings/DesignSettings";
-import { CarouselImage, StoreSettings } from "@/integrations/supabase/types/store-settings";
+import type { CarouselImage, StoreSettings } from "@/integrations/supabase/types/store-settings";
 
 export default function StoreSettings() {
   const { toast } = useToast();
@@ -99,9 +99,15 @@ export default function StoreSettings() {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error("Not authenticated");
 
+      // Convert carousel_images to a format suitable for Supabase
+      const settingsForUpdate = {
+        ...newSettings,
+        carousel_images: newSettings.carousel_images ? JSON.parse(JSON.stringify(newSettings.carousel_images)) : undefined
+      };
+
       const { data, error } = await supabase
         .from("store_settings")
-        .update(newSettings)
+        .update(settingsForUpdate)
         .eq("user_id", user.id)
         .select()
         .single();
