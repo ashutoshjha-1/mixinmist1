@@ -21,4 +21,6 @@ export interface StoreSettings {
   carousel_images: CarouselImage[] | null;
   created_at: string;
   updated_at: string;
+  show_hero: boolean;
+  show_carousel: boolean;
 }
