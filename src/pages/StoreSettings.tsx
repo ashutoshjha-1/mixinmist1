@@ -8,6 +8,7 @@ import { DashboardSidebar } from "@/components/dashboard/DashboardSidebar";
 import { DashboardHeader } from "@/components/dashboard/DashboardHeader";
 import { RoleBasedSettings } from "@/components/dashboard/store-settings/RoleBasedSettings";
 import { DesignSettings } from "@/components/dashboard/store-settings/DesignSettings";
+import { CarouselImage, StoreSettings } from "@/integrations/supabase/types/store-settings";
 
 export default function StoreSettings() {
   const { toast } = useToast();
@@ -64,13 +65,23 @@ export default function StoreSettings() {
             }))
           : [];
 
+        // Parse carousel images
+        const carouselImages = data.carousel_images 
+          ? (data.carousel_images as any[]).map((image: any) => ({
+              url: String(image.url || ''),
+              buttonText: image.buttonText || '',
+              buttonUrl: image.buttonUrl || ''
+            }))
+          : [];
+
         return { 
           ...data, 
           store_name: profile.store_name,
           menu_items: menuItems,
           bottom_menu_items: bottomMenuItems,
-          footer_links: footerLinks
-        };
+          footer_links: footerLinks,
+          carousel_images: carouselImages
+        } as StoreSettings;
       } catch (error: any) {
         toast({
           variant: "destructive",
@@ -84,7 +95,7 @@ export default function StoreSettings() {
   });
 
   const updateSettings = useMutation({
-    mutationFn: async (newSettings: Partial<typeof settings>) => {
+    mutationFn: async (newSettings: Partial<StoreSettings>) => {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error("Not authenticated");
 
@@ -115,7 +126,7 @@ export default function StoreSettings() {
     },
   });
 
-  const handleSettingsChange = (newSettings: Partial<typeof settings>) => {
+  const handleSettingsChange = (newSettings: Partial<StoreSettings>) => {
     updateSettings.mutate(newSettings);
   };
 
