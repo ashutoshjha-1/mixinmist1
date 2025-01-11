@@ -6,6 +6,7 @@ import { Switch } from "@/components/ui/switch";
 import { SectionTitle } from "./SectionTitle";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import { useAdminCheck } from "@/hooks/use-admin-check";
 
 interface CarouselImage {
   url: string;
@@ -29,6 +30,7 @@ export const CarouselSection = ({
   onVisibilityChange,
 }: CarouselSectionProps) => {
   const { toast } = useToast();
+  const { data: isAdmin } = useAdminCheck();
   const [isVisible, setIsVisible] = React.useState(show_carousel);
 
   React.useEffect(() => {
@@ -88,6 +90,11 @@ export const CarouselSection = ({
     onChange(newImages);
   };
 
+  // If not admin and not editing, don't show anything
+  if (!isAdmin && !isEditing) {
+    return null;
+  }
+
   return (
     <div className="space-y-6 p-6 bg-white rounded-lg border border-gray-200">
       <div className="flex justify-between items-center">
@@ -95,7 +102,7 @@ export const CarouselSection = ({
           title="Carousel Images"
           description="Add images to display in your store's carousel"
         />
-        {isEditing && (
+        {(isEditing || isAdmin) && (
           <div className="flex items-center space-x-2">
             <Switch
               id="show-carousel"
@@ -109,7 +116,7 @@ export const CarouselSection = ({
 
       {isVisible && (
         <>
-          {isEditing ? (
+          {(isEditing || isAdmin) ? (
             <div className="space-y-4">
               <div className="grid gap-4">
                 {carouselImages.map((image, index) => (
