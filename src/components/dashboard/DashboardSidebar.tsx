@@ -56,7 +56,7 @@ export const DashboardSidebar = () => {
         </NavLink>
 
         <NavLink
-          to="/find-products"
+          to="/dashboard/find-products"
           className={({ isActive }) =>
             cn(
               "flex items-center space-x-2 p-2 rounded-lg transition-colors",
@@ -72,7 +72,7 @@ export const DashboardSidebar = () => {
         </NavLink>
 
         <NavLink
-          to="/my-products"
+          to="/dashboard/my-products"
           className={({ isActive }) =>
             cn(
               "flex items-center space-x-2 p-2 rounded-lg transition-colors",
@@ -88,7 +88,7 @@ export const DashboardSidebar = () => {
         </NavLink>
 
         <NavLink
-          to="/orders"
+          to="/dashboard/orders"
           className={({ isActive }) =>
             cn(
               "flex items-center space-x-2 p-2 rounded-lg transition-colors",
@@ -104,7 +104,7 @@ export const DashboardSidebar = () => {
         </NavLink>
 
         <NavLink
-          to="/sample-orders"
+          to="/dashboard/sample-orders"
           className={({ isActive }) =>
             cn(
               "flex items-center space-x-2 p-2 rounded-lg transition-colors",
@@ -120,7 +120,7 @@ export const DashboardSidebar = () => {
         </NavLink>
 
         <NavLink
-          to="/store-settings"
+          to="/dashboard/store-settings"
           className={({ isActive }) =>
             cn(
               "flex items-center space-x-2 p-2 rounded-lg transition-colors",
@@ -136,7 +136,7 @@ export const DashboardSidebar = () => {
         </NavLink>
 
         <NavLink
-          to="/my-account"
+          to="/dashboard/my-account"
           className={({ isActive }) =>
             cn(
               "flex items-center space-x-2 p-2 rounded-lg transition-colors",
