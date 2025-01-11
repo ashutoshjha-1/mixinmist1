@@ -2,7 +2,6 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { FooterLink } from "@/integrations/supabase/types/footer";
 import { MenuItem } from "@/integrations/supabase/types/menu";
-import { CarouselImage } from "@/integrations/supabase/types/store-settings";
 import { toast } from "@/components/ui/use-toast";
 
 interface StoreData {
@@ -31,9 +30,6 @@ interface StoreData {
     theme_color: string;
     updated_at: string;
     user_id: string;
-    carousel_images: CarouselImage[];
-    show_hero: boolean;
-    show_carousel: boolean;
   };
   products: {
     id: string;
@@ -163,15 +159,6 @@ export const useStoreData = (storeName: string | undefined) => {
           }))
         : [];
 
-      // Parse carousel images
-      const carouselImages = Array.isArray(settings.carousel_images)
-        ? (settings.carousel_images as any[]).map((image) => ({
-            url: String(image?.url || ''),
-            buttonText: image?.buttonText || undefined,
-            buttonUrl: image?.buttonUrl || undefined,
-          }))
-        : [];
-
       return {
         profile,
         settings: {
@@ -179,9 +166,6 @@ export const useStoreData = (storeName: string | undefined) => {
           menu_items: menuItems,
           footer_links: footerLinks,
           bottom_menu_items: bottomMenuItems,
-          carousel_images: carouselImages,
-          show_hero: settings.show_hero ?? true,
-          show_carousel: settings.show_carousel ?? false
         },
         products,
       } as StoreData;

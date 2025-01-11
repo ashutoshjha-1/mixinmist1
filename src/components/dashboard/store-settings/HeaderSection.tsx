@@ -15,44 +15,25 @@ interface HeaderSectionProps {
     icon_image_url: string | null;
     menu_items: MenuItem[] | null;
   };
-  onChange?: (data: { icon_image_url?: string; menu_items?: MenuItem[] }) => void;
 }
 
-export function HeaderSection({ isEditing, settings, onChange }: HeaderSectionProps) {
+export function HeaderSection({ isEditing, settings }: HeaderSectionProps) {
   const [menuItems, setMenuItems] = useState<MenuItem[]>(
     settings.menu_items || []
   );
 
   const addMenuItem = () => {
-    const newItems = [...menuItems, { label: "", url: "" }];
-    setMenuItems(newItems);
-    onChange?.({ menu_items: newItems });
+    setMenuItems([...menuItems, { label: "", url: "" }]);
   };
 
   const removeMenuItem = (index: number) => {
-    const newItems = menuItems.filter((_, i) => i !== index);
-    setMenuItems(newItems);
-    onChange?.({ menu_items: newItems });
-  };
-
-  const handleIconUrlChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    onChange?.({ icon_image_url: e.target.value });
-  };
-
-  const handleMenuItemChange = (index: number, field: keyof MenuItem, value: string) => {
-    const newItems = [...menuItems];
-    newItems[index][field] = value;
-    setMenuItems(newItems);
-    onChange?.({ menu_items: newItems });
+    setMenuItems(menuItems.filter((_, i) => i !== index));
   };
 
   if (isEditing) {
     return (
       <div className="space-y-6 bg-white p-6 rounded-lg shadow-sm border border-gray-100">
-        <SectionTitle 
-          title="Header Settings"
-          description="Customize your store's header appearance and navigation"
-        />
+        <SectionTitle>Header Settings</SectionTitle>
         
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-2">Store Icon URL</label>
@@ -61,7 +42,6 @@ export function HeaderSection({ isEditing, settings, onChange }: HeaderSectionPr
             defaultValue={settings.icon_image_url || ""}
             placeholder="https://example.com/store-icon.png"
             className="w-full"
-            onChange={handleIconUrlChange}
           />
         </div>
 
@@ -79,6 +59,12 @@ export function HeaderSection({ isEditing, settings, onChange }: HeaderSectionPr
             </Button>
           </div>
 
+          <input
+            type="hidden"
+            name="menu_items"
+            value={JSON.stringify(menuItems)}
+          />
+
           <div className="space-y-4">
             {menuItems.map((item, index) => (
               <div key={index} className="flex gap-4 items-start">
@@ -86,14 +72,22 @@ export function HeaderSection({ isEditing, settings, onChange }: HeaderSectionPr
                   <Input
                     placeholder="Menu Label"
                     value={item.label}
-                    onChange={(e) => handleMenuItemChange(index, "label", e.target.value)}
+                    onChange={(e) => {
+                      const newItems = [...menuItems];
+                      newItems[index].label = e.target.value;
+                      setMenuItems(newItems);
+                    }}
                   />
                 </div>
                 <div className="flex-1">
                   <Input
                     placeholder="Menu URL"
                     value={item.url}
-                    onChange={(e) => handleMenuItemChange(index, "url", e.target.value)}
+                    onChange={(e) => {
+                      const newItems = [...menuItems];
+                      newItems[index].url = e.target.value;
+                      setMenuItems(newItems);
+                    }}
                   />
                 </div>
                 <Button
@@ -114,10 +108,7 @@ export function HeaderSection({ isEditing, settings, onChange }: HeaderSectionPr
 
   return (
     <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-100">
-      <SectionTitle 
-        title="Header"
-        description="Current header configuration and menu items"
-      />
+      <SectionTitle>Header</SectionTitle>
       {settings.icon_image_url && (
         <div className="mb-4">
           <p className="text-sm font-medium text-gray-700 mb-2">Store Icon</p>

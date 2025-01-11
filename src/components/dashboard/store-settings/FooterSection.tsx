@@ -17,53 +17,31 @@ interface FooterSectionProps {
     footer_links: any[] | null;
     bottom_menu_items: MenuItem[] | null;
   };
-  onChange?: (footerData: {
-    footer_text?: string;
-    bottom_menu_items?: MenuItem[];
-  }) => void;
 }
 
-export function FooterSection({ isEditing, settings, onChange }: FooterSectionProps) {
+export function FooterSection({ isEditing, settings }: FooterSectionProps) {
   const [bottomMenuItems, setBottomMenuItems] = useState<MenuItem[]>(
     settings.bottom_menu_items || []
   );
 
   const addBottomMenuItem = () => {
-    const newItems = [...bottomMenuItems, { label: "", url: "" }];
-    setBottomMenuItems(newItems);
-    onChange?.({ bottom_menu_items: newItems });
+    setBottomMenuItems([...bottomMenuItems, { label: "", url: "" }]);
   };
 
   const removeBottomMenuItem = (index: number) => {
-    const newItems = bottomMenuItems.filter((_, i) => i !== index);
-    setBottomMenuItems(newItems);
-    onChange?.({ bottom_menu_items: newItems });
-  };
-
-  const handleFooterTextChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
-    onChange?.({ footer_text: e.target.value });
-  };
-
-  const handleMenuItemChange = (index: number, field: 'label' | 'url', value: string) => {
-    const newItems = [...bottomMenuItems];
-    newItems[index][field] = value;
-    setBottomMenuItems(newItems);
-    onChange?.({ bottom_menu_items: newItems });
+    setBottomMenuItems(bottomMenuItems.filter((_, i) => i !== index));
   };
 
   if (isEditing) {
     return (
       <div className="space-y-6 bg-white p-6 rounded-lg shadow-sm border border-gray-100">
-        <SectionTitle 
-          title="Footer Settings"
-          description="Customize your store's footer content and navigation"
-        />
+        <SectionTitle>Footer Settings</SectionTitle>
         
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-2">Footer Text</label>
           <Textarea
-            value={settings.footer_text || ""}
-            onChange={handleFooterTextChange}
+            name="footer_text"
+            defaultValue={settings.footer_text || ""}
             placeholder="© 2024 All rights reserved"
             className="w-full"
           />
@@ -83,6 +61,12 @@ export function FooterSection({ isEditing, settings, onChange }: FooterSectionPr
             </Button>
           </div>
 
+          <input
+            type="hidden"
+            name="bottom_menu_items"
+            value={JSON.stringify(bottomMenuItems)}
+          />
+
           <div className="space-y-4">
             {bottomMenuItems.map((item, index) => (
               <div key={index} className="flex gap-4 items-start">
@@ -90,14 +74,22 @@ export function FooterSection({ isEditing, settings, onChange }: FooterSectionPr
                   <Input
                     placeholder="Menu Label"
                     value={item.label}
-                    onChange={(e) => handleMenuItemChange(index, 'label', e.target.value)}
+                    onChange={(e) => {
+                      const newItems = [...bottomMenuItems];
+                      newItems[index].label = e.target.value;
+                      setBottomMenuItems(newItems);
+                    }}
                   />
                 </div>
                 <div className="flex-1">
                   <Input
                     placeholder="Menu URL"
                     value={item.url}
-                    onChange={(e) => handleMenuItemChange(index, 'url', e.target.value)}
+                    onChange={(e) => {
+                      const newItems = [...bottomMenuItems];
+                      newItems[index].url = e.target.value;
+                      setBottomMenuItems(newItems);
+                    }}
                   />
                 </div>
                 <Button
@@ -118,10 +110,7 @@ export function FooterSection({ isEditing, settings, onChange }: FooterSectionPr
 
   return (
     <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-100">
-      <SectionTitle 
-        title="Footer"
-        description="Current footer configuration and menu items"
-      />
+      <SectionTitle>Footer</SectionTitle>
       <div className="space-y-4">
         <p className="text-gray-700">
           <span className="font-medium">Footer Text:</span> {settings.footer_text || "© 2024 All rights reserved"}

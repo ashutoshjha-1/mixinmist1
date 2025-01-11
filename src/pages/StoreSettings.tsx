@@ -6,9 +6,10 @@ import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { DashboardSidebar } from "@/components/dashboard/DashboardSidebar";
 import { DashboardHeader } from "@/components/dashboard/DashboardHeader";
+import { HeroSection } from "@/components/dashboard/store-settings/HeroSection";
+import { FooterSection } from "@/components/dashboard/store-settings/FooterSection";
+import { HeaderSection } from "@/components/dashboard/store-settings/HeaderSection";
 import { RoleBasedSettings } from "@/components/dashboard/store-settings/RoleBasedSettings";
-import { DesignSettings } from "@/components/dashboard/store-settings/DesignSettings";
-import type { StoreSettings } from "@/integrations/supabase/types/store-settings";
 
 export default function StoreSettings() {
   const { toast } = useToast();
@@ -65,25 +66,13 @@ export default function StoreSettings() {
             }))
           : [];
 
-        // Parse carousel images
-        const carouselImages = data.carousel_images 
-          ? (data.carousel_images as any[]).map((image: any) => ({
-              url: String(image.url || ''),
-              buttonText: image.buttonText || '',
-              buttonUrl: image.buttonUrl || ''
-            }))
-          : [];
-
         return { 
           ...data, 
           store_name: profile.store_name,
           menu_items: menuItems,
           bottom_menu_items: bottomMenuItems,
-          footer_links: footerLinks,
-          carousel_images: carouselImages,
-          show_hero: data.show_hero ?? true,
-          show_carousel: data.show_carousel ?? false
-        } as StoreSettings;
+          footer_links: footerLinks
+        };
       } catch (error: any) {
         toast({
           variant: "destructive",
@@ -97,19 +86,30 @@ export default function StoreSettings() {
   });
 
   const updateSettings = useMutation({
-    mutationFn: async (newSettings: Partial<StoreSettings>) => {
+    mutationFn: async (formData: FormData) => {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error("Not authenticated");
 
-      // Convert carousel_images to a format suitable for Supabase
-      const settingsForUpdate = {
-        ...newSettings,
-        carousel_images: newSettings.carousel_images ? JSON.parse(JSON.stringify(newSettings.carousel_images)) : undefined
+      const menuItems = formData.get("menu_items");
+      const bottomMenuItems = formData.get("bottom_menu_items");
+      const footerLinks = formData.get("footer_links");
+      
+      const newSettings = {
+        hero_title: String(formData.get("hero_title") || ""),
+        hero_subtitle: String(formData.get("hero_subtitle") || ""),
+        hero_image_url: String(formData.get("hero_image_url") || ""),
+        footer_text: String(formData.get("footer_text") || ""),
+        theme_color: String(formData.get("theme_color") || ""),
+        custom_domain: String(formData.get("custom_domain") || ""),
+        icon_image_url: String(formData.get("icon_image_url") || ""),
+        menu_items: menuItems ? JSON.parse(menuItems as string) : [],
+        bottom_menu_items: bottomMenuItems ? JSON.parse(bottomMenuItems as string) : [],
+        footer_links: footerLinks ? JSON.parse(footerLinks as string) : [],
       };
 
       const { data, error } = await supabase
         .from("store_settings")
-        .update(settingsForUpdate)
+        .update(newSettings)
         .eq("user_id", user.id)
         .select()
         .single();
@@ -134,8 +134,10 @@ export default function StoreSettings() {
     },
   });
 
-  const handleSettingsChange = (newSettings: Partial<StoreSettings>) => {
-    updateSettings.mutate(newSettings);
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    const formData = new FormData(e.target as HTMLFormElement);
+    updateSettings.mutate(formData);
   };
 
   if (error) {
@@ -189,13 +191,23 @@ export default function StoreSettings() {
 
           <RoleBasedSettings />
 
-          <div className="mt-8">
-            <DesignSettings
-              isEditing={isEditing}
-              settings={settings}
-              onSettingsChange={handleSettingsChange}
-            />
-          </div>
+          {isEditing ? (
+            <form onSubmit={handleSubmit} className="space-y-6">
+              <HeaderSection isEditing={isEditing} settings={settings} />
+              <HeroSection isEditing={isEditing} settings={settings} />
+              <FooterSection isEditing={isEditing} settings={settings} />
+
+              <Button type="submit" className="w-full">
+                Save Changes
+              </Button>
+            </form>
+          ) : (
+            <div className="space-y-6">
+              <HeaderSection isEditing={isEditing} settings={settings} />
+              <HeroSection isEditing={isEditing} settings={settings} />
+              <FooterSection isEditing={isEditing} settings={settings} />
+            </div>
+          )}
         </div>
       </div>
     </div>

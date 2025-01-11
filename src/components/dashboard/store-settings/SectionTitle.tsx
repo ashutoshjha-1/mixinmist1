@@ -1,13 +1,13 @@
+import { ReactNode } from "react";
+
 interface SectionTitleProps {
-  title: string;
-  description: string;
+  children: ReactNode;
 }
 
-export function SectionTitle({ title, description }: SectionTitleProps) {
+export function SectionTitle({ children }: SectionTitleProps) {
   return (
-    <div className="space-y-1">
-      <h3 className="text-lg font-semibold text-gray-900">{title}</h3>
-      <p className="text-sm text-gray-500">{description}</p>
-    </div>
+    <h3 className="text-lg font-semibold text-gray-900 mb-4">
+      {children}
+    </h3>
   );
 }

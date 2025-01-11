@@ -54,20 +54,6 @@ const Dashboard = () => {
             <p className="text-gray-600 mb-8">
               Get started by exploring products or setting up your brand
             </p>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-4xl mx-auto">
-              <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
-                <h2 className="text-xl font-semibold mb-2">Find Products</h2>
-                <p className="text-gray-500">Browse our catalog of available products</p>
-              </div>
-              <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
-                <h2 className="text-xl font-semibold mb-2">Store Settings</h2>
-                <p className="text-gray-500">Customize your store's appearance</p>
-              </div>
-              <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
-                <h2 className="text-xl font-semibold mb-2">Orders</h2>
-                <p className="text-gray-500">Manage your customer orders</p>
-              </div>
-            </div>
           </div>
         </div>
       </div>

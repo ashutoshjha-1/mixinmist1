@@ -1,9 +1,8 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
-import { useToast } from "@/hooks/use-toast";
+import { useToast } from "@/components/ui/use-toast";
 import { DashboardSidebar } from "@/components/dashboard/DashboardSidebar";
-import { DashboardHeader } from "@/components/dashboard/DashboardHeader";
 import { useAdminCheck } from "@/hooks/use-admin-check";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { OrdersTable } from "@/components/dashboard/orders/OrdersTable";
@@ -32,7 +31,9 @@ const CustomerOrders = () => {
           return;
         }
 
+        console.log("Session found:", session.user.id);
         setUserId(session.user.id);
+
       } catch (error: any) {
         console.error("Auth check error:", error);
         toast({
@@ -45,19 +46,30 @@ const CustomerOrders = () => {
     };
 
     checkAuth();
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      if (session) {
+        setUserId(session.user.id);
+      } else {
+        navigate("/signin");
+      }
+    });
+
+    return () => {
+      subscription.unsubscribe();
+    };
   }, [navigate, toast]);
 
   const { orders, allUserOrders } = useOrders(userId, isAdmin);
 
   if (!userId) {
-    return null;
+    return null; // Don't render anything while checking authentication
   }
 
   return (
     <div className="min-h-screen bg-gray-50">
       <DashboardSidebar />
       <div className="ml-64 p-8">
-        <DashboardHeader onSignOut={() => {}} />
         <Tabs defaultValue="customer-orders" className="w-full">
           <div className="flex items-center justify-between mb-8">
             <h1 className="text-2xl font-semibold tracking-tight">Orders</h1>
