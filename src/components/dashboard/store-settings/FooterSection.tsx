@@ -17,19 +17,38 @@ interface FooterSectionProps {
     footer_links: any[] | null;
     bottom_menu_items: MenuItem[] | null;
   };
+  onChange?: (footerData: {
+    footer_text?: string;
+    bottom_menu_items?: MenuItem[];
+  }) => void;
 }
 
-export function FooterSection({ isEditing, settings }: FooterSectionProps) {
+export function FooterSection({ isEditing, settings, onChange }: FooterSectionProps) {
   const [bottomMenuItems, setBottomMenuItems] = useState<MenuItem[]>(
     settings.bottom_menu_items || []
   );
 
   const addBottomMenuItem = () => {
-    setBottomMenuItems([...bottomMenuItems, { label: "", url: "" }]);
+    const newItems = [...bottomMenuItems, { label: "", url: "" }];
+    setBottomMenuItems(newItems);
+    onChange?.({ bottom_menu_items: newItems });
   };
 
   const removeBottomMenuItem = (index: number) => {
-    setBottomMenuItems(bottomMenuItems.filter((_, i) => i !== index));
+    const newItems = bottomMenuItems.filter((_, i) => i !== index);
+    setBottomMenuItems(newItems);
+    onChange?.({ bottom_menu_items: newItems });
+  };
+
+  const handleFooterTextChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    onChange?.({ footer_text: e.target.value });
+  };
+
+  const handleMenuItemChange = (index: number, field: 'label' | 'url', value: string) => {
+    const newItems = [...bottomMenuItems];
+    newItems[index][field] = value;
+    setBottomMenuItems(newItems);
+    onChange?.({ bottom_menu_items: newItems });
   };
 
   if (isEditing) {
@@ -43,8 +62,8 @@ export function FooterSection({ isEditing, settings }: FooterSectionProps) {
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-2">Footer Text</label>
           <Textarea
-            name="footer_text"
-            defaultValue={settings.footer_text || ""}
+            value={settings.footer_text || ""}
+            onChange={handleFooterTextChange}
             placeholder="© 2024 All rights reserved"
             className="w-full"
           />
@@ -64,12 +83,6 @@ export function FooterSection({ isEditing, settings }: FooterSectionProps) {
             </Button>
           </div>
 
-          <input
-            type="hidden"
-            name="bottom_menu_items"
-            value={JSON.stringify(bottomMenuItems)}
-          />
-
           <div className="space-y-4">
             {bottomMenuItems.map((item, index) => (
               <div key={index} className="flex gap-4 items-start">
@@ -77,22 +90,14 @@ export function FooterSection({ isEditing, settings }: FooterSectionProps) {
                   <Input
                     placeholder="Menu Label"
                     value={item.label}
-                    onChange={(e) => {
-                      const newItems = [...bottomMenuItems];
-                      newItems[index].label = e.target.value;
-                      setBottomMenuItems(newItems);
-                    }}
+                    onChange={(e) => handleMenuItemChange(index, 'label', e.target.value)}
                   />
                 </div>
                 <div className="flex-1">
                   <Input
                     placeholder="Menu URL"
                     value={item.url}
-                    onChange={(e) => {
-                      const newItems = [...bottomMenuItems];
-                      newItems[index].url = e.target.value;
-                      setBottomMenuItems(newItems);
-                    }}
+                    onChange={(e) => handleMenuItemChange(index, 'url', e.target.value)}
                   />
                 </div>
                 <Button
