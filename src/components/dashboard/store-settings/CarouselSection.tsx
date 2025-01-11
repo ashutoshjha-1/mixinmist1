@@ -29,6 +29,18 @@ export const CarouselSection = ({
   onVisibilityChange,
 }: CarouselSectionProps) => {
   const { toast } = useToast();
+  const [isVisible, setIsVisible] = React.useState(show_carousel);
+
+  React.useEffect(() => {
+    setIsVisible(show_carousel);
+  }, [show_carousel]);
+
+  const handleVisibilityChange = (checked: boolean) => {
+    setIsVisible(checked);
+    if (onVisibilityChange) {
+      onVisibilityChange(checked);
+    }
+  };
 
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -87,15 +99,15 @@ export const CarouselSection = ({
           <div className="flex items-center space-x-2">
             <Switch
               id="show-carousel"
-              checked={show_carousel}
-              onCheckedChange={onVisibilityChange}
+              checked={isVisible}
+              onCheckedChange={handleVisibilityChange}
             />
             <Label htmlFor="show-carousel">Show Carousel</Label>
           </div>
         )}
       </div>
 
-      {show_carousel && (
+      {isVisible && (
         <>
           {isEditing ? (
             <div className="space-y-4">
