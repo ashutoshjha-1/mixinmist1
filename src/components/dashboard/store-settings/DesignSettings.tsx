@@ -23,6 +23,10 @@ export const DesignSettings = ({
   const [isSaving, setIsSaving] = React.useState(false);
   const [formData, setFormData] = React.useState<Partial<StoreSettings>>(settings);
 
+  React.useEffect(() => {
+    setFormData(settings);
+  }, [settings]);
+
   const handleCarouselImagesChange = (carouselImages: any[]) => {
     setFormData(prev => ({
       ...prev,
@@ -92,8 +96,8 @@ export const DesignSettings = ({
       />
       <CarouselSection
         isEditing={isEditing}
-        carouselImages={settings.carousel_images || []}
-        show_carousel={settings.show_carousel}
+        carouselImages={formData.carousel_images || []}
+        show_carousel={formData.show_carousel || false}
         onChange={handleCarouselImagesChange}
         onVisibilityChange={handleCarouselVisibilityChange}
       />
