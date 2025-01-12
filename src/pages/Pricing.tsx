@@ -4,6 +4,7 @@ import { useToast } from "@/hooks/use-toast";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Check, Loader2 } from "lucide-react";
+import { loadRazorpay } from "@/utils/razorpay";
 
 const PricingPage = () => {
   const { toast } = useToast();
@@ -34,24 +35,46 @@ const PricingPage = () => {
         return;
       }
 
-      // Log the attempt to create a checkout session
-      console.log("Creating checkout session for user:", session.user.email);
+      // Load Razorpay SDK
+      const razorpay = await loadRazorpay();
+      if (!razorpay) {
+        throw new Error("Razorpay SDK failed to load");
+      }
 
-      const { data, error } = await supabase.functions.invoke('create-checkout', {
+      // Create subscription order
+      const { data, error } = await supabase.functions.invoke('create-razorpay-order', {
         headers: {
           Authorization: `Bearer ${session.access_token}`,
         },
       });
 
       if (error) {
-        throw new Error(error.message || "Failed to create checkout session");
+        throw new Error(error.message || "Failed to create subscription");
       }
 
-      if (data?.url) {
-        window.location.href = data.url;
-      } else {
-        throw new Error("No checkout URL received");
-      }
+      const options = {
+        key: import.meta.env.VITE_RAZORPAY_KEY_ID,
+        subscription_id: data.subscription.id,
+        name: "Your Store Name",
+        description: "Professional Plan Subscription",
+        handler: function (response: any) {
+          console.log("Payment successful:", response);
+          toast({
+            title: "Subscription successful!",
+            description: "Your subscription has been activated.",
+          });
+          navigate("/dashboard");
+        },
+        prefill: {
+          email: session.user.email,
+        },
+        theme: {
+          color: "#4F46E5",
+        },
+      };
+
+      const paymentObject = new razorpay(options);
+      paymentObject.open();
     } catch (error: any) {
       console.error("Subscription error:", error);
       toast({
@@ -65,8 +88,8 @@ const PricingPage = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 py-20">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen bg-gray-50 py-20 px-4 sm:px-6 lg:px-8">
+      <div className="max-w-7xl mx-auto">
         <div className="text-center">
           <h2 className="text-3xl font-extrabold text-gray-900 sm:text-4xl">
             Simple, transparent pricing
@@ -108,7 +131,7 @@ const PricingPage = () => {
               Monthly subscription
             </p>
             <div className="mt-4 flex items-center justify-center text-5xl font-extrabold text-gray-900">
-              <span>$29</span>
+              <span>₹999</span>
               <span className="ml-3 text-xl font-medium text-gray-500">
                 /month
               </span>
@@ -130,7 +153,7 @@ const PricingPage = () => {
               </Button>
             </div>
             <p className="mt-4 text-sm text-gray-500">
-              Secure payment processing by Stripe
+              Secure payment processing by Razorpay
             </p>
           </div>
         </div>
