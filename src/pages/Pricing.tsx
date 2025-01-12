@@ -41,7 +41,7 @@ const PricingPage = () => {
         throw new Error("Razorpay SDK failed to load");
       }
 
-      // Create subscription order
+      // Create subscription
       const { data, error } = await supabase.functions.invoke('create-razorpay-order', {
         headers: {
           Authorization: `Bearer ${session.access_token}`,
@@ -52,6 +52,11 @@ const PricingPage = () => {
         throw new Error(error.message || "Failed to create subscription");
       }
 
+      if (!data?.subscription?.short_url) {
+        throw new Error("Invalid subscription response");
+      }
+
+      // Open Razorpay checkout
       const options = {
         key: import.meta.env.VITE_RAZORPAY_KEY_ID,
         subscription_id: data.subscription.id,

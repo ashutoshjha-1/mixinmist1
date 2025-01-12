@@ -51,15 +51,30 @@ serve(async (req) => {
 
     console.log('Creating subscription for user:', user.email)
 
+    const currentTimestamp = Math.floor(Date.now() / 1000);
+    const expireTimestamp = currentTimestamp + 1800; // 30 minutes from now
+
     const subscription = await razorpay.subscriptions.create({
-      plan_id: 'plan_MtmkXCLDXVXkGm', // Your Razorpay plan ID
-      customer_notify: 1,
-      total_count: 12,
+      plan_id: 'plan_PiWVhnhwqnvGms',
+      total_count: 6,
       quantity: 1,
+      customer_notify: 1,
+      start_at: currentTimestamp,
+      expire_by: expireTimestamp,
+      offer_id: 'offer_PiYlFyG1gAU0nr',
+      addons: [
+        {
+          item: {
+            name: "Subscription Fee",
+            amount: 100, // 1 INR in paise
+            currency: "INR"
+          }
+        }
+      ],
       notes: {
         user_id: user.id,
-        user_email: user.email,
-      },
+        user_email: user.email
+      }
     });
 
     console.log('Subscription created:', subscription)
@@ -76,12 +91,18 @@ serve(async (req) => {
     
     return new Response(
       JSON.stringify({ 
-        error: error.message,
-        details: error.stack 
+        error: {
+          code: "BAD_REQUEST_ERROR",
+          description: error.message,
+          source: "NA",
+          step: "NA",
+          reason: "NA",
+          metadata: {}
+        }
       }),
       {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-        status: error.message === 'Unauthorized' ? 401 : 500,
+        status: error.message === 'Unauthorized' ? 401 : 400,
       }
     )
   }
