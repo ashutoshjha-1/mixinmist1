@@ -137,28 +137,28 @@ export default function Users() {
   }
 
   return (
-    <div className="flex min-h-screen">
+    <div className="flex min-h-screen bg-background">
       <DashboardSidebar />
       <div className="flex-1 p-8">
         <div className="flex items-center gap-2 mb-6">
           <UserCog className="h-6 w-6" />
           <h1 className="text-2xl font-bold">User Management</h1>
         </div>
-        <div className="bg-white rounded-lg shadow">
+        <div className="rounded-lg border bg-card">
           <Table>
             <TableHeader>
-              <TableRow>
-                <TableHead>Full Name</TableHead>
-                <TableHead>Username</TableHead>
-                <TableHead>Store Name</TableHead>
-                <TableHead>Role</TableHead>
-                <TableHead>Actions</TableHead>
+              <TableRow className="hover:bg-transparent">
+                <TableHead className="w-[200px]">Full Name</TableHead>
+                <TableHead className="w-[200px]">Username</TableHead>
+                <TableHead className="w-[200px]">Store Name</TableHead>
+                <TableHead className="w-[100px]">Role</TableHead>
+                <TableHead className="w-[200px]">Actions</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {users.map((user) => (
                 <TableRow key={user.id}>
-                  <TableCell>{user.full_name}</TableCell>
+                  <TableCell className="font-medium">{user.full_name}</TableCell>
                   <TableCell>{user.username}</TableCell>
                   <TableCell>{user.store_name}</TableCell>
                   <TableCell className="capitalize">{user.role}</TableCell>
