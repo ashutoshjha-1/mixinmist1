@@ -21,9 +21,12 @@ serve(async (req) => {
     )
 
     // Verify authentication
-    const authHeader = req.headers.get('Authorization')!
-    const token = authHeader.replace('Bearer ', '')
+    const authHeader = req.headers.get('Authorization')
+    if (!authHeader) {
+      throw new Error('No authorization header')
+    }
     
+    const token = authHeader.replace('Bearer ', '')
     const { data: { user }, error: authError } = await supabaseClient.auth.getUser(token)
     
     if (authError || !user) {
@@ -31,10 +34,19 @@ serve(async (req) => {
       throw new Error('Unauthorized')
     }
 
+    console.log('Authenticated user:', user.email)
+
     // Initialize Razorpay
+    const razorpayKeyId = Deno.env.get('RAZORPAY_KEY_ID')
+    const razorpayKeySecret = Deno.env.get('RAZORPAY_KEY_SECRET')
+
+    if (!razorpayKeyId || !razorpayKeySecret) {
+      throw new Error('Razorpay credentials not configured')
+    }
+
     const razorpay = new Razorpay({
-      key_id: Deno.env.get('RAZORPAY_KEY_ID') || '',
-      key_secret: Deno.env.get('RAZORPAY_KEY_SECRET') || '',
+      key_id: razorpayKeyId,
+      key_secret: razorpayKeySecret,
     });
 
     console.log('Creating subscription for user:', user.email)
@@ -45,6 +57,7 @@ serve(async (req) => {
       total_count: 12,
       quantity: 1,
       notes: {
+        user_id: user.id,
         user_email: user.email,
       },
     });
