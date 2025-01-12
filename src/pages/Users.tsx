@@ -139,7 +139,7 @@ export default function Users() {
   return (
     <div className="flex min-h-screen bg-background">
       <DashboardSidebar />
-      <div className="flex-1 p-8">
+      <div className="flex-1 p-8 pl-[calc(16rem+2rem)]">
         <div className="flex items-center gap-2 mb-6">
           <UserCog className="h-6 w-6" />
           <h1 className="text-2xl font-bold">User Management</h1>
