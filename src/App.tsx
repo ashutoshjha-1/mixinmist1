@@ -13,6 +13,7 @@ import Pricing from "@/pages/Pricing";
 import StoreSettings from "@/pages/StoreSettings";
 import MyAccount from "@/pages/MyAccount";
 import CustomerOrders from "@/pages/dashboard/CustomerOrders";
+import Users from "@/pages/Users";
 
 function App() {
   return (
@@ -31,6 +32,7 @@ function App() {
         <Route path="/orders" element={<CustomerOrders />} />
         <Route path="/store-settings" element={<StoreSettings />} />
         <Route path="/my-account" element={<MyAccount />} />
+        <Route path="/users" element={<Users />} />
       </Routes>
       <Toaster />
     </Router>
