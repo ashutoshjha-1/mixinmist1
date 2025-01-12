@@ -8,40 +8,48 @@ const corsHeaders = {
 }
 
 serve(async (req) => {
+  // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders })
   }
 
-  const supabaseClient = createClient(
-    Deno.env.get('SUPABASE_URL') ?? '',
-    Deno.env.get('SUPABASE_ANON_KEY') ?? '',
-  )
-
   try {
+    // Initialize Supabase client
+    const supabaseClient = createClient(
+      Deno.env.get('SUPABASE_URL') ?? '',
+      Deno.env.get('SUPABASE_ANON_KEY') ?? '',
+    )
+
+    // Verify authentication
     const authHeader = req.headers.get('Authorization')!
     const token = authHeader.replace('Bearer ', '')
-    const { data } = await supabaseClient.auth.getUser(token)
-    const user = data.user
-    const email = user?.email
-
-    if (!email) {
-      throw new Error('No email found')
+    
+    const { data: { user }, error: authError } = await supabaseClient.auth.getUser(token)
+    
+    if (authError || !user) {
+      console.error('Auth error:', authError)
+      throw new Error('Unauthorized')
     }
 
+    // Initialize Razorpay
     const razorpay = new Razorpay({
       key_id: Deno.env.get('RAZORPAY_KEY_ID') || '',
       key_secret: Deno.env.get('RAZORPAY_KEY_SECRET') || '',
     });
 
+    console.log('Creating subscription for user:', user.email)
+
     const subscription = await razorpay.subscriptions.create({
-      plan_id: 'plan_MtmkXCLDXVXkGm', // Replace with your plan ID
+      plan_id: 'plan_MtmkXCLDXVXkGm', // Your Razorpay plan ID
       customer_notify: 1,
-      total_count: 12, // Number of billing cycles
+      total_count: 12,
       quantity: 1,
       notes: {
-        user_email: email,
+        user_email: user.email,
       },
     });
+
+    console.log('Subscription created:', subscription)
 
     return new Response(
       JSON.stringify({ subscription }),
@@ -51,12 +59,16 @@ serve(async (req) => {
       }
     )
   } catch (error) {
-    console.error('Error:', error)
+    console.error('Error in create-razorpay-order:', error)
+    
     return new Response(
-      JSON.stringify({ error: error.message }),
+      JSON.stringify({ 
+        error: error.message,
+        details: error.stack 
+      }),
       {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-        status: 500,
+        status: error.message === 'Unauthorized' ? 401 : 500,
       }
     )
   }
