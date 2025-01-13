@@ -13,6 +13,8 @@ serve(async (req) => {
   try {
     const { planId, totalCount, quantity, customerNotify, startAt, expireBy, offerId, addons, notes } = await req.json()
 
+    console.log('Received request with startAt:', startAt);
+
     const response = await fetch('https://api.razorpay.com/v1/subscriptions', {
       method: 'POST',
       headers: {
@@ -33,6 +35,7 @@ serve(async (req) => {
     })
 
     const data = await response.json()
+    console.log('Razorpay API response:', data);
 
     if (!response.ok) {
       throw new Error(data.error?.description || 'Failed to create subscription')
@@ -46,6 +49,7 @@ serve(async (req) => {
       },
     )
   } catch (error) {
+    console.error('Error in Edge Function:', error);
     return new Response(
       JSON.stringify({ 
         error: {

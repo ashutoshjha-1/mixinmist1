@@ -35,8 +35,10 @@ const PricingPage = () => {
         return;
       }
 
+      // Get current timestamp and ensure start_at is current or future
       const currentTimestamp = Math.floor(Date.now() / 1000);
-      const expireTimestamp = currentTimestamp + 1800; // 30 minutes from now
+      const startAt = currentTimestamp + 60; // Start 1 minute from now
+      const expireTimestamp = startAt + 1800; // 30 minutes from start
 
       console.log('Creating subscription via Edge Function');
 
@@ -46,14 +48,14 @@ const PricingPage = () => {
           totalCount: 6,
           quantity: 1,
           customerNotify: 1,
-          startAt: currentTimestamp,
+          startAt: startAt,
           expireBy: expireTimestamp,
           offerId: 'offer_PiYlFyG1gAU0nr',
           addons: [
             {
               item: {
                 name: "Subscription Fee",
-                amount: 100, // 1 INR in paise
+                amount: 100,
                 currency: "INR"
               }
             }
