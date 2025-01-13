@@ -38,6 +38,12 @@ const PricingPage = () => {
       const currentTimestamp = Math.floor(Date.now() / 1000);
       const expireTimestamp = currentTimestamp + 1800; // 30 minutes from now
 
+      console.log('Creating subscription with credentials:', {
+        keyId: import.meta.env.VITE_RAZORPAY_KEY_ID,
+        timestamp: currentTimestamp,
+        expireTimestamp
+      });
+
       const response = await fetch('https://api.razorpay.com/v1/subscriptions', {
         method: 'POST',
         headers: {
@@ -69,6 +75,7 @@ const PricingPage = () => {
       });
 
       const data = await response.json();
+      console.log('Razorpay API response:', data);
 
       if (!response.ok) {
         throw new Error(data.error?.description || 'Failed to create subscription');
