@@ -38,26 +38,17 @@ const PricingPage = () => {
       const currentTimestamp = Math.floor(Date.now() / 1000);
       const expireTimestamp = currentTimestamp + 1800; // 30 minutes from now
 
-      console.log('Creating subscription with credentials:', {
-        keyId: import.meta.env.VITE_RAZORPAY_KEY_ID,
-        timestamp: currentTimestamp,
-        expireTimestamp
-      });
+      console.log('Creating subscription via Edge Function');
 
-      const response = await fetch('https://api.razorpay.com/v1/subscriptions', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Basic ${btoa(`${import.meta.env.VITE_RAZORPAY_KEY_ID}:${import.meta.env.VITE_RAZORPAY_KEY_SECRET}`)}`,
-        },
-        body: JSON.stringify({
-          plan_id: 'plan_PiWVhnhwqnvGms',
-          total_count: 6,
+      const { data, error } = await supabase.functions.invoke('create-razorpay-subscription', {
+        body: {
+          planId: 'plan_PiWVhnhwqnvGms',
+          totalCount: 6,
           quantity: 1,
-          customer_notify: 1,
-          start_at: currentTimestamp,
-          expire_by: expireTimestamp,
-          offer_id: 'offer_PiYlFyG1gAU0nr',
+          customerNotify: 1,
+          startAt: currentTimestamp,
+          expireBy: expireTimestamp,
+          offerId: 'offer_PiYlFyG1gAU0nr',
           addons: [
             {
               item: {
@@ -71,14 +62,13 @@ const PricingPage = () => {
             user_id: session.user.id,
             user_email: session.user.email
           }
-        })
+        }
       });
 
-      const data = await response.json();
-      console.log('Razorpay API response:', data);
+      console.log('Edge Function response:', data);
 
-      if (!response.ok) {
-        throw new Error(data.error?.description || 'Failed to create subscription');
+      if (error) {
+        throw new Error(error.message || 'Failed to create subscription');
       }
 
       // Load Razorpay SDK
