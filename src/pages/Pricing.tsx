@@ -55,7 +55,7 @@ const PricingPage = () => {
             {
               item: {
                 name: "Subscription Fee",
-                amount: 100,
+                amount: 99900, // 999 INR in paise
                 currency: "INR"
               }
             }
