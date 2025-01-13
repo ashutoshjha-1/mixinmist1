@@ -1,34 +1,42 @@
-import { Navbar } from "@/components/Navbar";
+import Navbar from "@/components/Navbar";
 import { StoreFooter } from "@/components/store/StoreFooter";
 
 export default function ShippingPolicy() {
   return (
-    <div className="min-h-screen flex flex-col">
+    <div>
       <Navbar />
-      <main className="flex-1 container mx-auto px-4 py-8 max-w-4xl">
-        <h1 className="text-3xl font-bold mb-6">Shipping Policy</h1>
-        <div className="prose prose-slate max-w-none">
-          <h2 className="text-xl font-semibold mb-4">MixinMist Shipping Policy</h2>
-          <p className="mb-4">
-            At MixinMist, a brand under Ayurvedology Healthtech Private Limited, we strive to provide efficient and reliable shipping services to our valued customers.
-          </p>
-          
-          <h3 className="text-lg font-semibold mb-2">Shipping Times</h3>
-          <ul className="list-disc pl-6 mb-4">
-            <li>Standard Delivery: 3-5 business days</li>
-            <li>Express Delivery: 1-2 business days (where available)</li>
-          </ul>
-
-          <h3 className="text-lg font-semibold mb-2">Shipping Costs</h3>
-          <p className="mb-4">
-            Shipping costs are calculated based on your location and the weight of the items in your order. The exact shipping cost will be displayed at checkout before payment.
-          </p>
-
-          <p className="text-sm text-gray-600 mt-8">
-            For any shipping-related queries, please contact us at info@ayurvedology.com
-          </p>
-        </div>
-      </main>
+      <h1 className="text-2xl font-bold">Shipping Policy</h1>
+      <p>
+        Thank you for visiting and shopping at our store. The following
+        information outlines our shipping policies.
+      </p>
+      <h2 className="text-xl font-semibold">Shipping Rates</h2>
+      <p>
+        We offer a flat rate shipping fee of $5.00 for all orders within the
+        continental United States. Orders over $50 qualify for free shipping.
+      </p>
+      <h2 className="text-xl font-semibold">Delivery Time</h2>
+      <p>
+        Orders are processed within 2-3 business days. Delivery times may vary
+        based on your location, but typically range from 5-7 business days.
+      </p>
+      <h2 className="text-xl font-semibold">International Shipping</h2>
+      <p>
+        We currently do not offer international shipping. We apologize for any
+        inconvenience this may cause.
+      </p>
+      <h2 className="text-xl font-semibold">Order Tracking</h2>
+      <p>
+        Once your order has shipped, you will receive a confirmation email
+        with a tracking number. You can use this number to track your order
+        online.
+      </p>
+      <h2 className="text-xl font-semibold">Lost or Stolen Packages</h2>
+      <p>
+        We are not responsible for lost or stolen packages. If your tracking
+        information shows that your package was delivered but you did not
+        receive it, please contact your local post office for assistance.
+      </p>
       <StoreFooter />
     </div>
   );

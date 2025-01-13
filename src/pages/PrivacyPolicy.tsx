@@ -1,37 +1,34 @@
-import { Navbar } from "@/components/Navbar";
+import Navbar from "@/components/Navbar";
 import { StoreFooter } from "@/components/store/StoreFooter";
 
 export default function PrivacyPolicy() {
   return (
-    <div className="min-h-screen flex flex-col">
+    <div>
       <Navbar />
-      <main className="flex-1 container mx-auto px-4 py-8 max-w-4xl">
-        <h1 className="text-3xl font-bold mb-6">Privacy Policy</h1>
-        <div className="prose prose-slate max-w-none">
-          <h2 className="text-xl font-semibold mb-4">MixinMist Privacy Policy</h2>
-          <p className="mb-4">
-            Ayurvedology Healthtech Private Limited ("we," "our," or "us"), operating under the brand name MixinMist, is committed to protecting your privacy.
-          </p>
-
-          <h3 className="text-lg font-semibold mb-2">Information We Collect</h3>
-          <ul className="list-disc pl-6 mb-4">
-            <li>Personal information (name, email, address)</li>
-            <li>Order history and preferences</li>
-            <li>Device and usage information</li>
-          </ul>
-
-          <h3 className="text-lg font-semibold mb-2">How We Use Your Information</h3>
-          <ul className="list-disc pl-6 mb-4">
-            <li>Process your orders and provide customer support</li>
-            <li>Send important updates about our services</li>
-            <li>Improve our products and services</li>
-          </ul>
-
-          <p className="text-sm text-gray-600 mt-8">
-            For privacy-related inquiries, please contact us at info@ayurvedology.com
-          </p>
-        </div>
-      </main>
+      <h1 className="text-3xl font-bold">Privacy Policy</h1>
+      <p>
+        This is the privacy policy for our application. We value your privacy and are committed to protecting your personal information.
+      </p>
+      <h2 className="text-2xl font-semibold">Information We Collect</h2>
+      <p>
+        We may collect personal information such as your name, email address, and usage data when you use our services.
+      </p>
+      <h2 className="text-2xl font-semibold">How We Use Your Information</h2>
+      <p>
+        We use your information to provide and improve our services, communicate with you, and comply with legal obligations.
+      </p>
+      <h2 className="text-2xl font-semibold">Data Security</h2>
+      <p>
+        We take reasonable measures to protect your information from unauthorized access, use, or disclosure.
+      </p>
+      <h2 className="text-2xl font-semibold">Your Rights</h2>
+      <p>
+        You have the right to access, correct, or delete your personal information. Please contact us if you wish to exercise these rights.
+      </p>
+      <h2 className="text-2xl font-semibold">Changes to This Policy</h2>
+      <p>
+        We may update this privacy policy from time to time. We will notify you of any changes by posting the new policy on this page.
+      </p>
       <StoreFooter />
     </div>
   );
