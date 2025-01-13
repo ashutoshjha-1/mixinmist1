@@ -14,6 +14,10 @@ import StoreSettings from "@/pages/StoreSettings";
 import MyAccount from "@/pages/MyAccount";
 import CustomerOrders from "@/pages/dashboard/CustomerOrders";
 import Users from "@/pages/Users";
+import ShippingPolicy from "@/pages/ShippingPolicy";
+import PrivacyPolicy from "@/pages/PrivacyPolicy";
+import Terms from "@/pages/Terms";
+import RefundPolicy from "@/pages/RefundPolicy";
 
 function App() {
   return (
@@ -33,6 +37,10 @@ function App() {
         <Route path="/store-settings" element={<StoreSettings />} />
         <Route path="/my-account" element={<MyAccount />} />
         <Route path="/users" element={<Users />} />
+        <Route path="/shipping-policy" element={<ShippingPolicy />} />
+        <Route path="/privacy-policy" element={<PrivacyPolicy />} />
+        <Route path="/terms" element={<Terms />} />
+        <Route path="/refund-policy" element={<RefundPolicy />} />
       </Routes>
       <Toaster />
     </Router>
