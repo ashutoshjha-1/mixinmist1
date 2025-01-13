@@ -55,7 +55,7 @@ const PricingPage = () => {
             {
               item: {
                 name: "Subscription Fee",
-                amount: 99900, // 999 INR in paise
+                amount: 1000, // 10 INR in paise
                 currency: "INR"
               }
             }
@@ -159,7 +159,7 @@ const PricingPage = () => {
               Monthly subscription
             </p>
             <div className="mt-4 flex items-center justify-center text-5xl font-extrabold text-gray-900">
-              <span>₹999</span>
+              <span>₹10</span>
               <span className="ml-3 text-xl font-medium text-gray-500">
                 /month
               </span>
