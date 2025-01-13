@@ -1,12 +1,14 @@
-import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2.31.0";
 import { corsHeaders } from '../_shared/cors.ts'
 
 Deno.serve(async (req) => {
+  // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
     return new Response('ok', { headers: corsHeaders })
   }
 
   try {
+    // Initialize Supabase client with service role key
     const supabaseClient = createClient(
       Deno.env.get('SUPABASE_URL') ?? '',
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? '',
@@ -42,8 +44,12 @@ Deno.serve(async (req) => {
     // Fetch all users
     const { data: { users }, error } = await supabaseClient.auth.admin.listUsers()
     
-    if (error) throw error
+    if (error) {
+      console.error('Error fetching users:', error)
+      throw error
+    }
 
+    console.log('Successfully fetched users')
     return new Response(
       JSON.stringify({ users }),
       {
@@ -52,6 +58,7 @@ Deno.serve(async (req) => {
       },
     )
   } catch (error) {
+    console.error('Error in list-users function:', error)
     return new Response(
       JSON.stringify({ error: error.message }),
       {
