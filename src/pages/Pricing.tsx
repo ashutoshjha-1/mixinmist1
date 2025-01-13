@@ -2,9 +2,9 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { useNavigate } from "react-router-dom";
-import { supabase } from "@/integrations/supabase/client";
 import { Check, Loader2 } from "lucide-react";
 import { loadRazorpay } from "@/utils/razorpay";
+import { supabase } from "@/integrations/supabase/client";
 
 const PricingPage = () => {
   const { toast } = useToast();
@@ -20,7 +20,7 @@ const PricingPage = () => {
     "API Access"
   ];
 
-  const handleSubscribe = async () => {
+  const createSubscription = async () => {
     try {
       setIsLoading(true);
       const { data: { session } } = await supabase.auth.getSession();
@@ -35,31 +35,55 @@ const PricingPage = () => {
         return;
       }
 
+      const currentTimestamp = Math.floor(Date.now() / 1000);
+      const expireTimestamp = currentTimestamp + 1800; // 30 minutes from now
+
+      const response = await fetch('https://api.razorpay.com/v1/subscriptions', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Basic ${btoa(`${import.meta.env.VITE_RAZORPAY_KEY_ID}:${import.meta.env.VITE_RAZORPAY_KEY_SECRET}`)}`,
+        },
+        body: JSON.stringify({
+          plan_id: 'plan_PiWVhnhwqnvGms',
+          total_count: 6,
+          quantity: 1,
+          customer_notify: 1,
+          start_at: currentTimestamp,
+          expire_by: expireTimestamp,
+          offer_id: 'offer_PiYlFyG1gAU0nr',
+          addons: [
+            {
+              item: {
+                name: "Subscription Fee",
+                amount: 100, // 1 INR in paise
+                currency: "INR"
+              }
+            }
+          ],
+          notes: {
+            user_id: session.user.id,
+            user_email: session.user.email
+          }
+        })
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error?.description || 'Failed to create subscription');
+      }
+
       // Load Razorpay SDK
       const razorpay = await loadRazorpay();
       if (!razorpay) {
         throw new Error("Razorpay SDK failed to load");
       }
 
-      // Create subscription
-      const { data, error } = await supabase.functions.invoke('create-razorpay-order', {
-        headers: {
-          Authorization: `Bearer ${session.access_token}`,
-        },
-      });
-
-      if (error) {
-        throw new Error(error.message || "Failed to create subscription");
-      }
-
-      if (!data?.subscription?.short_url) {
-        throw new Error("Invalid subscription response");
-      }
-
       // Open Razorpay checkout
       const options = {
         key: import.meta.env.VITE_RAZORPAY_KEY_ID,
-        subscription_id: data.subscription.id,
+        subscription_id: data.id,
         name: "Your Store Name",
         description: "Professional Plan Subscription",
         handler: function (response: any) {
@@ -143,7 +167,7 @@ const PricingPage = () => {
             </div>
             <div className="mt-6">
               <Button
-                onClick={handleSubscribe}
+                onClick={createSubscription}
                 className="w-full"
                 disabled={isLoading}
               >
