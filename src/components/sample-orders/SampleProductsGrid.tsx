@@ -103,7 +103,7 @@ export const SampleProductsGrid = ({ products }: SampleProductsGridProps) => {
     <>
       <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-6">
         {products?.map((product) => (
-          <div key={product.id} className="bg-white rounded-lg shadow-md overflow-hidden flex flex-col">
+          <div key={product.id} className="bg-white rounded-lg shadow-md overflow-hidden flex flex-col h-full">
             <div className="aspect-square relative">
               <img
                 src={product.image_url}
