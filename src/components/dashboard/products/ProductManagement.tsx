@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { AdminProductDialog } from "@/components/store/AdminProductDialog";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
@@ -21,19 +21,31 @@ export const ProductManagement = ({
   const handleSaveProduct = async (productData: any) => {
     try {
       if (editingProduct) {
-        // If unchecking sample checkbox, delete the sample product
+        // If unchecking sample checkbox, find and delete the sample product
         if (!productData.is_sample && editingProduct.is_sample) {
-          const { error: deleteError } = await supabase
+          // Find the sample product with the same name pattern
+          const { data: sampleProducts, error: findError } = await supabase
             .from("products")
-            .delete()
-            .eq("id", editingProduct.id);
+            .select("id")
+            .ilike("name", `${editingProduct.name.replace(" (Sample)", "")} (Sample)`)
+            .eq("is_sample", true);
 
-          if (deleteError) throw deleteError;
+          if (findError) throw findError;
 
-          toast({
-            title: "Success",
-            description: "Sample product removed successfully",
-          });
+          // Delete the found sample product
+          if (sampleProducts && sampleProducts.length > 0) {
+            const { error: deleteError } = await supabase
+              .from("products")
+              .delete()
+              .eq("id", sampleProducts[0].id);
+
+            if (deleteError) throw deleteError;
+
+            toast({
+              title: "Success",
+              description: "Sample product removed successfully",
+            });
+          }
         }
         // If checking sample checkbox, create a new sample product
         else if (productData.is_sample && !editingProduct.is_sample) {
@@ -54,44 +66,63 @@ export const ProductManagement = ({
             title: "Success",
             description: "Sample product created successfully",
           });
-        } else {
-          // Regular update
-          const { error } = await supabase
-            .from("products")
-            .update({
-              name: productData.name,
-              price: productData.price,
-              description: productData.description,
-              image_url: productData.image_url,
-              is_sample: productData.is_sample,
-            })
-            .eq("id", editingProduct.id);
-
-          if (error) throw error;
-
-          toast({
-            title: "Success",
-            description: "Product updated successfully",
-          });
         }
-      } else {
-        // New product creation
+
+        // Regular update for the original product
         const { error } = await supabase
           .from("products")
-          .insert([{
-            name: productData.is_sample ? `${productData.name} (Sample)` : productData.name,
+          .update({
+            name: productData.name,
             price: productData.price,
             description: productData.description,
             image_url: productData.image_url,
-            is_sample: productData.is_sample,
-          }]);
+          })
+          .eq("id", editingProduct.id);
 
         if (error) throw error;
 
         toast({
           title: "Success",
-          description: productData.is_sample ? "Sample product added successfully" : "Product added successfully",
+          description: "Product updated successfully",
         });
+      } else {
+        // New product creation
+        const { error } = await supabase
+          .from("products")
+          .insert([{
+            name: productData.name,
+            price: productData.price,
+            description: productData.description,
+            image_url: productData.image_url,
+            is_sample: false,
+          }]);
+
+        if (error) throw error;
+
+        // If sample is checked, create an additional sample product
+        if (productData.is_sample) {
+          const { error: sampleError } = await supabase
+            .from("products")
+            .insert([{
+              name: `${productData.name} (Sample)`,
+              price: productData.price,
+              description: productData.description,
+              image_url: productData.image_url,
+              is_sample: true,
+            }]);
+
+          if (sampleError) throw sampleError;
+
+          toast({
+            title: "Success",
+            description: "Product and sample product added successfully",
+          });
+        } else {
+          toast({
+            title: "Success",
+            description: "Product added successfully",
+          });
+        }
       }
 
       setIsAdminDialogOpen(false);
