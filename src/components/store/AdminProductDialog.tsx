@@ -49,13 +49,15 @@ export const AdminProductDialog = ({
   const [isUploading, setIsUploading] = React.useState(false);
   const { toast } = useToast();
 
+  // Update form when product changes
   React.useEffect(() => {
     if (product) {
-      setName(product.name);
-      setPrice(product.price.toString());
+      setName(product.name || "");
+      setPrice(product.price?.toString() || "");
       setDescription(product.description || "");
-      setImageUrl(product.image_url);
-      setIsSample(product.is_sample || false);
+      setImageUrl(product.image_url || "");
+      // Explicitly set isSample based on product.is_sample
+      setIsSample(Boolean(product.is_sample));
     } else {
       setName("");
       setPrice("");
