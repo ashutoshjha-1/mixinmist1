@@ -3,8 +3,8 @@ import { useCustomDomain } from './hooks/use-custom-domain';
 import ProductPage from './pages/ProductPage';
 import Store from './pages/Store';
 import StoreSettings from './pages/StoreSettings';
-import Dashboard from './pages/dashboard/Dashboard';
-import NotFound from './pages/NotFound';
+import Dashboard from './pages/Dashboard';
+import NotFound from './components/NotFound';
 
 export default function App() {
   const { isLoading: isResolvingDomain } = useCustomDomain();
