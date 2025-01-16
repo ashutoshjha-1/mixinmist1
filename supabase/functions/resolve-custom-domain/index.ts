@@ -14,6 +14,18 @@ Deno.serve(async (req) => {
       throw new Error('No host header found')
     }
 
+    // Skip custom domain resolution for localhost
+    if (host.includes('localhost') || host.includes('lovableproject.com')) {
+      console.log('Development environment detected:', host)
+      return new Response(
+        JSON.stringify({ message: 'Development environment - no store resolution needed' }),
+        { 
+          status: 200,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+        }
+      )
+    }
+
     console.log('Resolving custom domain:', host)
 
     // Initialize Supabase client
@@ -41,9 +53,9 @@ Deno.serve(async (req) => {
     if (!storeSettings) {
       console.log('No store found for domain:', host)
       return new Response(
-        JSON.stringify({ error: 'Store not found' }),
+        JSON.stringify({ message: 'Development environment - no store resolution needed' }),
         { 
-          status: 404,
+          status: 200,
           headers: { ...corsHeaders, 'Content-Type': 'application/json' }
         }
       )
