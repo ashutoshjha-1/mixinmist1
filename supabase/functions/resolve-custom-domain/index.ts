@@ -26,12 +26,12 @@ Deno.serve(async (req) => {
 
     const supabase = createClient(supabaseUrl, supabaseKey)
 
-    // Query store settings directly without joining profiles
+    // Query store settings using maybeSingle() to handle no results gracefully
     const { data: storeSettings, error } = await supabase
       .from('store_settings')
       .select('user_id, store_name')
       .eq('custom_domain', host)
-      .single()
+      .maybeSingle()
 
     if (error) {
       throw error
