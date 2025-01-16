@@ -26,16 +26,10 @@ Deno.serve(async (req) => {
 
     const supabase = createClient(supabaseUrl, supabaseKey)
 
-    // Query store settings to find matching custom domain
+    // Query store settings directly without joining profiles
     const { data: storeSettings, error } = await supabase
       .from('store_settings')
-      .select(`
-        store_name,
-        user_id,
-        profiles!store_settings_user_id_fkey (
-          store_name
-        )
-      `)
+      .select('user_id, store_name')
       .eq('custom_domain', host)
       .single()
 
@@ -56,7 +50,7 @@ Deno.serve(async (req) => {
     // Return the store information
     return new Response(
       JSON.stringify({
-        storeName: storeSettings.profiles.store_name,
+        storeName: storeSettings.store_name,
         userId: storeSettings.user_id
       }),
       { 
