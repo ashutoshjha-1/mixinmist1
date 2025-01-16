@@ -28,8 +28,10 @@ export const ProductGrid = ({
 }: ProductGridProps) => {
   if (!products) return null;
 
-  // Filter out sample products by default
-  const filteredProducts = products.filter(product => !product.is_sample);
+  // Filter products based on showSampleProducts flag
+  const filteredProducts = products.filter(product => 
+    showSampleProducts ? product.is_sample : !product.is_sample
+  );
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-6">

@@ -27,7 +27,7 @@ export const ProductManagement = ({
           const { data: sampleProducts, error: findError } = await supabase
             .from("products")
             .select("id")
-            .ilike("name", `${editingProduct.name.replace(" (Sample)", "")} (Sample)`)
+            .eq("name", editingProduct.name)
             .eq("is_sample", true);
 
           if (findError) throw findError;
@@ -53,7 +53,7 @@ export const ProductManagement = ({
           const { error: insertError } = await supabase
             .from("products")
             .insert([{
-              name: `${productData.name} (Sample)`,
+              name: productData.name,
               price: productData.price,
               description: productData.description,
               image_url: productData.image_url,
@@ -104,7 +104,7 @@ export const ProductManagement = ({
           const { error: sampleError } = await supabase
             .from("products")
             .insert([{
-              name: `${productData.name} (Sample)`,
+              name: productData.name,
               price: productData.price,
               description: productData.description,
               image_url: productData.image_url,
