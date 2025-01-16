@@ -34,10 +34,12 @@ Deno.serve(async (req) => {
       .maybeSingle()
 
     if (error) {
+      console.error('Database error:', error)
       throw error
     }
 
     if (!storeSettings) {
+      console.log('No store found for domain:', host)
       return new Response(
         JSON.stringify({ error: 'Store not found' }),
         { 
@@ -46,6 +48,8 @@ Deno.serve(async (req) => {
         }
       )
     }
+
+    console.log('Found store:', storeSettings)
 
     // Return the store information
     return new Response(
