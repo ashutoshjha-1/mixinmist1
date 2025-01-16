@@ -1,4 +1,4 @@
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import { Routes, Route } from "react-router-dom";
 import { useCustomDomain } from './hooks/use-custom-domain';
 import ProductPage from './pages/ProductPage';
 import Store from './pages/Store';
@@ -18,14 +18,12 @@ export default function App() {
   }
 
   return (
-    <Router>
-      <Routes>
-        <Route path="/" element={<Dashboard />} />
-        <Route path="/store/:storename" element={<Store />} />
-        <Route path="/store/:storename/product/:productId" element={<ProductPage />} />
-        <Route path="/store-settings" element={<StoreSettings />} />
-        <Route path="*" element={<NotFound />} />
-      </Routes>
-    </Router>
+    <Routes>
+      <Route path="/" element={<Dashboard />} />
+      <Route path="/store/:storename" element={<Store />} />
+      <Route path="/store/:storename/product/:productId" element={<ProductPage />} />
+      <Route path="/store-settings" element={<StoreSettings />} />
+      <Route path="*" element={<NotFound />} />
+    </Routes>
   );
 }
