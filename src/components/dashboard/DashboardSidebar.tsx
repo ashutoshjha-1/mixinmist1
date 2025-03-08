@@ -8,16 +8,13 @@ import {
   Search,
   PackageSearch,
   Menu,
-  ChevronLeft,
-  Users
+  ChevronLeft
 } from "lucide-react";
 import { useState } from "react";
 import { cn } from "@/lib/utils";
-import { useAdminCheck } from "@/hooks/use-admin-check";
 
 export const DashboardSidebar = () => {
   const [isCollapsed, setIsCollapsed] = useState(false);
-  const { data: isAdmin } = useAdminCheck();
 
   const toggleSidebar = () => {
     setIsCollapsed(!isCollapsed);
@@ -57,24 +54,6 @@ export const DashboardSidebar = () => {
           <LayoutDashboard className="h-5 w-5 flex-shrink-0" />
           {!isCollapsed && <span>Dashboard</span>}
         </NavLink>
-
-        {isAdmin && (
-          <NavLink
-            to="/users"
-            className={({ isActive }) =>
-              cn(
-                "flex items-center space-x-2 p-2 rounded-lg transition-colors",
-                isCollapsed ? "justify-center" : "",
-                isActive
-                  ? "bg-gray-100 text-gray-900"
-                  : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
-              )
-            }
-          >
-            <Users className="h-5 w-5 flex-shrink-0" />
-            {!isCollapsed && <span>Users</span>}
-          </NavLink>
-        )}
 
         <NavLink
           to="/find-products"

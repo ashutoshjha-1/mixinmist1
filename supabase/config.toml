@@ -1,7 +1,14 @@
 project_id = "zevuqoiqmlkudholotmp"
 
-[functions.create-razorpay-order]
+[api]
+enabled = true
+port = 54321
+schemas = ["public", "storage", "graphql_public"]
+
+[[functions]]
+name = "create-checkout"
 verify_jwt = true
 
-[functions.resolve-custom-domain]
-verify_jwt = false
+[[functions]]
+name = "check-subscription"
+verify_jwt = true

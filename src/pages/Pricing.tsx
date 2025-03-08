@@ -1,60 +1,14 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { useNavigate } from "react-router-dom";
-import { Check, Loader2 } from "lucide-react";
-import { loadRazorpay } from "@/utils/razorpay";
 import { supabase } from "@/integrations/supabase/client";
-import { useAdminCheck } from "@/hooks/use-admin-check";
+import { Check, Loader2 } from "lucide-react";
 
 const PricingPage = () => {
   const { toast } = useToast();
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(false);
-  const [checkingAccess, setCheckingAccess] = useState(true);
-  const { data: isAdmin } = useAdminCheck();
-
-  useEffect(() => {
-    const checkAccess = async () => {
-      try {
-        const { data: { session } } = await supabase.auth.getSession();
-        
-        if (!session) {
-          navigate("/signin");
-          return;
-        }
-
-        // If user is admin, redirect to dashboard
-        if (isAdmin) {
-          navigate("/dashboard");
-          return;
-        }
-
-        // Check if user has active subscription
-        const { data, error } = await supabase.functions.invoke('check-subscription', {
-          body: { email: session.user.email },
-        });
-
-        if (error) throw error;
-
-        if (data?.hasActiveSubscription) {
-          navigate("/dashboard");
-          return;
-        }
-
-        setCheckingAccess(false);
-      } catch (error: any) {
-        console.error("Error checking access:", error);
-        toast({
-          variant: "destructive",
-          title: "Error",
-          description: "Failed to check access status",
-        });
-      }
-    };
-
-    checkAccess();
-  }, [navigate, toast, isAdmin]);
 
   const features = [
     "Unlimited Store Products",
@@ -65,7 +19,7 @@ const PricingPage = () => {
     "API Access"
   ];
 
-  const createSubscription = async () => {
+  const handleSubscribe = async () => {
     try {
       setIsLoading(true);
       const { data: { session } } = await supabase.auth.getSession();
@@ -80,74 +34,24 @@ const PricingPage = () => {
         return;
       }
 
-      // Get current timestamp and ensure start_at is current or future
-      const currentTimestamp = Math.floor(Date.now() / 1000);
-      const startAt = currentTimestamp + 60; // Start 1 minute from now
-      const expireTimestamp = startAt + 1800; // 30 minutes from start
+      // Log the attempt to create a checkout session
+      console.log("Creating checkout session for user:", session.user.email);
 
-      console.log('Creating subscription via Edge Function');
-
-      const { data, error } = await supabase.functions.invoke('create-razorpay-subscription', {
-        body: {
-          planId: 'plan_PiWVhnhwqnvGms',
-          totalCount: 6,
-          quantity: 1,
-          customerNotify: 1,
-          startAt: startAt,
-          expireBy: expireTimestamp,
-          offerId: 'offer_PiYlFyG1gAU0nr',
-          addons: [
-            {
-              item: {
-                name: "Subscription Fee",
-                amount: 1000, // 10 INR in paise
-                currency: "INR"
-              }
-            }
-          ],
-          notes: {
-            user_id: session.user.id,
-            user_email: session.user.email
-          }
-        }
+      const { data, error } = await supabase.functions.invoke('create-checkout', {
+        headers: {
+          Authorization: `Bearer ${session.access_token}`,
+        },
       });
 
-      console.log('Edge Function response:', data);
-
       if (error) {
-        throw new Error(error.message || 'Failed to create subscription');
+        throw new Error(error.message || "Failed to create checkout session");
       }
 
-      // Load Razorpay SDK
-      const razorpay = await loadRazorpay();
-      if (!razorpay) {
-        throw new Error("Razorpay SDK failed to load");
+      if (data?.url) {
+        window.location.href = data.url;
+      } else {
+        throw new Error("No checkout URL received");
       }
-
-      // Open Razorpay checkout
-      const options = {
-        key: import.meta.env.VITE_RAZORPAY_KEY_ID,
-        subscription_id: data.id,
-        name: "Your Store Name",
-        description: "Professional Plan Subscription",
-        handler: function (response: any) {
-          console.log("Payment successful:", response);
-          toast({
-            title: "Subscription successful!",
-            description: "Your subscription has been activated.",
-          });
-          navigate("/dashboard");
-        },
-        prefill: {
-          email: session.user.email,
-        },
-        theme: {
-          color: "#4F46E5",
-        },
-      };
-
-      const paymentObject = new razorpay(options);
-      paymentObject.open();
     } catch (error: any) {
       console.error("Subscription error:", error);
       toast({
@@ -160,17 +64,9 @@ const PricingPage = () => {
     }
   };
 
-  if (checkingAccess) {
-    return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <Loader2 className="h-8 w-8 animate-spin" />
-      </div>
-    );
-  }
-
   return (
-    <div className="min-h-screen bg-gray-50 py-20 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-7xl mx-auto">
+    <div className="min-h-screen bg-gray-50 py-20">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center">
           <h2 className="text-3xl font-extrabold text-gray-900 sm:text-4xl">
             Simple, transparent pricing
@@ -212,14 +108,14 @@ const PricingPage = () => {
               Monthly subscription
             </p>
             <div className="mt-4 flex items-center justify-center text-5xl font-extrabold text-gray-900">
-              <span>₹10</span>
+              <span>$29</span>
               <span className="ml-3 text-xl font-medium text-gray-500">
                 /month
               </span>
             </div>
             <div className="mt-6">
               <Button
-                onClick={createSubscription}
+                onClick={handleSubscribe}
                 className="w-full"
                 disabled={isLoading}
               >
@@ -234,7 +130,7 @@ const PricingPage = () => {
               </Button>
             </div>
             <p className="mt-4 text-sm text-gray-500">
-              Secure payment processing by Razorpay
+              Secure payment processing by Stripe
             </p>
           </div>
         </div>

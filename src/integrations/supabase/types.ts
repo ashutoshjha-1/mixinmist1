@@ -243,8 +243,6 @@ export type Database = {
           icon_image_url: string | null
           id: string
           menu_items: Json | null
-          show_carousel: boolean | null
-          show_hero: boolean | null
           show_wave_design: boolean | null
           store_name: string
           theme_color: string | null
@@ -266,8 +264,6 @@ export type Database = {
           icon_image_url?: string | null
           id?: string
           menu_items?: Json | null
-          show_carousel?: boolean | null
-          show_hero?: boolean | null
           show_wave_design?: boolean | null
           store_name: string
           theme_color?: string | null
@@ -289,8 +285,6 @@ export type Database = {
           icon_image_url?: string | null
           id?: string
           menu_items?: Json | null
-          show_carousel?: boolean | null
-          show_hero?: boolean | null
           show_wave_design?: boolean | null
           store_name?: string
           theme_color?: string | null

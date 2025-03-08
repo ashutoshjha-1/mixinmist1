@@ -4,7 +4,6 @@ import {
   AlertDialogContent,
   AlertDialogHeader,
   AlertDialogTitle,
-  AlertDialogDescription,
   AlertDialogFooter,
   AlertDialogCancel,
 } from "@/components/ui/alert-dialog";
@@ -13,7 +12,6 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useToast } from "@/hooks/use-toast";
-import { supabase } from "@/integrations/supabase/client";
 
 interface AdminProductDialogProps {
   isOpen: boolean;
@@ -46,18 +44,15 @@ export const AdminProductDialog = ({
   const [description, setDescription] = React.useState(product?.description || "");
   const [imageUrl, setImageUrl] = React.useState(product?.image_url || "");
   const [isSample, setIsSample] = React.useState(product?.is_sample || false);
-  const [isUploading, setIsUploading] = React.useState(false);
   const { toast } = useToast();
 
-  // Update form when product changes
   React.useEffect(() => {
     if (product) {
-      setName(product.name || "");
-      setPrice(product.price?.toString() || "");
+      setName(product.name);
+      setPrice(product.price.toString());
       setDescription(product.description || "");
-      setImageUrl(product.image_url || "");
-      // Explicitly set isSample based on product.is_sample
-      setIsSample(Boolean(product.is_sample));
+      setImageUrl(product.image_url);
+      setIsSample(product.is_sample || false);
     } else {
       setName("");
       setPrice("");
@@ -66,63 +61,6 @@ export const AdminProductDialog = ({
       setIsSample(false);
     }
   }, [product]);
-
-  const handleImageUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
-    try {
-      const file = event.target.files?.[0];
-      if (!file) return;
-
-      setIsUploading(true);
-
-      // Validate file type
-      if (!file.type.startsWith('image/')) {
-        toast({
-          title: "Invalid file type",
-          description: "Please upload an image file",
-          variant: "destructive",
-        });
-        return;
-      }
-
-      // Validate file size (max 5MB)
-      if (file.size > 5 * 1024 * 1024) {
-        toast({
-          title: "File too large",
-          description: "Please upload an image smaller than 5MB",
-          variant: "destructive",
-        });
-        return;
-      }
-
-      const fileExt = file.name.split('.').pop();
-      const fileName = `${crypto.randomUUID()}.${fileExt}`;
-      const filePath = `lovable-uploads/${fileName}`;
-
-      const { error: uploadError, data } = await supabase.storage
-        .from('carousel-images')
-        .upload(filePath, file);
-
-      if (uploadError) throw uploadError;
-
-      const { data: { publicUrl } } = supabase.storage
-        .from('carousel-images')
-        .getPublicUrl(filePath);
-
-      setImageUrl(publicUrl);
-      toast({
-        title: "Success",
-        description: "Image uploaded successfully",
-      });
-    } catch (error: any) {
-      toast({
-        title: "Error uploading image",
-        description: error.message,
-        variant: "destructive",
-      });
-    } finally {
-      setIsUploading(false);
-    }
-  };
 
   const handleSave = () => {
     const parsedPrice = parseFloat(price);
@@ -160,9 +98,6 @@ export const AdminProductDialog = ({
           <AlertDialogTitle>
             {product ? "Edit Product" : "Add New Product"}
           </AlertDialogTitle>
-          <AlertDialogDescription>
-            Make changes to your product here. Click save when you're done.
-          </AlertDialogDescription>
         </AlertDialogHeader>
         <div className="py-4">
           <div className="space-y-4">
@@ -205,30 +140,14 @@ export const AdminProductDialog = ({
             </div>
             <div>
               <label htmlFor="imageUrl" className="block text-sm font-medium mb-1">
-                Image*
+                Image URL*
               </label>
-              <div className="space-y-2">
-                <Input
-                  type="file"
-                  accept="image/*"
-                  onChange={handleImageUpload}
-                  disabled={isUploading}
-                  className="mb-2"
-                />
-                <Input
-                  id="imageUrl"
-                  value={imageUrl}
-                  onChange={(e) => setImageUrl(e.target.value)}
-                  placeholder="Or enter image URL directly"
-                />
-                {imageUrl && (
-                  <img 
-                    src={imageUrl} 
-                    alt="Product preview" 
-                    className="mt-2 max-w-full h-auto max-h-40 object-contain rounded-md"
-                  />
-                )}
-              </div>
+              <Input
+                id="imageUrl"
+                value={imageUrl}
+                onChange={(e) => setImageUrl(e.target.value)}
+                placeholder="Enter image URL"
+              />
             </div>
             <div className="flex items-center space-x-2">
               <Checkbox
@@ -247,9 +166,7 @@ export const AdminProductDialog = ({
         </div>
         <AlertDialogFooter>
           <AlertDialogCancel onClick={onClose}>Cancel</AlertDialogCancel>
-          <Button onClick={handleSave} disabled={isUploading}>
-            {isUploading ? "Uploading..." : "Save"}
-          </Button>
+          <Button onClick={handleSave}>Save</Button>
         </AlertDialogFooter>
       </AlertDialogContent>
     </AlertDialog>

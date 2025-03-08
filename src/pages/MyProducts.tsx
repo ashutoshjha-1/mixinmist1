@@ -122,17 +122,15 @@ const MyProducts = () => {
               </Button>
             </div>
           ) : (
-            <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-4">
               {myProducts?.map((product) => (
-                <Card key={product.id} className="flex flex-col h-full">
-                  <div className="aspect-square relative">
-                    <img
-                      src={product.image_url}
-                      alt={product.name}
-                      className="w-full h-full object-cover"
-                    />
-                  </div>
-                  <CardContent className="p-4 flex flex-col flex-grow">
+                <Card key={product.id} className="overflow-hidden">
+                  <img
+                    src={product.image_url}
+                    alt={product.name}
+                    className="w-full h-48 object-cover"
+                  />
+                  <CardContent className="p-4">
                     <h3 className="font-semibold text-sm mb-2">{product.name}</h3>
                     <p className="text-primary mb-2">
                       ${product.custom_price.toFixed(2)}
@@ -145,7 +143,7 @@ const MyProducts = () => {
                     </p>
                     <Button
                       variant="destructive"
-                      className="w-full mt-auto"
+                      className="w-full"
                       onClick={() => handleRemoveFromStore(product.id)}
                     >
                       Remove from Store
