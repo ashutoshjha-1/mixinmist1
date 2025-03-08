@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
@@ -56,10 +57,20 @@ export const SampleProductsGrid = ({ products }: SampleProductsGridProps) => {
         return;
       }
 
+      // Add null check for profile
+      if (!profile) {
+        toast({
+          variant: "destructive",
+          title: "Profile Error",
+          description: "Your profile could not be found.",
+        });
+        return;
+      }
+
       setSelectedProduct(product);
       setPrefillData({
         customerName: profile.full_name,
-        customerEmail: user.email,
+        customerEmail: user.email || "",
         storeName: profile.store_name,
       });
       setDialogOpen(true);

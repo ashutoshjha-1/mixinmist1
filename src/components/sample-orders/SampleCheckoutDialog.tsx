@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { useForm } from "react-hook-form";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
@@ -71,6 +72,9 @@ export function SampleCheckoutDialog({
         .single();
 
       if (orderError) throw orderError;
+      
+      // Add a check to ensure orderData is not null
+      if (!orderData) throw new Error("Failed to create order");
 
       // Create the sample order item
       const { error: orderItemError } = await supabase

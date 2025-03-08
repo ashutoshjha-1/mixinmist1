@@ -1,3 +1,4 @@
+
 import React from "react";
 import { useForm } from "react-hook-form";
 import { Button } from "@/components/ui/button";
@@ -67,6 +68,10 @@ export function CheckoutForm({ onSuccess, prefillData }: CheckoutFormProps) {
       if (orderError) {
         console.error("Order error:", orderError);
         throw orderError;
+      }
+
+      if (!order) {
+        throw new Error("Failed to create order");
       }
 
       const orderItems = items.map((item) => ({
