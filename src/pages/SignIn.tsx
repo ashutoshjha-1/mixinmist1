@@ -1,18 +1,39 @@
-import { useState } from "react";
+
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { Mail, Lock } from "lucide-react";
+import { Mail, Lock, AlertTriangle } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
 
 const SignIn = () => {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [connectionError, setConnectionError] = useState(false);
   const { toast } = useToast();
+
+  // Check connection to Supabase on component mount
+  useEffect(() => {
+    const checkConnection = async () => {
+      try {
+        // Simple ping to check if we can connect to Supabase
+        const { error } = await supabase.from('profiles').select('count', { count: 'exact', head: true });
+        if (error && error.message.includes('Failed to fetch')) {
+          console.error('Supabase connection error:', error);
+          setConnectionError(true);
+        }
+      } catch (err) {
+        console.error('Supabase connection check failed:', err);
+        setConnectionError(true);
+      }
+    };
+
+    checkConnection();
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -33,7 +54,12 @@ const SignIn = () => {
 
       if (signInError) {
         console.error("SignIn error:", signInError);
-        setError(signInError.message);
+        if (signInError.message.includes('Failed to fetch')) {
+          setConnectionError(true);
+          setError("Unable to connect to authentication service. Please check your internet connection and try again.");
+        } else {
+          setError(signInError.message);
+        }
         return;
       }
 
@@ -44,7 +70,14 @@ const SignIn = () => {
       navigate("/dashboard");
     } catch (error) {
       console.error("Error in signin process:", error);
-      setError(error instanceof Error ? error.message : "An unexpected error occurred");
+      const errorMessage = error instanceof Error ? error.message : "An unexpected error occurred";
+      
+      if (errorMessage.includes('Failed to fetch')) {
+        setConnectionError(true);
+        setError("Unable to connect to authentication service. Please check your internet connection and try again.");
+      } else {
+        setError(errorMessage);
+      }
     } finally {
       setLoading(false);
     }
@@ -59,7 +92,22 @@ const SignIn = () => {
           </h2>
         </div>
 
-        {error && (
+        {connectionError && (
+          <Alert variant="destructive" className="bg-amber-50 text-amber-800 border-amber-300">
+            <AlertTriangle className="h-5 w-5" />
+            <AlertDescription className="mt-2">
+              Unable to connect to the authentication service. This could be due to:
+              <ul className="list-disc pl-5 mt-2">
+                <li>Network connectivity issues</li>
+                <li>VPN or firewall blocking the connection</li>
+                <li>Temporary service outage</li>
+              </ul>
+              Please check your internet connection and try again.
+            </AlertDescription>
+          </Alert>
+        )}
+
+        {error && !connectionError && (
           <Alert variant="destructive">
             <AlertDescription>{error}</AlertDescription>
           </Alert>
