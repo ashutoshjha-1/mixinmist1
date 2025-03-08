@@ -14,7 +14,6 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Loader2, UserCog } from "lucide-react";
-import { User } from "@supabase/supabase-js";
 
 interface UserProfile {
   id: string;
@@ -22,7 +21,6 @@ interface UserProfile {
   username: string;
   store_name: string;
   role: string;
-  email?: string;
 }
 
 export default function Users() {
@@ -44,35 +42,22 @@ export default function Users() {
 
   const fetchUsers = async () => {
     try {
-      // Fetch profiles
       const { data: profiles, error: profilesError } = await supabase
         .from("profiles")
         .select("*");
 
       if (profilesError) throw profilesError;
 
-      // Fetch roles
       const { data: roles, error: rolesError } = await supabase
         .from("user_roles")
         .select("*");
 
       if (rolesError) throw rolesError;
 
-      // Fetch user emails from auth.users
-      const { data: { users: authUsers }, error: authError } = await supabase.auth.admin.listUsers();
-      
-      if (authError) throw authError;
-
-      // Combine the data
-      const combinedData = profiles.map((profile) => {
-        const userRole = roles.find((role) => role.user_id === profile.id)?.role || "user";
-        const authUser = authUsers?.find((user: User) => user.id === profile.id);
-        return {
-          ...profile,
-          role: userRole,
-          email: authUser?.email
-        };
-      });
+      const combinedData = profiles.map((profile) => ({
+        ...profile,
+        role: roles.find((role) => role.user_id === profile.id)?.role || "user",
+      }));
 
       setUsers(combinedData);
       setLoading(false);
@@ -165,7 +150,6 @@ export default function Users() {
               <TableRow className="hover:bg-transparent">
                 <TableHead className="w-[200px]">Full Name</TableHead>
                 <TableHead className="w-[200px]">Username</TableHead>
-                <TableHead className="w-[200px]">Email</TableHead>
                 <TableHead className="w-[200px]">Store Name</TableHead>
                 <TableHead className="w-[100px]">Role</TableHead>
                 <TableHead className="w-[200px]">Actions</TableHead>
@@ -176,7 +160,6 @@ export default function Users() {
                 <TableRow key={user.id}>
                   <TableCell className="font-medium">{user.full_name}</TableCell>
                   <TableCell>{user.username}</TableCell>
-                  <TableCell>{user.email}</TableCell>
                   <TableCell>{user.store_name}</TableCell>
                   <TableCell className="capitalize">{user.role}</TableCell>
                   <TableCell>

@@ -1,60 +1,15 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { useNavigate } from "react-router-dom";
 import { Check, Loader2 } from "lucide-react";
 import { loadRazorpay } from "@/utils/razorpay";
 import { supabase } from "@/integrations/supabase/client";
-import { useAdminCheck } from "@/hooks/use-admin-check";
 
 const PricingPage = () => {
   const { toast } = useToast();
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(false);
-  const [checkingAccess, setCheckingAccess] = useState(true);
-  const { data: isAdmin } = useAdminCheck();
-
-  useEffect(() => {
-    const checkAccess = async () => {
-      try {
-        const { data: { session } } = await supabase.auth.getSession();
-        
-        if (!session) {
-          navigate("/signin");
-          return;
-        }
-
-        // If user is admin, redirect to dashboard
-        if (isAdmin) {
-          navigate("/dashboard");
-          return;
-        }
-
-        // Check if user has active subscription
-        const { data, error } = await supabase.functions.invoke('check-subscription', {
-          body: { email: session.user.email },
-        });
-
-        if (error) throw error;
-
-        if (data?.hasActiveSubscription) {
-          navigate("/dashboard");
-          return;
-        }
-
-        setCheckingAccess(false);
-      } catch (error: any) {
-        console.error("Error checking access:", error);
-        toast({
-          variant: "destructive",
-          title: "Error",
-          description: "Failed to check access status",
-        });
-      }
-    };
-
-    checkAccess();
-  }, [navigate, toast, isAdmin]);
 
   const features = [
     "Unlimited Store Products",
@@ -159,14 +114,6 @@ const PricingPage = () => {
       setIsLoading(false);
     }
   };
-
-  if (checkingAccess) {
-    return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <Loader2 className="h-8 w-8 animate-spin" />
-      </div>
-    );
-  }
 
   return (
     <div className="min-h-screen bg-gray-50 py-20 px-4 sm:px-6 lg:px-8">
