@@ -1,40 +1,31 @@
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-import { Toaster } from "@/components/ui/toaster";
-import Index from "@/pages/Index";
-import SignIn from "@/pages/SignIn";
-import SignUp from "@/pages/SignUp";
-import Store from "@/pages/Store";
-import Dashboard from "@/pages/Dashboard";
-import MyProducts from "@/pages/MyProducts";
-import FindProducts from "@/pages/FindProducts";
-import SampleOrders from "@/pages/SampleOrders";
-import ProductPage from "@/pages/ProductPage";
-import Pricing from "@/pages/Pricing";
-import StoreSettings from "@/pages/StoreSettings";
-import MyAccount from "@/pages/MyAccount";
-import CustomerOrders from "@/pages/dashboard/CustomerOrders";
+import { useCustomDomain } from './hooks/use-custom-domain';
+import ProductPage from './pages/ProductPage';
+import Store from './pages/Store';
+import StoreSettings from './pages/StoreSettings';
+import Dashboard from './pages/dashboard/Dashboard';
+import NotFound from './pages/NotFound';
 
-function App() {
+export default function App() {
+  const { isLoading: isResolvingDomain } = useCustomDomain();
+
+  if (isResolvingDomain) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-lg">Loading store...</div>
+      </div>
+    );
+  }
+
   return (
     <Router>
       <Routes>
-        <Route path="/" element={<Index />} />
-        <Route path="/signin" element={<SignIn />} />
-        <Route path="/signup" element={<SignUp />} />
+        <Route path="/" element={<Dashboard />} />
         <Route path="/store/:storename" element={<Store />} />
         <Route path="/store/:storename/product/:productId" element={<ProductPage />} />
-        <Route path="/dashboard" element={<Dashboard />} />
-        <Route path="/my-products" element={<MyProducts />} />
-        <Route path="/find-products" element={<FindProducts />} />
-        <Route path="/sample-orders" element={<SampleOrders />} />
-        <Route path="/pricing" element={<Pricing />} />
-        <Route path="/orders" element={<CustomerOrders />} />
         <Route path="/store-settings" element={<StoreSettings />} />
-        <Route path="/my-account" element={<MyAccount />} />
+        <Route path="*" element={<NotFound />} />
       </Routes>
-      <Toaster />
     </Router>
   );
 }
-
-export default App;
