@@ -58,15 +58,15 @@ export default function Users() {
 
       if (rolesError) throw rolesError;
 
-      // Fetch user emails using the Edge Function
-      const { data: authData, error: authError } = await supabase.functions.invoke('list-users');
+      // Fetch user emails from auth.users
+      const { data: { users: authUsers }, error: authError } = await supabase.auth.admin.listUsers();
       
       if (authError) throw authError;
 
       // Combine the data
       const combinedData = profiles.map((profile) => {
         const userRole = roles.find((role) => role.user_id === profile.id)?.role || "user";
-        const authUser = authData.users?.find((user: User) => user.id === profile.id);
+        const authUser = authUsers?.find((user: User) => user.id === profile.id);
         return {
           ...profile,
           role: userRole,

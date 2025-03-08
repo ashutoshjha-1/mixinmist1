@@ -28,23 +28,22 @@ export const ProductGrid = ({
 }: ProductGridProps) => {
   if (!products) return null;
 
-  // Filter products based on showSampleProducts flag
+  // Filter out sample products unless specifically requested
   const filteredProducts = products.filter(product => 
     showSampleProducts ? product.is_sample : !product.is_sample
   );
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-6">
+    <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-4">
       {filteredProducts.map((product) => (
-        <div key={product.id} className="flex flex-col h-full">
-          <ProductCard
-            product={product}
-            onAddToStore={onAddToStore}
-            isAdded={addedProducts.has(product.id)}
-            isAdmin={isAdmin}
-            onEdit={onEdit}
-          />
-        </div>
+        <ProductCard
+          key={product.id}
+          product={product}
+          onAddToStore={onAddToStore}
+          isAdded={addedProducts.has(product.id)}
+          isAdmin={isAdmin}
+          onEdit={onEdit}
+        />
       ))}
     </div>
   );

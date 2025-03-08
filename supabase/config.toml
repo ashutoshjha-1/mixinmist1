@@ -2,6 +2,3 @@ project_id = "zevuqoiqmlkudholotmp"
 
 [functions.create-razorpay-order]
 verify_jwt = true
-
-[functions.resolve-custom-domain]
-verify_jwt = false
